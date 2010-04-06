@@ -1,0 +1,109 @@
+++ Introduction
+
+Doctrine is a product of the work of many people. Not just the people who have coded and documented this software are the only ones responsible for this great framework. Other ORMs in other languages are a major resource for us as we can learn from what they have already done.
+
+> **NOTE**
+> Doctrine has also borrowed pieces of code from other open source projects instead of re-inventing the wheel. Two of the projects borrowed from are [http://www.symfony-project.com symfony] and the [http://framework.zend.com Zend Framework]. The relevant license information can be found in the root of Doctrine when you [http://www.doctrine-project.org download] it in a file named {{LICENSE}}.
+
+++ Architecture
+
+Doctrine is divided into three main packages: CORE, ORM and DBAL. Below is a list of some of the main classes that make up each of the packages.
+
++++ Doctrine CORE
+
+* Doctrine
+* [doc component-overview:manager Doctrine_Manager]
+* [doc component-overview:connection Doctrine_Connection]
+* [doc improving-performance:compile Doctrine_Compiler]
+* [doc exceptions-and-warnings Doctrine_Exception]
+* Doctrine_Formatter
+* Doctrine_Object
+* Doctrine_Null
+* [doc event-listeners Doctrine_Event]
+* Doctrine_Overloadable
+* Doctrine_Configurable
+* [doc event-listeners Doctrine_EventListener]
+
++++ Doctrine DBAL
+
+* [doc component-overview:record:using-expression-values Doctrine_Expression_Driver]
+* [doc database-abstraction-layer:export Doctrine_Export]
+* [doc database-abstraction-layer:import Doctrine_Import]
+* Doctrine_Sequence
+* [doc transactions Doctrine_Transaction]
+* [doc database-abstraction-layer:datadict Doctrine_DataDict]
+
+Doctrine DBAL is also divided into driver packages.
+
++++ Doctrine ORM
+
+* [doc component-overview:record Doctrine_Record]
+* [doc component-overview:table Doctrine_Table]
+* [doc defining-models:relationships Doctrine_Relation]
+* [doc component-overview:record:using-expression-values Doctrine_Expression]
+* [doc dql-doctrine-query-language Doctrine_Query]
+* [doc native-sql Doctrine_RawSql]
+* [doc component-overview:collection Doctrine_Collection]
+* Doctrine_Tokenizer
+
+Other miscellaneous packages.
+
+* [doc data-validation Doctrine_Validator]
+* Doctrine_Hook
+* [doc component-overview:views Doctrine_View]
+
+There are also behaviors for Doctrine:
+
+* [doc behaviors:core-behaviors:geographical :name]
+* [doc behaviors:core-behaviors:i18n :name]
+* [doc behaviors:core-behaviors:nestedset :name]
+* [doc behaviors:core-behaviors:searchable :name]
+* [doc behaviors:core-behaviors:sluggable :name]
+* [doc behaviors:core-behaviors:softdelete :name]
+* [doc behaviors:core-behaviors:timestampable :name]
+* [doc behaviors:core-behaviors:versionable :name]
+
+++ Design Patterns Used
+
+{{GoF (Gang of Four)}} design patterns used:
+
+* [http://www.dofactory.com/Patterns/PatternSingleton.aspx Singleton], for forcing only one instance of {{Doctrine_Manager}}
+* [http://www.dofactory.com/Patterns/PatternComposite.aspx Composite], for leveled configuration
+* [http://www.dofactory.com/Patterns/PatternFactory.aspx Factory], for connection driver loading and many other things
+* [http://www.dofactory.com/Patterns/PatternObserver.aspx Observer], for event listening
+* [http://www.dofactory.com/Patterns/PatternFlyweight.aspx Flyweight], for efficient usage of validators
+* [http://www.dofactory.com/Patterns/PatternFlyweight.aspx Iterator], for iterating through components (Tables, Connections, Records etc.)
+* [http://www.dofactory.com/Patterns/PatternState.aspx State], for state-wise connections
+* [http://www.dofactory.com/Patterns/PatternStrategy.aspx Strategy], for algorithm strategies
+
+Enterprise application design patterns used:
+
+* [http://www.martinfowler.com/eaaCatalog/activeRecord.html Active Record], Doctrine is an implementation of this pattern
+* [http://www.martinfowler.com/eaaCatalog/unitOfWork.html UnitOfWork], for maintaining a list of objects affected in a transaction
+* [http://www.martinfowler.com/eaaCatalog/identityField.html Identity Field], for maintaining the identity between record and database row
+* [http://www.martinfowler.com/eaaCatalog/metadataMapping.html Metadata Mapping], for Doctrine DataDict
+* [http://www.martinfowler.com/eaaCatalog/dependentMapping.html Dependent Mapping], for mapping in general, since all records extend {{Doctrine_Record}} which performs all mappings
+* [http://www.martinfowler.com/eaaCatalog/foreignKeyMapping.html Foreign Key Mapping], for one-to-one, one-to-many and many-to-one relationships
+* [http://www.martinfowler.com/eaaCatalog/associationTableMapping.html Association Table Mapping], for association table mapping (most commonly many-to-many relationships)
+* [http://www.martinfowler.com/eaaCatalog/lazyLoad.html Lazy Load], for lazy loading of objects and object properties
+* [http://www.martinfowler.com/eaaCatalog/queryObject.html Query Object], DQL API is actually an extension to the basic idea of Query Object pattern
+
+++ Speed
+
+* **Lazy initialization** - For collection elements
+* **Subselect fetching** - Doctrine knows how to fetch collections efficiently using a subselect.
+* **Executing SQL statements later, when needed** : The connection never issues an INSERT or UPDATE until it is actually needed. So if an exception occurs and you need to abort the transaction, some statements will never actually be issued. Furthermore, this keeps lock times in the database as short as possible (from the late UPDATE to the transaction end).
+* **Join fetching** - Doctrine knows how to fetch complex object graphs using joins and subselects
+* **Multiple collection fetching strategies** - Doctrine has multiple collection fetching strategies for performance tuning.
+* **Dynamic mixing of fetching strategies** - Fetching strategies can be mixed and for example users can be fetched in a batch collection while users' phonenumbers are loaded in offset collection using only one query.
+* **Driver specific optimizations** - Doctrine knows things like bulk-insert on mysql.
+* **Transactional single-shot delete** - Doctrine knows how to gather all the primary keys of the pending objects in delete list and performs only one sql delete statement per table.
+* **Updating only the modified columns.** - Doctrine always knows which columns have been changed.
+* **Never inserting/updating unmodified objects.** - Doctrine knows if the the state of the record has changed.
+* **PDO for database abstraction** - PDO is by far the fastest availible database abstraction layer for php.
+
+++ Conclusion
+
+This chapter should have given you a complete birds eye view of all the components of Doctrine and how they are organized. Up until now you have seen them all used a part from each other but the separate lists of the three main packages should have made things very clear for you if it was not already.
+
+Now we are ready to move on and learn about how to deal with Doctrine throwing exceptions in the [doc exceptions-and-warnings :name] chapter.

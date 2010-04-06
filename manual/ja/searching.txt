@@ -1,0 +1,429 @@
+++ はじめに
+
+検索は巨大なトピックなので、この章全体では{{Searchable}}と呼ばれるビヘイビアを専門に扱います。これは全文インデックス作成と検索ツールでデータベースとファイルの両方で使うことができます。
+
+次の定義を持つ{{NewsItem}}クラスを考えてみましょう:
+
+<code type="php">
+// models/NewsItem.php
+
+class NewsItem extends Doctrine_Record
+{
+    public function setTableDefinition()
+    {
+        $this->hasColumn('title', 'string', 255);
+        $this->hasColumn('body', 'clob');
+    }
+}
+</code>
+
+YAMLフォーマットでの例は次の通りです。[doc yaml-schema-files :name]の章でYAMLの詳細を読むことができます:
+
+<code type="yaml">
+# schema.yml
+
+# ...
+NewsItem:
+  columns:
+    title: string(255)
+    body: clob
+</code>
+
+ユーザーが異なるニュースの項目を検索できるアプリケーションを考えてみましょう。これを実装する明らかな方法はフォームを構築し投稿された値に基づいて次のようなDQLクエリを構築することです:
+
+<code type="php">
+// test.php
+
+// ...
+$q = Doctrine_Query::create()
+    ->from('NewsItem i')
+    ->where('n.title LIKE ? OR n.content LIKE ?');
+</code>
+
+アプリケーションが成長するにつれてこの種のクエリはとても遅くなります。例えば{{%framework%}}パラメータで以前のクエリを使うとき、({{framework}}という単語を含むタイトルもしくは内容を持つすべてのニュースの項目を見つけることと同等です)データベースはテーブルのそれぞれの列をトラバースしなければなりません。当然ながらこれは非常に遅くなります。
+
+Doctrineはこの問題を検索コンポーネントとインバースインデックスで解決します。最初に定義を少し変えてみましょう:
+
+<code type="php">
+// models/NewsItem.php
+
+class NewsItem extends Doctrine_Record
+{
+    // ...
+
+    public function setUp()
+    {
+        $this->actAs('Searchable', array(
+                'fields' => array('title', 'content')
+            )
+        );
+    }
+}
+</code>
+
+YAMLフォーマットでの例は次の通りです。[doc yaml-schema-files :name]の章でYAMLの詳細を読むことができます:
+
+<code type="yaml">
+# schema.yml
+
+# ...
+NewsItem:
+  actAs:
+    Searchable:
+      fields: [title, content]
+# ...
+</code>
+
+上記のモデルで生成されたSQLをチェックしてみましょう:
+
+<code type="php">
+// test.php
+
+// ...
+$sql = Doctrine_Core::generateSqlFromArray(array('NewsItem'));
+echo $sql[0] . "\n";
+echo $sql[1] . "\n";
+echo $sql[2];
+</code>
+
+上記のコードは次のSQLクエリを出力します:
+
+<code type="sql">
+CREATE TABLE news_item_index (id BIGINT, keyword VARCHAR(200), field VARCHAR(50), position BIGINT, PRIMARY KEY(id, keyword, field, position)) ENGINE = INNODB
+CREATE TABLE news_item (id BIGINT AUTO_INCREMENT, title VARCHAR(255), body LONGTEXT, PRIMARY KEY(id)) ENGINE = INNODB
+ALTER TABLE news_item_index ADD FOREIGN KEY (id) REFERENCES news_item(id) ON UPDATE CASCADE ON DELETE CASCADE
+</code>
+
+Here we tell Doctrine that {{NewsItem}}クラスがsearchable(内部ではDoctrineが{{Doctrine_Template_Searchable}}をロードする)として振る舞い{{title}}と{{content}}フィールドは全文検索用のインデックス付きフィールドとしてマークされます。これは{{NewsItem}}が追加もしくは更新されるたびにDoctrineは次のことを行うことを意味します:
+
+1. インバース検索インデックスを更新するもしくは
+2. インバース検索インデックスに新しいエントリを追加する(バッチでインバース検索インデックスを更新するのが効率的であることがあります)
+
+++ インデックス構造
+
+Doctrineが使用するインバースインデックスの構造は次の通りです:
+
+[ (string) keyword] [ (string) field ] [ (integer) position ] [ (mixed) [foreign_keys] ] 
+
+||~ カラム            ||~ 説明                                  ||
+|| {{keyword}}        || 検索できるテキストのキーワード ||
+|| {{field}}          || キーワードが見つかるフィールド            ||
+|| {{position}}       || キーワードが見つかる位置         ||
+|| {{[foreign_keys]}} || インデックスが作成されるレコードの外部キー      ||
+
+{{NewsItem}}の例において{{[foreign_keys]}}は{{NewsItem(id)}}への外部キー参照と{{onDelete => CASCADE}}制約を持つ1つの{{id}}フィールドを格納します。
+
+このテーブルの列のようになりますの例は次のようになります:
+
+||~ キーワード  ||~ フィールド ||~ 位置 ||~ id  ||
+|| {{database}} || {{title}}  || {{3}} || {{1}}||
+
+この例において単語の{{database}}は{{1}}の{{id}}を持つ{{NewsItem}}の{{title}}フィールドの3番目の単語です。
+
+++ インデックスのビルド
+
+検索可能なレコードがデータベースにinsertされるときDoctrineはインデックスビルドのプロシージャを実行します。プロシージャが検索リスナーによって起動されているときこれはバックグラウンドで行われます。このプロシージャのフェーズは次の通りです:
+
+1. {{Doctrine_Search_Analyzer}}基底クラスを使用してテキストを分析する
+2. 分析されたすべてのキーワード用に新しい列をインデックステーブルに挿入する
+
+新しい検索可能なエントリが追加されるときインデックステーブルを更新したくなく、むしろ特定の間隔でインデックステーブルをバッチ更新したい場合があります。直接の更新機能を無効にするにはビヘイビアを添付する際にbatchUpdatesオプションをtrueに設定する必要があります:
+
+<code type="php">
+// models/NewsItem.php
+
+class NewsItem extends Doctrine_Record
+{
+    // ...
+
+    public function setUp()
+    {
+        $this->actAs('Searchable', array(
+                'fields' => array('title', 'content')
+                'batchUpdates' => true
+            )
+        );
+    }
+}
+</code>
+
+YAMLフォーマットでの例は次の通りです。[doc yaml-schema-files :name]の章でYAMLの詳細を読むことができます:
+
+<code type="yaml">
+# schema.yml
+
+# ...
+NewsItem:
+  actAs:
+    Searchable:
+      fields: [title, content]
+      batchUpdates: true
+# ...
+</code>
+
+更新プロシージャの実際のバッチは{{batchUpdateIndex()}}メソッドによって起動します。これは2つのオプション引数: {{limit}}と{{offset}}を受けとります。バッチでインデックス化されるエントリ数を制限するためにlimitが使用できoffsetはインデックス作成を始める最初のエントリを設定するために使用できます。
+
+最初に新しい{{NewsItem}}レコードを挿入してみましょう:
+
+<code type="php">
+// test.php
+
+// ...
+$newsItem = new NewsItem();
+$newsItem->title = 'Test';
+$newsItem->body = 'test';
+$newsItem->save();
+</code>
+
+> **NOTE**
+> バッチ更新を有効にしない場合{{NewsItem}}レコードを挿入もしくは更新するときにインデックスは自動的に更新されます。バッチ更新を有功にする場合次のコードでバッチ更新を実行できます:
+
+<code type="php">
+// test.php
+
+// ...
+$newsItemTable = Doctrine_Core::getTable('NewsItem');
+$newsItemTable->batchUpdateIndex();
+</code>
+
+++ テキストアナライザー
+
+デフォルトではDoctrineはテキスト分析のために{{Doctrine_Search_Analyzer_Standard}}を使用します。このクラスは次のことを実行します:
+
+* 'and'、'if'などのストップワードをはぎとる。よく使われ検索には関係ないのと、インデックスのサイズを適切なものにするため。
+* すべてのキーワードを小文字にする。標準アナライザーはすべてのキーワードを小文字にするので単語を検索するとき'database'と'DataBase'は等しいものとしてみなされる。
+* アルファベットと数字ではないすべての文字はホワイトスペースに置き換える。通常のテキストでは例えば'database.'などアルファベットと数字ではない文字がキーワードに含まれるからである。標準のアナライザーはこれらをはぎとるので'database'は'database.'にマッチします
+* すべてのクォテーション記号を空の文字列に置き換えるので"O'Connor"は"oconnor"にマッチします
+
+{{Doctrine_Search_Analyzer_Interface}}を実装することで独自のアナライザークラスを書くことができます。{{MyAnalyzer}}という名前のアナライザーを作成する例は次の通りです:
+
+<code type="php">
+// models/MyAnalyzer.php
+
+class MyAnalyzer implements Doctrine_Search_Analyzer_Interface
+{
+    public function analyze($text)
+    {
+        $text = trim($text);
+        return $text;
+    }
+}
+</code>
+
+> **NOTE**
+> 検索アナライザーは{{analyze()}}という名前の1つのメソッドを持たなければなりません。このメソッドはインデックス化される入力テキストの修正版を返します。
+
+このアナライザーは検索オブジェクトに次のように適用されます:
+
+<code type="php">
+// test.php
+
+// ...
+$newsItemTable = Doctrine_Core::getTable('NewsItem');
+$search = $newsItemTable
+    ->getTemplate('Doctrine_Template_Searchable')
+    ->getPlugin();
+
+$search->setOption('analyzer', new MyAnalyzer());
+</code>
+
+++ クエリ言語
+
+{{Doctrine_Search}}はApache Luceneに似たクエリ言語を提供します。{{Doctrine_Search_Query}}は人間が読解でき、構築が簡単なクエリ言語を同等の複雑なDQLに変換します。そしてこのDQLは通常のSQLに変換されます。
+
+++ 検索を実行する
+
+次のコードはレコードのidと関連データを読み取るシンプルな例です。
+
+<code type="php">
+// test.php
+
+// ...
+$newsItemTable = Doctrine_Core::getTable('NewsItem');
+
+$results = $newsItemTable->search('test');
+print_r($results);
+</code>
+
+上記のコードは次のクエリを実行します:
+
+<code type="sql">
+SELECT COUNT(keyword) AS relevance, id FROM article_index WHERE id IN (SELECT id FROM article_index WHERE keyword = ?) AND id IN (SELECT id FROM article_index WHERE keyword = ?) GROUP BY id ORDER BY relevance DESC
+</code>
+
+コードの出力は次の通りです:
+
+<code type="php">
+$ php test.php 
+Array
+(
+    [0] => Array
+        (
+            [relevance] => 1
+            [id] => 1
+        )
+
+)
+</code>
+
+実際の{{NewsItem}}オブジェクトを読み取るために別のクエリでこれらの結果を使うことができます:
+
+<code type="php">
+// test.php
+
+// ...
+$ids = array();
+foreach ($results as $result) {
+    $ids[] = $result['id'];
+}
+
+$q = Doctrine_Query::create()
+    ->from('NewsItem i')
+    ->whereIn('i.id', $ids);
+
+$newsItems = $q->execute();
+
+print_r($newsItems->toArray());
+</code>
+
+上記の例は次の出力を生み出します:
+
+<code>
+$ php test.php 
+Array
+(
+    [0] => Array
+        (
+            [id] => 1
+            [title] => Test
+            [body] => test
+        )
+
+)
+</code>
+
+オプションとして検索インデックスを使用して結果を制限するwhere条件サブクエリで修正するために{{search()}}メソッドにクエリオブジェクトを渡すことができます。
+
+<code type="php">
+// test.php
+
+// ...
+$q = Doctrine_Query::create()
+	->from('NewsItem i');
+
+$q = Doctrine_Core::getTable('Article')
+    ->search('test', $q);
+
+echo $q->getSqlQuery();
+</code>
+
+上記の{{getSql()}}の呼び出しは次のSQLクエリを出力します:
+
+<code type="sql">
+SELECT n.id AS n__id, n.title AS n__title, n.body AS n__body FROM news_item n WHERE n.id IN (SELECT id FROM news_item_index WHERE keyword = ? GROUP BY id)
+</code>
+
+クエリを実行して{{NewsItem}}オブジェクトを取得できます:
+
+<code type="php">
+// test.php
+
+// ...
+$newsItems = $q->execute();
+
+print_r($newsItems->toArray());
+</code>
+
+上記の例は次の出力を生み出します:
+
+<code>
+$ php test.php 
+Array
+(
+    [0] => Array
+        (
+            [id] => 1
+            [title] => Test
+            [body] => test
+        )
+
+)
+</code>
+
+++ ファイル検索
+
+前に述べたように{{Doctrine_Search}}はファイル検索にも使うことができます。検索可能なディレクトリを用意したい場合を考えてみましょう。最初に{{Doctrine_Search_File}}のインスタンスを作る必要があります。これは{{Doctrine_Search}}の子クラスでファイル検索に必要な機能を提供します。
+
+<code type="php">
+// test.php
+
+// ...
+$search = new Doctrine_Search_File();
+</code>
+
+2番目に行うことはインデックステーブルを生成することです。デフォルトではDoctrineはデータベースのインデックスクラスを{{FileIndex}}
+と名づけます。
+
+上記のモデルによって生成されたSQLをチェックしてみましょう:
+
+<code type="php">
+// test.php
+
+// ...
+$sql = Doctrine_Core::generateSqlFromArray(array('FileIndex'));
+</code>
+
+上記のコードは次のSQLクエリを出力します:
+
+<code type="sql">
+CREATE TABLE file_index (url VARCHAR(255), keyword VARCHAR(200), field VARCHAR(50), position BIGINT, PRIMARY KEY(url, keyword, field, position)) ENGINE = INNODB
+</code>
+
+{{Doctrine_Core::createTablesFromArray()}}メソッドを使用することでデータベースで実際のテーブルを作ることができます:
+
+<code type="php">
+// test.php
+
+// ...
+Doctrine_Core::createTablesFromArray(array('FileIndex'));
+</code>
+
+ファイルサーチャーを使い始めることができます。この例では{{models}}ディレクトリのインデックスを作りましょう:
+
+<code type="php">
+// test.php
+
+// ...
+$search->indexDirectory('models');
+</code>
+
+{{indexDirectory()}}はディレクトリを再帰的にイテレートしインデックステーブルを更新しながらその範囲のすべてのファイルを分析します。
+
+最後にインデックス化されたファイルの範囲内でテキストのピースの検索を始めることができます:
+
+<code type="php">
+// test.php
+
+// ...
+$results = $search->search('hasColumn');
+print_r($results);
+</code>
+
+上記の例は次の出力を生み出します:
+
+<code>
+$ php test.php 
+Array
+(
+    [0] => Array
+        (
+            [relevance] => 2
+            [url] => models/generated/BaseNewsItem.php
+        )
+
+)
+</code>
+
+++ まとめ
+
+{{Searchable}}ビヘイビアのすべてを学んだので[doc hierarchical-data :name]の章で{{NestedSet}}ビヘイビアの詳細を学ぶ準備ができています。{{NestedSet}}は{{Searchable}}ビヘイビアのように大きなトピックなので1つの章全体で扱います。

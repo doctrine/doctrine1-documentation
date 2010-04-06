@@ -1,0 +1,82 @@
+The Doctrine extensions are a way to create reusable Doctrine extensions that can be dropped into any project and enabled. An extension is nothing more than some code that follows the Doctrine standards for code naming, autoloading, etc.
+
+In order to use the extensions you must first configure Doctrine to know the path to where your extensions live:
+
+<code type="php">
+Doctrine_Core::setExtensionsPath('/path/to/extensions');
+</code>
+
+Lets checkout an existing extension from SVN to have a look at it. We'll have a look at the {{Sortable}} extension which bundles a behavior for your models which give you up and down sorting capabilities.
+
+<code>
+$ svn co http://svn.doctrine-project.org/extensions/Sortable/branches/1.2-1.0/ /path/to/extensions/Sortable
+</code>
+
+If you have a look at {{/path/to/extensions/Sortable}} you will see a directory structure that looks like the following:
+
+<code>
+Sortable/
+  lib/
+    Doctrine/
+      Template/
+        Listener/
+          Sortable.php
+        Sortable.php
+  tests/
+    run.php
+    Template/
+      SortableTestCase.php
+</code>
+
+To test that the extension will run on your machine you can run the test suite for the extension. All you need to do is set the {{DOCTRINE_DIR}} environment variable.
+
+<code>
+$ export DOCTRINE_DIR=/path/to/doctrine
+</code>
+
+> **NOTE**
+> The above path to Doctrine must be the path to the main folder, not just the lib folder. In order to run the tests it must have access to the {{tests}} directory included with Doctrine.
+
+It is possible now to run the tests for the {{Sortable}} extension:
+
+<code>
+$ cd /path/to/extensions/Sortable/tests
+$ php run.php
+</code>
+
+You should see the tests output the following showing the tests were successful:
+
+<code>
+Doctrine Unit Tests
+===================
+Doctrine_Template_Sortable_TestCase.............................................passed
+
+Tested: 1 test cases.
+Successes: 26 passes.
+Failures: 0 fails.
+Number of new Failures: 0 
+Number of fixed Failures: 0 
+
+Tests ran in 1 seconds and used 13024.9414062 KB of memory
+</code>
+
+Now if you want to use the extension in your project you will need register the extension with Doctrine and setup the extension autoloading mechanism.
+
+First lets setup the extension autoloading.
+
+<code type="php">
+// bootstrap.php
+
+// ...
+spl_autoload_register(array('Doctrine', 'extensionsAutoload'));
+</code>
+
+Now you can register the extension and the classes inside that extension will be 
+autoloaded.
+
+<code type="php">
+$manager->registerExtension('Sortable');
+</code>
+
+> **NOTE**
+> If you need to register an extension from a different location you can specify  the full path to the extension directory as the second argument to the {{registerExtension()}} method.

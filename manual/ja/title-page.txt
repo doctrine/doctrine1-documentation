@@ -1,0 +1,18 @@
+<h1><?php echo $renderer->getDocItem()->title ?></h1>
+<h2><?php echo $renderer->getDocItem()->subtitle ?></h2>
+<h3>Doctrine <?php echo $renderer->getDocItem()->getApiRelease()->getName() ?></h3>
+
+<?php
+$q = Doctrine_Query::create()
+  ->from('Contributor c')
+  ->where('c.core = 1')
+  ->orderBy('c.active DESC');
+
+$contributors = $q->execute();
+?>
+
+<p>
+  <?php foreach ($contributors as $contributor): ?>
+    <?php echo $contributor->getName() ?><br/>
+  <?php endforeach; ?>
+</p>

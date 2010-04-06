@@ -1,0 +1,1610 @@
+この章はDoctrineを構成するすべてのメインコンポーネントとそれらの連携方法を鳥の目から見ることを目的としています。前の章で既に大半のコンポーネントを検討しましたがこの章ではすべてのコンポーネントとそれらのジョブの理解が進みます。
+
+++ マネージャー
+
+{{Doctrine_Manager}}クラスはSingletonで構成階層のrootでありDoctrineのいくつかの面をコントロールするFacadeです。次のコードでSingletonインスタンスを読み取ることができます。
+
+<code type="php">
+// test.php
+
+// ...
+$manager = Doctrine_Manager::getInstance();
+</code>
+
++++ 接続を読み取る
+
+<code type="php">
+// test.php
+
+// ...
+$connections = $manager->getConnections();
+foreach ($connections as $connection) {
+    echo $connection->getName() . "\n";
+}
+</code>
+
+{{Doctrine_Manager}}はイテレータを実装するので接続をループするために変数$managerをループできます。
+
+<code type="php">
+// test.php
+
+// ...
+foreach ($manager as $connection) {
+    echo $connection->getName() . "\n";
+}
+</code>
+
+++ 接続
+
+{{Doctrine_Connection}}はデータベース用のラッパーです。接続は典型的なPDOのインスタンスですが、Doctrineの設計のおおかげで、PDOが提供する機能を模倣する独自アダプタを設計することが可能です。
+
+{{Doctrine_Connection}}クラスは次のことを対処します:
+
+* PDOから見つからないデータベースのポータビリティ機能(例えばLIMIT/OFFSETのエミュレーション)を処理する
+* {{Doctrine_Table}}オブジェクトの経過を追跡する
+* レコードの経過を追跡する
+* update/insert/deleteする必要のあるレコードの経過を追跡する
+* トランザクションと入れ子構造のトランザクションを処理する
+* INSERT / UPDATE / DELETEオペレーションの場合の実際のデータベースクエリを処理する
+* DQLを使用データベースクエリを行う。DQLは[doc dql-doctrine-query-language :name]の章で学ぶことができる。
+* オプションとしてDoctrine_Validatorを使用してトランザクションをバリデートしてあり得るエラーの全情報を示す
+
++++ 利用できるドライバ
+
+DoctrineはPDOがサポートするデータベース用のすべてのドライバを持ちます。サポートされるデータベースは次の通りです:
+
+* FreeTDS / Microsoft SQL Server / Sybase
+* Firebird/Interbase 6
+* Informix
+* Mysql
+* Oracle
+* Odbc
+* PostgreSQL
+* Sqlite
+
++++ 接続を作成する
+
+<code type="php">
+// bootstrap.php
+
+// ...
+$conn = Doctrine_Manager::connection('mysql://username:password@localhost/test', 'connection 1');
+</code>
+
+> **NOTE**
+> 前の章で既に新しい接続を作成しました。上記のステップをスキップして既に作成した接続を使うことができます。{{Doctrine_Manager::connection()}}メソッドを使用して読み取ることができます。
+
++++ 接続をflushする
+
+新しい{{User}}レコードを作成するときレコードは接続をflushしてその接続に対して保存されていないすべてのオブジェクトを保存します。下記は例です:
+
+<code type="php">
+// test.php
+
+// ...
+$conn = Doctrine_Manager::connection();
+
+$user1 = new User();
+$user1->username = 'Jack';
+
+$user2 = new User();
+$user2->username = 'jwage';
+
+$conn->flush();
+</code>
+
+{{Doctrine_Connection::flush()}}を呼び出せばその接続に対する未保存のレコードインスタンスが保存されます。もちろんオプションとしてそれぞれのレコードごとに{{save()}}を呼び出して同じことができます。
+
+<code type="php">
+// test.php
+
+// ...
+$user1->save();
+$user2->save();
+</code>
+
+++ テーブル
+
+{{Doctrine_Table}}はコンポーネント(レコード)によって指定されるスキーマ情報を保有します。例えば{{Doctrine_Record}}を継承する{{User}}クラスがある場合、それぞれのスキーマ定義の呼び出しは後で使う情報を保有するユニークなテーブルオブジェクトにデリゲートされます。
+
+それぞれの{{Doctrine_Table}}は{{Doctrine_Connection}}によって登録されます。下記に示されるそれぞれのコンポーネント用のテーブルオブジェクトを簡単に取得できます。
+
+例えば、Userクラス用のテーブルオブジェクトを読み取りたい場合を考えます。これは{{User}}を{{Doctrine_Core::getTable()}}メソッドの第一引数として渡すことで可能です。
+
++++ テーブルオブジェクトを取得する
+
+指定するレコードのテーブルオブジェクトを取得するには、{{Doctrine_Record::getTable()}}を呼び出すだけです。
+
+<code type="php">
+// test.php
+
+// ...
+$accountTable = Doctrine_Core::getTable('Account');
+</code>
+
++++ カラム情報を取得する
+
+適切な{{Doctrine_Table}}メソッドを使用することで{{Doctrine_Record}}のカラム定義セットを読み取ることができます。すべてのカラムのすべての情報が必要な場合は次のように行います:
+
+<code type="php">
+// test.php
+
+// ...
+$columns = $accountTable->getColumns();
+
+$columns = $accountTable->getColumns();
+foreach ($columns as $column)
+{
+    print_r($column);
+}
+</code>
+
+上記の例が実行されるときに次の内容が出力されます:
+
+<code>
+$ php test.php 
+Array
+(
+    [type] => integer
+    [length] => 20
+    [autoincrement] => 1
+    [primary] => 1
+)
+Array
+(
+    [type] => string
+    [length] => 255
+)
+Array
+(
+    [type] => decimal
+    [length] => 18
+)
+</code>
+
+ときにこれがやりすぎであることがあります。次の例はカラムの名前を配列として読み取る方法を示しています:
+
+<code type="php">
+// test.php
+
+// ...
+$names = $accountTable->getColumnNames();
+print_r($names);
+</code>
+
+上記の例が実行されるとき次の内容が出力されます:
+
+<code>
+$ php test.php 
+Array
+(
+    [0] => id
+    [1] => name
+    [2] => amount
+)
+</code>
+
++++ リレーションの情報を取得する
+
+次のように{{Doctrine_Table::getRelations()}}を呼び出すことですべての{{Doctrine_Relation}}オブジェクトの配列を取得できます:
+
+<code type="php">
+// test.php
+
+// ...
+$userTable = Doctrine_Core::getTable('User');
+
+$relations = $userTable->getRelations();
+
+foreach ($relations as $name => $relation) {
+    echo $name . ":\n";
+    echo "Local - " . $relation->getLocal() . "\n";
+    echo "Foreign - " . $relation->getForeign() . "\n\n";
+}
+</code>
+
+上記の例が実行されるとき次の内容が出力されます:
+
+<code>
+$ php test.php 
+Email:
+Local - id
+Foreign - user_id
+
+Phonenumbers:
+Local - id
+Foreign - user_id
+
+Groups:
+Local - user_id
+Foreign - group_id
+
+Friends:
+Local - user1
+Foreign - user2
+
+Addresses:
+Local - id
+Foreign - user_id
+
+Threads:
+Local - id
+Foreign - user_id
+</code>
+
+{{Doctrine_Table::getRelation()}}メソッドを使用することで個別のリレーション用の{{Doctrine_Relation}}オブジェクトを取得できます。
+
+<code type="php">
+// test.php
+
+// ...
+$relation = $userTable->getRelation('Phonenumbers');
+
+echo 'Name: ' . $relation['alias'] . "\n";
+echo 'Local - ' . $relation['local'] . "\n";
+echo 'Foreign - ' . $relation['foreign'] . "\n";
+echo 'Relation Class - ' . get_class($relation);
+</code>
+
+上記の例が実行されるとき次の内容が出力されます:
+
+<code>
+$ php test.php
+Name: Phonenumbers
+Local - id
+Foreign - user_id
+Relation Class - Doctrine_Relation_ForeignKey
+</code>
+
+> **NOTE**
+> 上記の例において変数{{$relation}は}配列としてアクセスできる{{Doctrine_Relation_ForeignKey}}のインスタンスを格納していることに注目してください。多くのDoctrineのクラスのように、これが{{ArrayAccess}}を実装するからです。
+
+{{toArray()}}メソッドと{{print_r()}}を使用することでリレーションのすべての情報を検査してデバッグすることができます。
+
+<code type="php">
+// test.php
+
+// ...
+$array  = $relation->toArray();
+print_r($array);
+</code>
+
++++ ファインダーメソッド
+
+{{Doctrine_Table}}は基本的なファインダーメソッドを提供します。これらのファインダーメソッドはとても速く書けるので1つのデータベーステーブルからデータを取得する場合に使われます。いくつかのコンポーネント(データベーステーブル)を使用するクエリが必要な場合 {{Doctrine_Connection::query()}}を使います。
+
+主キーで個別のユーザーを簡単に見つけるには{{find()}}メソッドを使用します:
+
+<code type="php">
+// test.php
+
+// ...
+$user = $userTable->find(2);
+print_r($user->toArray());
+</code>
+
+上記の例が実行されるとき次の内容が出力されます:
+
+<code>
+$ php test.php 
+Array
+(
+    [id] => 2
+    [is_active] => 1
+    [is_super_admin] => 0
+    [first_name] => 
+    [last_name] => 
+    [username] => jwage
+    [password] => 
+    [type] => 
+    [created_at] => 2009-01-21 13:29:12
+    [updated_at] => 2009-01-21 13:29:12
+)
+</code>
+
+データベースのすべての{{User}}レコードのコレクションを読み取るために{{findAll()}}メソッドを使うこともできます:
+
+<code type="php">
+// test.php
+
+// ...
+foreach ($userTable->findAll() as $user) {
+    echo $user->username . "\n";
+}
+</code>
+
+上記の例が実行されるとき次の内容が出力されます:
+
+<code>
+$ php test.php 
+Jack
+jwage
+</code>
+
+> **CAUTION**
+> {{findAll()}}メソッドは推奨されません。このメソッドがデータベースのすべてのレコードを返しリレーションから情報を読み取る場合高いクエリカウントを引き起こしながらそのデータを遅延ロードするからです。[doc dql-doctrine-query-language :name]の章を読めばレコードと関連レコードを効率的に読み取る方法を学べます。
+
+{{findByDql()}}メソッドを使用して DQLでレコードのセットを読み取ることもできます:
+
+<code type="php">
+// test.php
+
+// ...
+$users = $userTable->findByDql('username LIKE ?', '%jw%');
+
+foreach($users as $user) {
+    echo $user->username . "\n";
+}
+</code>
+
+上記の例が実行されるときに次の内容が出力されます:
+
+<code>
+$ php test.php 
+jwage
+</code>
+
+Doctrineは追加のマジックファインダーメソッドも提供します。この内容はDQLの章の[doc dql-doctrine-query-language:magic-finders :name]セクションで読むことができます。
+
+> **NOTE**
+> {{Doctrine_Table}}によって提供される下記のすべてのファインダーメソッドはクエリを実行するために{{Doctrine_Query}}のインスタンスを使用します。オブジェクトは内部で動的に構築され実行されます。
+>
+>リレーションを通して複数のオブジェクトにアクセスするときは{{Doctrine_Query}}インスタンスを使用することが多いに推奨されます。そうでなければデータが遅延ロードされるので高いクエリカウントを得ることになります。[doc dql-doctrine-query-language :name]の章で詳細を学ぶことができます。
+
+++++ カスタムのテーブルクラス
+
+カスタムのテーブルクラスを追加するのはとても楽です。行う必要のあるのはクラスを[componentName]Tableとして名付けこれらに{{Doctrine_Table}}を継承させます。{{User}}モデルに関して次のようなクラスを作ることになります:
+
+<code type="php">
+// models/UserTable.php
+
+class UserTable extends Doctrine_Table
+{
+}
+</code>
+
++++ カスタムのファインダー
+
+カスタムのテーブルオブジェクトにカスタムのファインダーメソッドを追加できます。これらのファインダーメソッドは速い{{Doctrine_Table}}ファインダーメソッドもしくは[doc dql-doctrine-query-language DQL API] ({{Doctrine_Query::create()}})を使用できます。
+
+<code type="php">
+// models/UserTable.php
+
+class UserTable extends Doctrine_Table
+{
+    public function findByName($name)
+    {
+        return Doctrine_Query::create()
+            ->from('User u')
+            ->where('u.name LIKE ?', "%$name%")
+            ->execute();
+    }
+}
+</code>
+
+Doctrineは{{getTable()}}を呼び出すときに{{Doctrine_Table}}の子クラスである{{UserTable}}が存在するかチェックしそうである場合、デフォルトの{{Doctrine_Table}}の代わりにそのクラスのインスタンスを返します。
+
+> **NOTE**
+> カスタムの{{Doctrine_Table}}クラスをロードするには、下記のように{{bootstrap.php}}ファイルで{{autoload_table_classes}}属性を有効にしなければなりません。
+
+<code type="php">
+// boostrap.php
+
+// ...
+$manager->setAttribute(Doctrine_Core::ATTR_AUTOLOAD_TABLE_CLASSES, true);
+</code>
+
+これで{{User}}テーブルオブジェクトに問い合わせるとき次の内容が得られます:
+
+<code type="php">
+$userTable = Doctrine_Core::getTable('User');
+
+echo get_class($userTable); // UserTable
+
+$users = $userTable->findByName("Jack");
+</code>
+
+> **NOTE**
+> {{findByName()}}メソッドを追加する上記の例はマジックファインダーメソッドによって自動的に利用可能になります。DQLの章の[doc dql-doctrine-query-language:magic-finders :name]セクションで読むことができます。
+
+++ レコード
+
+Doctrineは{{Doctrine_Record}}子クラスを用いてRDBMSのテーブルを表します。これらのクラスはスキーマ情報、お婦四、属性などを定義する場所です。これらの子クラスのインスタンスはデータベースのレコードを表しこれらのオブジェクトでプロパティの取得と設定ができます。
+
++++ プロパティ
+
+{{Doctrine_Record}}のそれぞれ割り当てられたカラムプロパティはデータベースのテーブルカラムを表します。[doc defining-models :name]の章でモデルの定義方法の詳細を学ぶことになります。
+
+カラムへのアクセスは簡単です:
+
+<code type="php">
+// test.php
+
+// ...
+$userTable = Doctrine_Core::getTable('User');
+
+$user = $userTable->find(1);
+</code>
+
+**オーバーロードを通してプロパティにアクセスする**
+
+<code type="php">
+// test.php
+
+// ...
+echo $user->username;
+</code>
+
+**get()でプロパティにアクセスする**
+
+<code type="php">
+// test.php
+
+// ...
+echo $user->get('username);
+</code>
+
+**ArrayAccessでプロパティにアクセスする**
+
+<code type="php">
+// test.php
+
+// ...
+echo $user['username'];
+</code>
+
+> **TIP**
+> カラムの値にアクセスする推奨方法はArrayAccessを使うことです。これによって必要に応じてレコードと配列取得を切り替えるのが簡単になるからです。
+
+レコードのプロパティのイテレーションは配列のやり方と似ています。{{foreach}}コンストラクトを使用します。{{Doctrine_Record}}は{{IteratorAggregate}}インターフェイスを実装するのでこれは実現可能です。
+
+<code type="php">
+// test.php
+
+// ...
+foreach ($user as $field => $value) {
+    echo $field . ': ' . $value . "\n";
+}
+</code>
+
+配列に関してプロパティの存在のチェックには{{isset()}}を、プロパティをnullに設定するには{{unset()}}が利用できます。
+
+if文で'name'という名前のプロパティが存在するか簡単にチェックできます:
+
+<code type="php">
+// test.php
+
+// ...
+if (isset($user['username'])) {
+
+}
+</code>
+
+nameプロパティの割り当てを解除したい場合PHPの{{unset()}}関数を使うことができます:
+
+<code type="php">
+// test.php
+
+// ...
+unset($user['username']);
+</code>
+
+レコードプロパティ用に値を設定するとき{{Doctrine_Record::getModified()}}を使用して修正されたフィールドと値の配列を取得できます。
+
+<code type="php">
+// test.php
+
+// ...
+$user['username'] = 'Jack Daniels';
+
+print_r($user->getModified());
+</code>
+
+上記のコードが実行されるとき次の内容が出力されます:
+
+<code>
+$ php test.php 
+Array
+(
+    [username] => Jack Daniels
+)
+</code>
+
+{{Doctrine_Record::isModified()}}メソッドを使用してレコードが修正されることをチェックすることもできます:
+
+<code type="php">
+// test.php
+
+// ...
+echo $user->isModified() ? 'Modified':'Not Modified';
+</code>
+
+ときどき任意のレコードのカラムカウントを読み取りたいことがあります。これを行うには{{count()}}関数にレコードを引数として渡します。{{Doctrine_Record}}が{{Countable}}インターフェイスを実装するのでこれは可能です。他には{{count()}}メソッドを呼び出す方法があります。
+
+<code type="php">
+// test.php
+
+// ...
+echo $record->count();
+echo count($record);
+</code>
+
+{{Doctrine_Record}}は任意のレコードの識別子にアクセスするための特別なメソッドを提供します。このメソッドは{{identifier()}}と呼ばれキーが識別子のフィールド名であり、値が、関連プロパティの値である配列を返します。
+
+<code type="php">
+// test.php
+
+// ...
+$user['username'] = 'Jack Daniels';
+$user->save();
+
+print_r($user->identifier()); // array('id' => 1)
+</code>
+
+よくあるのは配列の値を任意のレコードに割り当てることです。これらの値を個別に設定するのはやりずらいと思うかもしれません。しかし悩む必要はありません。{{Doctrine_Record}}は任意の配列もしくはレコードを別のものにマージする方法を提供します。
+
+{{merge()}}メソッドはレコードもしくは配列のプロパティをイテレートしてオブジェクトに値を割り当てます。
+
+<code type="php">
+// test.php
+
+// ...
+$values = array(
+    'username' => 'someone',
+    'age'  => 11,
+);
+
+$user->merge($values);
+
+echo $user->username; // someone
+echo $user->age;  // 11
+</code>
+
+次のように1つのレコードの値を別のものにマージすることもできます:
+
+<code type="php">
+// test.php
+
+// ...
+$user1 = new User();
+$user1->username = 'jwage';
+
+$user2 = new User();
+$user2->merge($user1);
+
+echo $user2->username; // jwage
+</code>
+
+> **NOTE**
+> {{Doctrine_Record}}は{{fromArray()}}メソッドを持ちます。このメソッドは{{merge()}}に理想的なもので{{toArray()}}メソッドとの一貫性を保つためだけに存在します。
+
++++ レコードを更新する
+
+オブジェクトの更新は非常に簡単で、{{Doctrine_Record::save()}}メソッドを呼び出すだけです。他の方法は{{Doctrine_Connection::flush()}}を呼び出す方法でこの場合すべてのオブジェクトが保存されます。flushはsaveメソッドを呼び出すだけよりも重たいオペレーションであることに注意してください。
+
+<code type="php">
+// test.php
+
+// ...
+$userTable = Doctrine_Core::getTable('User');
+
+$user = $userTable->find(2);
+
+if ($user !== false) {
+    $user->username = 'Jack Daniels';
+
+    $user->save();
+}
+</code>
+
+ときどき直接更新を行いたいことがあります。直接の更新においてオブジェクトはデータベースからロードされません。むしろデータベースの状態が直接更新されます。次の例においてすべてのユーザーを更新するためにDQL UPDATE文を使います。
+
+すべてのユーザー名を小文字にするクエリを実行します:
+
+<code type="php">
+// test.php
+
+// ...
+$q = Doctrine_Query::create()
+    ->update('User u')
+    ->set('u.username', 'LOWER(u.name)');
+
+$q->execute();
+</code>
+
+レコードの識別子が既知であればオブジェクトを利用して更新を実行することもできます。{{Doctrine_Record::assignIdentifier()}}メソッドを使うときこれはレコード識別子を設定し状態を変更するので{{Doctrine_Record::save()}}の呼び出しはinsertの代わりにupdateを実行します。
+
+<code type="php">
+// test.php
+
+// ...
+$user = new User();
+$user->assignIdentifer(1);
+$user->username = 'jwage';
+$user->save();
+</code>
+
++++ レコードを置き換える
+
+レコードを置き換えるのはシンプルです。まずは新しいオブジェクトをインスタンス化して保存します。次にデータベースに既に存在する同じ主キーもしくはユニークキーの値で新しいオブジェクトをインスタンス化すればデータベースで新しい列をinsertする代わりに列を置き換え/更新が行われます。下記は例です。
+
+最初に、ユーザー名がユニークインデックスである{{User}}モデルを想像してみましょう。
+
+<code type="php">
+// test.php
+
+// ...
+$user = new User();
+$user->username = 'jwage';
+$user->password = 'changeme';
+$user->save();
+</code>
+
+次のクエリを発行します。
+
+<code type="sql">
+INSERT INTO user (username, password) VALUES (?,?) ('jwage', 'changeme')
+</code>
+
+別の新しいオブジェクトを作り同じユーザー名と異なるパスワードを設定します。
+
+<code type="php">
+// test.php
+
+// ...
+$user = new User();
+$user->username = 'jwage';
+$user->password = 'newpassword';
+$user->replace();
+</code>
+
+次のクエリが発行されます
+
+<code type="sql">
+REPLACE INTO user (id,username,password) VALUES (?,?,?)    (null, 'jwage', 'newpassword')
+</code>
+
+新しいレコードがinsertされる代わりにレコードが置き換え/更新されます。
+
++++ レコードをリフレッシュする
+
+ときにデータベースからのデータでレコードをリフレッシュしたいことがあります。{{Doctrine_Record::refresh()}}を使います。
+
+<code type="php">
+// test.php
+
+// ...
+$user = Doctrine_Core::getTable('User')->find(2);
+$user->username = 'New name';
+</code>
+
+{{Doctrine_Record::refresh()}}メソッドを使う場合データベースからデータが再度選択されインスタンスのプロパティが更新されます。
+
+<code type="php">
+// test.php
+
+// ...
+$user->refresh();
+</code>
+
++++ リレーションをリフレッシュする
+
+{{Doctrine_Record::refresh()}}メソッドは既にロードされたレコードのリレーションをリフレッシュすることもできますが、オリジナルのクエリでこれらを指定する必要があります。
+
+最初に関連{{Groups}}で{{User}}を読み取りましょう:
+
+<code type="php">
+// test.php
+
+// ...
+$q = Doctrine_Query::create()
+    ->from('User u')
+    ->leftJoin('u.Groups')
+    ->where('id = ?');
+
+$user = $q->fetchOne(array(1));
+</code>
+
+関連{{Users}}で{{Group}}を読み取りましょう:
+
+<code type="php">
+// test.php
+
+// ...
+$q = Doctrine_Query::create()
+    ->from('Group g')
+    ->leftJoin('g.Users')
+    ->where('id = ?');
+
+$group = $q->fetchOne(array(1));
+</code>
+
+{{UserGroup}}インスタンスで読み取られた{{User}}と{{Group}}をリンクしましょう:
+
+<code type="php">
+// test.php
+
+// ...
+$userGroup = new UserGroup();
+$userGroup->user_id = $user->id;
+$userGroup->group_id = $group->id;
+$userGroup->save();
+</code>
+
+{{Group}}を{{User}}に追加するだけで{{User}}を{{Group}}にリンクすることもできます。Doctrineは{{UserGroup}}インスタンスの作成を自動的に引き受けます:
+
+<code type="php">
+// test.php
+
+// ...
+$user->Groups[] = $group;
+$user->save()
+</code>
+
+{{Doctrine_Record::refresh(true)}}を呼び出す場合新しく作成された参照をロードするレコードとリレーションがリフレッシュされます:
+
+<code type="php">
+// test.php
+
+// ...
+$user->refresh(true);
+$group->refresh(true);
+</code>
+
+{{Doctrine_Record::refreshRelated()}}を使用してモデルの定義されたすべてのリレーションを遅延リフレッシュすることもできます:
+
+<code type="php">
+// test.php
+
+// ...
+$user = Doctrine_Core::getTable('User')->findOneByName('jon');
+$user->refreshRelated();
+</code>
+
+リレーションを個別に指定してリフレッシュしたい場合リレーションの名前を{{refreshRelated()}}メソッドに渡せばリレーションは遅延ロードされます:
+
+<code type="php">
+// test.php
+
+// ...
+$user->refreshRelated('Phonenumber');
+</code>
+
++++ レコードを削除する
+
+Doctrineでのレコード削除は{{Doctrine_Record::delete()}}、{{Doctrine_Collection::delete()}}と{{Doctrine_Connection::delete()}}メソッドによって処理されます。
+
+<code type="php">
+// test.php
+
+// ...
+$userTable = Doctrine_Core::getTable("User");
+
+$user = $userTable->find(2);
+
+// ユーザーと関連コンポジットオブジェクトすべてを削除する
+if($user !== false) {
+    $user->delete();
+}
+</code>
+
+{{User}}レコードの{{Doctrine_Collection}}がある場合{{delete()}}を呼び出すと{{Doctrine_Record::delete()}}が呼び出されてすべてのレコードがループされます。
+
+<code type="php">
+// test.php
+
+// ...
+$users = $userTable->findAll();
+</code>
+
+{{Doctrine_Collection::delete()}}を呼び出すことですべてのユーザーと関連コンポジットオブジェクトを削除できます。deleteを1つずつ呼び出すことでコレクションのすべての{{Users}}がループされます:
+
+<code type="php">
+// test.php
+
+// ...
+$users->delete();
+</code>
+
++++ 式の値を使う
+
+SQLの式をカラムの値として使う必要のある状況があります。これはポータブルなDQL式をネイティブなSQL式に変換する{{Doctrine_Expression}}を使用することで実現できます。
+
+{{timepoint(datetime)}}と{{name(string)}}のカラムを持つeventという名前のクラスがある場合を考えてみましょう。現在のタイムスタンプによるレコードの保存は次のように実現されます:
+
+<code type="php">
+// test.php
+
+// ...
+$user = new User();
+$user->username = 'jwage';
+$user->updated_at = new Doctrine_Expression('NOW()');
+$user->save();
+</code>
+
+上記のコードは次のSQLクエリを発行します:
+
+<code type="sql">
+INSERT INTO user (username, updated_at_) VALUES ('jwage', NOW())
+</code>
+
+> **TIP**
+> 更新された値を取得するためにオブジェクトで{{Doctrine_Expression}}を使うとき{{refresh()}}を呼び出さなければなりません。
+
+<code type="php">
+// test.php
+
+// ...
+$user->refresh();
+</code>
+
++++ レコードの状態を取得する
+
+それぞれの{{Doctrine_Record}}は状態を持ちます。最初のすべてレコードは一時的もしくは永続的になります。データベースから読み取られたすべてのレコードは永続的に新しく作成されたすべてのレコードは一時的なものと見なされます。{{Doctrine_Record}}がデータベースから読み取られるが唯一ロードされたプロパティが主キーである場合、このレコードはプロキシと呼ばれる状態を持ちます。
+
+一時的もしくは永続的なすべての{{Doctrine_Record}}はcleanもしくはdirtyのどちらかです。{{Doctrine_Record}}はプロパティが変更されていないときはcleanで少なくともプロパティの1つが変更されたときはdirtyです。
+
+レコードはlockedと呼ばれる状態を持つこともできます。まれに起きる循環参照の場合に無限反復を避けるためにDoctrineは現在レコードで操作オペレーションが行われていることを示すこの状態を内部で使用します。
+
+レコードがなり得るすべての異なる状態と手短な説明を含むテーブルは下記の通りです:
+
+||~ 名前            ||~ 説明                                           ||
+|| {{Doctrine_Record::STATE_PROXY}}   || レコードがproxyの状態にある一方で、永続性とすべてではないプロパティがデータベースからロードされる。 ||
+|| {{Doctrine_Record::STATE_TCLEAN}}  || レコードが一時的にcleanである一方で、一時性が変更されプロパティは変更されない。||
+|| {{Doctrine_Record::STATE_TDIRTY}}  || レコードが一時的にdirtyである一方で、一時性とプロパティの一部が変更される。||
+|| {{Doctrine_Record::STATE_DIRTY}}   || レコードがdirtyである一方で永続性とプロパティの一部が変更される。||
+|| {{Doctrine_Record::STATE_CLEAN}}   || レコードがcleanである一方で、永続性は変更されプロパティは変更されない。||
+|| {{Doctrine_Record::STATE_LOCKED}}  || レコードがロックされる。||
+
+{{Doctrine_Record::state()}}メソッドを使用してレコードの状態を簡単に取得できます:
+
+<code type="php">
+// test.php
+
+// ...
+$user = new User();
+
+if ($user->state() == Doctrine_Record::STATE_TDIRTY) {
+    echo 'Record is transient dirty';
+}
+</code>
+
+> **NOTE**
+> 上記のオブジェクトは{{TDIRTY}}です。これがスキーマで指定されたデフォルトの値をいくつか持つからです。デフォルトの値を持たないオブジェクトを使い新しいインスタンスを作成すると{{TCLEAN}}が返されます。
+
+<code type="php">
+// test.php
+
+// ...
+$account = new Account();
+
+if ($account->state() == Doctrine_Record::STATE_TCLEAN) {
+    echo 'Record is transient clean';
+}
+</code>
+
++++ オブジェクトのコピーを取得する
+
+ときにオブジェクトのコピーを手に入れたいことがあります(コピーされたすべてのプロパティを持つオブジェクト)。Doctrineはこのためのシンプルなメソッド: {{Doctrine_Record::copy()}}を提供します。
+
+<code type="php">
+// test.php
+
+// ...
+$copy = $user->copy();
+</code>
+
+{{copy()}}でレコードをコピーすると古いレコードの値を持つ新しいレコード({{TDIRTY}}の状態)が返され、そのレコードのリレーションがコピーされることに注意してください。リレーションもコピーしたくなければ、{{copy(false)}}を使う必要があります。
+
+**リレーション無しのユーザーのコピーを入手する**
+
+<code type="php">
+// test.php
+
+// ...
+$copy = $user->copy(false);
+</code>
+
+PHPの{{clone}}キーワードを使えばこの{{copy()}}メソッドが内部で使用されます:
+
+<code type="php">
+// test.php
+
+// ...
+$copy = clone $user;
+</code>
+
++++ 空白のレコードを保存する
+
+デフォルトでは未修整のレコードで{{save()}}メソッドが呼び出されているときDoctrineは実行しません。レコードが修正されていなくてもレコードを強制的にINSERTしたい状況があります。これはレコードの状態を{{Doctrine_Record::STATE_TDIRTY}}を割り当てることで実現できます。
+
+<code type="php">
+// test.php
+
+// ...
+$user = new User();
+$user->state('TDIRTY');
+$user->save();
+</code>
+
++++ カスタムの値をマッピングする
+
+カスタムの値をレコードにマッピングしたい状況があります。例えば値が外部のリソースに依存しておりこれらの値をデータベースにシリアライズして保存せずに実行時に利用可能にすることだけを行いたい場合があります。これは次のように実現できます:
+
+<code type="php">
+// test.php
+
+// ...
+$user->mapValue('isRegistered', true);
+
+$user->isRegistered; // true
+</code>
+
++++ シリアライズ
+
+ときにレコードオブジェクトをシリアライズしたいことがあります(例えばキャッシュを保存するため):
+
+<code type="php">
+// test.php
+
+// ...
+$string = serialize($user);
+
+$user = unserialize($string);
+</code>
+
++++ 存在をチェックする
+
+レコードがデータベースに存在するか知りたいことがとてもよくあります。任意のレコードがデータベースの列の同等の内容を持つかを確認するために{{exists()}}メソッドを使うことができます:
+
+<code type="php">
+// test.php
+
+// ...
+$record = new User();
+
+echo $record->exists() ? 'Exists':'Does Not Exist'; // Does Not Exist
+
+$record->username = 'someone';
+$record->save();
+
+echo $record->exists() ? 'Exists':'Does Not Exist'; // Exists
+</code>
+
++++ カラム用のコールバック関数
+
+{{Doctrine_Record}}はカラムを呼び出すコールバックを添付する方法を提供します。例えば特定のカラムをトリムしたい場合、次のメソッドを使うことができます:
+
+<code type="php">
+// test.php
+
+// ...
+$record->call('trim', 'username');
+</code>
+
+++ コレクション
+
+{{Doctrine_Collection}}はレコードのコレクションです(Doctrine_Recordを参照)。レコードに関してコレクションは{{Doctrine_Collection::delete()}}と{{Doctrine_Collection::save()}}をそれぞれ使用して削除と保存ができます。
+
+DQL API({{Doctrine_Query}}を参照)もしくはrawSql API({{Doctrine_RawSql}}を参照)のどちらかでデータベースからデータを取得するとき、デフォルトではメソッドは{{Doctrine_Collection}}のインスタンスを返します。
+
+次の例では新しいコレクションを初期化する方法を示しています:
+
+<code type="php">
+// test.php
+
+// ...
+$users = new Doctrine_Collection('User');
+</code>
+
+コレクションにデータを追加します:
+
+<code type="php">
+// test.php
+
+// ...
+$users[0]->username = 'Arnold';
+$users[1]->username = 'Somebody';
+</code>
+
+コレクションの削除と同じように保存もできます:
+
+<code type="php">
+$users->save();
+</code>
+
++++ 要素にアクセスする
+
+{{set()}}と{{get()}}メソッドもしくはArrayAccessインターフェイスで{{Doctrine_Collection}}の要素にアクセスできます。
+
+<code type="php">
+// test.php
+
+// ...
+$userTable = Doctrine_Core::getTable('User');
+$users = $userTable->findAll();
+</code>
+
+**ArrayAccessインターフェイスで要素にアクセスする**
+
+<code type="php">
+// test.php
+
+// ...
+$users[0]->username = "Jack Daniels";
+$users[1]->username = "John Locke";
+</code>
+
+**get()で要素にアクセスする**
+
+<code type="php">
+echo $users->get(1)->username;
+</code>
+
++++ 新しい要素を追加する
+
+存在しないコレクションの単独の要素とこれらの要素(レコード)にアクセスするときDoctrineはこれらを自動的に追加します。
+
+次の例ではデータベースからすべてのユーザー(5人)を取得しコレクションにユーザーの組を追加します。
+
+PHP配列に関してインデックスはゼロから始まります。
+
+<code type="php">
+// test.php
+
+// ...
+$users = $userTable->findAll();
+
+echo count($users); // 5
+
+$users[5]->username = "new user 1";
+$users[6]->username = "new user 2";
+</code>
+
+オプションとして配列インデックスから5と6を省略可能でその場合通常のPHP配列と同じように自動的にインクリメントされます:
+
+<code type="php">
+// test.php
+
+// ...
+$users[]->username = 'new user 3'; // キーは7
+$users[]->username = 'new user 4'; // キーは8
+</code>
+
++++ コレクションのカウントを取得する
+
+{{Doctrine_Collection::count()}}メソッドはコレクションの現在の要素の数を返します。
+
+<code type="php">
+// test.php
+
+// ...
+$users = $userTable->findAll();
+
+echo $users->count();
+</code>
+
+{{Doctrine_Collection}}はCountableインターフェイスを実装するの以前の例に対する妥当な代替方法はcount()メソッドにコレクションを引数として渡すことです。
+
+<code type="php">
+// test.php
+
+// ...
+echo count($users);
+</code>
+
++++ コレクションを保存する
+
+{{Doctrine_Record}}と同じようにコレクションは{{save()}}メソッドを呼び出すことで保存できます。{{save()}}が呼び出されるときDoctrineはすべてのレコードに対して{{save()}}オペレーションを実行しトランザクション全体のプロシージャをラップします。
+
+<code type="php">
+// test.php
+
+// ...
+$users = $userTable->findAll();
+
+$users[0]->username = 'Jack Daniels';
+
+$users[1]->username = 'John Locke';
+
+$users->save();
+</code>
+
++++ コレクションを削除する
+
+Doctrine Recordsとまったく同じように{{delete()}}メソッドを呼び出すだけでDoctrine Collectionsは削除できます。すべてのコレクションに関してDoctrineはsingle-shot-deleteを実行する方法を知っています。これはそれぞれのコレクションに対して1つのデータベースクエリのみが実行されることを意味します。
+
+例えば複数のコレクションがある場合を考えます。ユーザーのコレクションを削除するときDoctrineはトランザクション全体に対して1つのクエリのみを実行します。クエリは次のようになります:
+
+<code type="sql">
+DELETE FROM user WHERE id IN (1,2,3, ... ,N)
+</code>
+
++++ キーのマッピング
+
+ときにコレクションの要素用の通常のインデックス作成をしたくないことがあります。その場合例えば主キーをコレクションとしてマッピングすることが役に立つことがあります。次の例はこれを実現する方法を実演しています。
+
+{{id}}カラムをマッピングします。
+
+<code type="php">
+// test.php
+
+// ....
+$userTable = Doctrine_Core::getTable('User');
+
+$userTable->setAttribute(Doctrine_Core::ATTR_COLL_KEY, 'id');
+</code>
+
+これで{{user}}コレクションは{{id}}カラムの値を要素インデックスとして使用します:
+
+<code type="php">
+// test.php
+
+// ...
+$users = $userTable->findAll();
+
+foreach($users as $id => $user) {
+    echo $id . $user->username;
+}
+</code>
+
+{{name}}カラムをマッピングするとよいでしょう:
+
+<code type="php">
+// test.php
+
+// ...
+$userTable = Doctrine_Core::getTable('User');
+
+$userTable->setAttribute(Doctrine_Core::ATTR_COLL_KEY, 'username');
+</code>
+
+これでユーザーコレクションは{{name}}カラムの値を要素インデックスとして使用します:
+
+<code type="php">
+// test.php
+
+// ...
+$users = $userTable->findAll();
+
+foreach($users as $username => $user) {
+    echo $username . ' - ' . $user->created_at . "\n";
+}
+</code>
+
+> **CAUTION**
+> スキーマで{{username}}カラムがuniqueとして指定された場合のみこれは利用可能であることに注意してください。そうでなければ重複するコレクションのキーのためにデータは適切にハイドレイトされない事態に遭遇することになります。
+
++++ 関連レコードをロードする
+
+Doctrineはすべてのレコード要素用のすべての関連レコードを効率的い読み取る方法を提供します。これは例えばユーザーのコレクションがある場合{{loadRelated()}}メソッドを呼び出すだけですべてのユーザーのすべての電話番号をロードできることを意味します。
+
+しかしながら、大抵の場合関連要素を明示的にロードする必要はなく、むしろ行うべきはDQL APIとJOINを使用して一度にすべてをロードすることを試みることです。
+
+次の例ではユーザー、電話番号とユーザーが所属するグループを読み取るために3つのクエリを使用します。
+
+<code type="php">
+// test.php
+
+// ...
+$q = Doctrine_Query::create()
+    ->from('User u');
+
+$users = $q->execute();
+</code>
+
+すべてのユーザーの電話番号をロードしてみましょう:
+
+<code type="php">
+// test.php
+
+// ...
+$users->loadRelated('Phonenumbers');
+
+foreach($users as $user) {
+    echo $user->Phonenumbers[0]->phonenumber;
+    // ここでは追加のDBクエリは不要
+}
+</code>
+
+{{loadRelated()}}はリレーション、アソシエーションに対しても動作します:
+
+<code type="php">
+// test.php
+
+// ...
+$users->loadRelated('Groups');
+
+foreach($users as $user) {
+    echo $user->Groups[0]->name;
+}
+</code>
+
+下記の例はDQL APIを使用してより効率的にこれを行う方法を示します。
+
+1つのクエリですべてをロードする{{Doctrine_Query}}を書きます:
+
+<code type="php">
+// test.php
+
+// ...
+$q = Doctrine_Query::create()
+    ->from('User u')
+    ->leftJoin('u.Phonenumbers p')
+    ->leftJoin('u.Groups g');
+
+$users = $q->execute();
+</code>
+
+{{Phonenumbers}}と{{Groups}}を使うとき追加のデータベースクエリは必要ありません:
+
+<code type="php">
+// test.php
+
+// ...
+foreach($users as $user) {
+    echo $user->Phonenumbers[0]->phonenumber;
+    echo $user->Groups[0]->name;
+}
+</code>
+
+++ バリデータ
+
+DoctrineのバリデーションはMVCアーキテクチャのモデル部分でビジネスルールを強制する方法です。このバリデーションを永続的なデータ保存が行われる直前に渡される必要のあるゲートウェイとみなすことができます。これらのビジネスルールの定義はレコードレベル、すなわちactive recordモデルクラスにおいて行われます({{Doctrine_Record}}を継承するクラス)。この種のバリデーションを使うために最初に行う必要のあることはこれをグローバルに設定することです。これは{{Doctrine_Manager}}を通して行われます。
+
+<code type="php">
+// bootstrap.php
+
+// ...
+$manager->setAttribute(Doctrine_Core::ATTR_VALIDATE, Doctrine::VALIDATE_ALL);
+</code>
+
+バリデーションを有効にすると、一連のバリデーションが自動的に使えるようになります:
+
+* データ型のバリデーション: カラムに割り当てられるすべての値は正しい型であるかチェックされます。すなわち次のよに指定した場合
+
+レコードのカラムが'integer'型である場合、Doctrineはそのカラムに割り当てられた値がその型であるかをバリデートします。PHPはゆるい型の言語なのでこの種の型バリデーションはできる限りスマートであるように試みます。例えば2は"7"と同じように有効な整数型である一方で"3f"はそうではありません。型バリデーションはすべてのカラムで行われます(すべてのカラム定義は型を必要とするからです)。
+
+* 長さのバリデーション: 名前がほのめかす通り、カラムに割り当てられたすべての値が最大長を越えないことを確認するためにバリデートされます。
+
+次の定数: {{VALIDATE_ALL}}、{{VALIDATE_TYPES}}、{{VALIDATE_LENGTHS}}、{{VALIDATE_CONSTRAINTS}}、{{VALIDATE_NONE}}をビット演算子で結びつけることができます。
+
+例えば長さバリデーション以外のすべてのバリデーションを有効にするには次のように行います:
+
+<code>
+// bootstrap.php
+
+// ...
+$manager->setAttribute(Doctrine_Core::ATTR_VALIDATE, VALIDATE_ALL & ~VALIDATE_LENGTHS);
+</code>
+
+[doc data-validation :name]の章でこのトピックの詳細を読むことができます。
+
++++ さらにバリデーション
+
+型と長さバリデーションは手軽ですが大抵の場合これらだけでは十分ではありません。それゆえDoctrineはデータをより詳しくバリデートするために利用できるメカニズムを提供します。
+
+バリデータはさらにバリデーションを指定するための簡単な手段です。Doctrineは{{email}}、{{country}}、{{ip}}、{{range}}と{{regexp}}バリデータなど頻繁に必要とされるたくさんのバリデータを事前に定義しています。[doc data-validation :name]の章で利用可能なバリデータの全リストが見つかります。{{hasColumn()}}メソッドの4番目の引数を通してどのバリデータをどのカラムに適用するのかを指定できます。これが十分ではなく事前に定義されたバリデータとして利用できない特別なバリデータが必要な場合、3つの選択肢があります:
+
+* 独自のバリデータを書けます。
+* Doctrineの開発者に新しいバリデータのニーズを提案できます。
+* バリデータフックが使えます。
+
+最初の2つのオプションが推奨されます。バリデーションが一般的に利用可能で多くの状況に適用できるからです。このケースにおいて新しいバリデータを実装するのは良い考えです。しかしながら、バリデーションが特別なものでなければDoctrineが提供するフックを使う方がベターです:
+
+* {{validate()}} (レコードがバリデートされるたびに実行される)
+* {{validateOnInsert()}} (レコードが新しくバリデートされるときに実行される)
+* {{validateOnUpdate()}} (レコードが新しくなくバリデートされるときに実行される)
+
+active recordで特殊なバリデーションが必要な場合active recordクラス({{Doctrine_Record}}の子孫)でこれらのメソッドの1つをオーバーライドできます。フィールドをバリデートするためにこれらのメソッドの範囲内でPHPのすべての力を使うことができます。フィールドがバリデーションを渡さないときエラーをレコードのエラーに追加できます。次のコードスニペットはカスタムバリデーションと一緒にバリデータを定義する例を示しています:
+
+<code type="php">
+// models/User.php
+
+class User extends BaseUser
+{
+    protected function validate()
+    {
+        if ($this->username == 'God') {
+            // Blasphemy! Stop that! ;-)
+            // syntax: add(<fieldName>, <error code/identifier>)
+            $errorStack = $this->getErrorStack();
+            $errorStack->add('name', 'You cannot use this username!');
+        }
+    }
+}
+
+// models/Email.php
+
+class Email extends BaseEmail
+{
+    // ...
+
+    public function setTableDefinition()
+    {
+        parent::setTableDefinition();
+
+        // ...
+
+        // 使われる'email'と'unique'バリデータ
+        $this->hasColumn('address','string', 150, array('email', 'unique'));
+    }
+}
+</code>
+
+YAMLフォーマットでの同じ例は次の通りです。[doc yaml-schema-files :name]の章でYAMLの詳細を読むことができます:
+
+<code type="yaml">
+# schema.yml
+
+# ...
+Email:
+  columns:
+    address:
+      type: string(150)
+      email: true
+      unique: true
+</code>
+
++++ ValidもしくはNot Valid
+
+モデルでビジネスルールを指定する方法を理解したので、アプリケーションの残りの部分でこれらのルールを扱う方法を見てみましょう。
+
+++++ 暗黙のバリデーション
+
+({{$record->save()}}の呼び出しを通して)レコードが永続的データとして保存されているときバリデーションの全手続きが実行されます。そのプロセスの間にエラーが起きると{{Doctrine_Validator_Exception}}型のエラーが投げられます。例外を補足して{{Doctrine_Validator_Exception::getInvalidRecords()}}インスタンスメソッドを使用してエラーを解析できます。このメソッドはバリデーションをパスしなかったすべてのレコードへの参照を持つ通常の配列を返します。それぞれのレコードのエラースタックを解析することでそれぞれのレコードのエラーを詳しく調査することができます。レコードのエラースタックは{{Doctrine_Record::getErrorStack()}}インスタンスメソッドで取得できます。それぞれのエラースタックは{{Doctrine_Validator_ErrorStack}}クラスのインスタンスです。エラースタックはエラーを検査するためのインターフェイスを簡単に使う方法を提供します。
+
+++++ 明示的なバリデーション
+
+任意のときに任意のレコードに対してバリデーションを明示的に実行できます。この目的のために{{Doctrine_Record}}は{{Doctrine_Record::isValid()}}インスタンスメソッドを提供します。このメソッドはバリデーションの結果を示す論理型を返します。このメソッドがfalseを返す場合、例外が投げられないこと以外は上記と同じ方法でエラースタックを検査できるので、{{Doctrine_Record::getErrorStack()}}を通したバリデーションがパスしなかったレコードのエラースタックを得られます。
+
+次のコードスニペットは{{Doctrine_Validator_Exception}}によって引き起こされる明示的なバリデーションの処理方法の例です。
+
+<code type="php">
+// test.php
+
+// ...
+$user = new User();
+
+try {
+    $user->username = str_repeat('t', 256);
+    $user->Email->address = "drink@@notvalid..";
+    $user->save();
+} catch(Doctrine_Validator_Exception $e) {
+    $userErrors = $user->getErrorStack();
+    $emailErrors = $user->Email->getErrorStack();
+
+    foreach($userErrors as $fieldName => $errorCodes) {
+        echo $fieldName . " - " . implode(', ', $errorCodes) . "\n";
+    }
+
+    foreach($emailErrors as $fieldName => $errorCodes) {
+        echo $fieldName . " - " . implode(', ', $errorCodes) . "\n";
+    }
+}
+</code>
+
+> **TIP**
+> {{$e->getInvalidRecords()}}を使うことができます。扱っているレコードを知っているときは上記の内容を直接使う方がシンプルです。
+
+アプリケーションで簡単に使えるように読みやすく整形されたエラースタックを読み取ることもできます:
+
+<code type="php">
+// test.php
+
+// ...
+echo $user->getErrorStackAsString();
+</code>
+
+次のようにエラー文字列が出力されます:
+
+<code>
+Validation failed in class User
+
+  1 field had validation error:
+
+    * 1 validator failed on username (length)
+</code>
+
+++ プロファイラー
+
+{{Doctrine_Connection_Profiler}}は{{Doctrine_Connection}}用のイベントリスナーです。これは柔軟なクエリプロファイリングを提供します。SQL文字列に加えクエリプロファイルはクエリを実行するための経過時間を含みます。これによってモデルクラスにデバッグコードを追加せずにクエリのインスペクションの実行が可能になります。
+
+{{Doctrine_Connection_Profiler}}はDoctrine_Connection用のイベントリスナーとして追加されることで有効になります。
+
+<code type="php">
+// test.php
+
+// ...
+$profiler = new Doctrine_Connection_Profiler();
+
+$conn = Doctrine_Manager::connection();
+$conn->setListener($profiler);
+</code>
+
++++ 基本的な使い方
+
+ページの中にはロードが遅いものがあるでしょう。次のコードは接続から完全なプロファイラーレポートを構築する方法を示しています:
+
+<code type="php">
+// test.php
+
+// ...
+$time = 0;
+foreach ($profiler as $event) {
+    $time += $event->getElapsedSecs();
+    echo $event->getName() . " " . sprintf("%f", $event->getElapsedSecs()) . "\n";
+    echo $event->getQuery() . "\n";
+    $params = $event->getParams();
+    if( ! empty($params)) {
+        print_r($params);
+    }
+}
+echo "Total time: " . $time  . "\n";
+</code>
+
+> **TIP**
+> [http://www.symfony-project.com symfony]、[http://framework.zend.com Zend]などのフレームワークはウェブデバッグツールバーを提供します。Doctrineはそれぞれのクエリにかかる時間と同様にすべてのページで実行されるクエリの回数をレポートする機能を提供します。
+
+++ マネージャーをロックする
+
+> **NOTE**
+> 'トランザクション(Transaction)'という用語はデータベースのトランザクションではなく一般的な意味を示します。
+
+ロックは並行処理をコントロールするメカニズムです。最もよく知られるロック戦略は楽観的と悲観的ロックです。次のセクションでこれら2つの戦略の手短な説明を行います。現在Doctrineがサポートしているのは悲観的ロックです。
+
++++ 楽観的ロック
+
+トランザクションが開始するときオブジェクトの状態/バージョンに注目されます。トランザクションが終了するとき注目された状態/バージョンの参与しているオブジェクトが現在の状態/バージョンと比較されます。状態/バージョンが異なる場合オブジェクトは他のトランザクションによって修正され現在のトランザクションは失敗します。このアプローチは'楽観的'(optimistic)と呼ばれます。複数のユーザーが同時に同じオブジェクト上のトランザクションに参加しないことを前提としているからです。
+
++++ 悲観的ロック
+
+トランザクションに参加する必要のあるオブジェクトはユーザーがトランザクションを開始した瞬間にロックされます。ロックが有効な間、他のユーザーがこれらのオブジェクトで作動するトランザクションを始めることはありません。これによってトランザクションを始めるユーザー以外のユーザーが同じオブジェクトを修正しないことが保証されます。
+
+Doctrineの悲観的オフラインロック機能はHTTPリクエストとレスポンスサイクルと/もしくは完了させるためにたくさんの時間がかかるアクションもしくはプロシージャの並行処理をコントロールするために使うことができます。
+
++++ 例
+
+次のコードスニペットはDoctrineの悲観的オフラインロック機能の使い方を実演しています。
+
+ロックがリクエストされたページでロックマネージャーインスタンスを取得します:
+
+<code type="php">
+// test.php
+
+// ...
+$lockingManager = new Doctrine_Locking_Manager_Pessimistic();
+</code>
+
+> **TIP**
+> 300秒 = 5分のタイムアウトをロックしようとする前に、タイムアウトした古いロックを必ず解放してください。これは{{releaseAgedLocks()}}メソッドを使用することで可能です。
+
+<code type="php">
+// test.php
+
+// ...
+$user = Doctrine_Core::getTable('User')->find(1);
+
+try
+{
+    $lockingManager->releaseAgedLocks(300);
+
+    $gotLock = $lockingManager->getLock($user, 'jwage');
+
+    if ($gotLock)
+    {
+        echo "Got lock!";
+    }
+    else
+    {
+        echo "Sorry, someone else is currently working on this record";
+    }
+} catch(Doctrine_Locking_Exception $dle) {
+    echo $dle->getMessage();
+    // handle the error
+}
+</code>
+
+トランザクションが終了するページでロックマネジャーのインスタンスを取得します:
+
+<code type="php">
+// test.php
+
+// ...
+$user = Doctrine_Core::getTable('User')->find(1);
+
+$lockingManager = new Doctrine_Locking_Manager_Pessimistic();
+
+try
+{
+    if ($lockingManager->releaseLock($user, 'jwage'))
+    {
+        echo "Lock released";
+    }
+    else
+    {
+        echo "Record was not locked. No locks released.";
+    }
+}
+catch(Doctrine_Locking_Exception $dle)
+{
+    echo $dle->getMessage();
+    // handle the error
+}
+</code>
+
++++ 技術的な詳細
+
+悲観的オフラインロックマネージャーはロックをデータベースで保存します(それゆえ'オフライン'です)。マネージャーをインスタンス化して{{ATTR_CREATE_TABLES}}がTRUEに設定されているときに必要なロックテーブルは自動的に作成されます。インストール用の集中化と一貫したテーブル作成のプロシージャを提供するために将来この振る舞いが変更される可能性があります。
+
+++ ビュー
+
+データベースビューは複雑なクエリのパフォーマンスを多いに増大できます。これらをキャッシュされたクエリとして見なすことができます。{{Doctrine_View}}はデータベースビューとDQLクエリの統合を提供します。
+
++++ ビューを使う
+
+データベースでビューを使うのは簡単です。{{Doctrine_View}}クラスは既存のビューの作成と削除をする機能を提供します。
+
+{{Doctrine_Query}}によって実行されるSQLを保存することで{{Doctrine_View}}クラスは{{Doctrine_Query}}クラスを統合します。
+
+最初に新しい{{Doctrine_Query}}インスタンスを作成しましょう:
+
+<code type="php">
+// test.php
+
+// ...
+$q = Doctrine_Query::create()
+    ->from('User u')
+    ->leftJoin('u.Phonenumber p')
+    ->limit(20);
+</code>
+
+データベースビューを指定するための{{name}}と同じように{{Doctrine_View}}インスタンスを作成し{{Doctrine_Query}}インスタンスにこれを渡しましょう:
+
+<code type="php">
+// test.php
+
+// ...
+$view  = new Doctrine_View($q, 'RetrieveUsersAndPhonenumbers');
+</code>
+
+{{Doctrine_View::create()}}メソッドを使用してビューを簡単に作成できます:
+
+<code type="php">
+// test.php
+
+// ...
+try {
+    $view->create();
+} catch (Exception $e) {}
+</code>
+
+代わりにデータベースビューを削除したい場合{{Doctrine_View::drop()}}メソッドを使います:
+
+<code type="php">
+// test.php
+
+// ...
+try {
+    $view->drop();
+} catch (Exception $e) {}
+</code>
+
+ビューの使用はとても簡単です。{{Doctrine_Query}}オブジェクトと同じようにビューの実行と結果の取得には{{Doctrine_View::execute()}}を使います:
+
+<code type="php">
+// test.php
+
+// ...
+$users  = $view->execute();
+
+foreach ($users as $user) {
+    print_r($us->toArray());
+}
+</code>
+
+++ まとめ
+
+Doctrineが提供するコア機能の大部分を見てきました。この本の次の章では日常生活を楽にするオプション機能の一部をカバーします。
+
+[doc native-sql 次の章]ではDoctrine Query Languageの代わりに配列とオブジェクトの間でデータをハイドレイトするネイティブなSQLの使い方を学びます。

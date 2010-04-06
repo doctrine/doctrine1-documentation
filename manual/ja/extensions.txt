@@ -1,0 +1,81 @@
+Doctrineエクステンションは任意のプロジェクトに入れて有効にできる再利用可能なDoctrineエクステンションを作成する方法です。エクステンションはコードの命名や、オートロードなどDoctrineの標準に従う単なるコードです。
+
+エクステンションを使うには最初にどこにエクステンションがあるのかDoctrineにわかるように設定しなければなりません:
+
+<code type="php">
+Doctrine_Core::setExtensionsPath('/path/to/extensions');
+</code>
+
+SVNから既存のエクステンションをチェックアウトしてみましょう。ソートの上げ下げを提供するモデルのビヘイビアを搭載する{{Sortable}}エクステンションを見てみましょう。
+
+<code>
+$ svn co http://svn.doctrine-project.org/extensions/Sortable/branches/1.2-1.0/ /path/to/extensions/Sortable
+</code>
+
+{{/path/to/extensions/Sortable}}を見てみると次のようなディレクトリ構造を見ることになります:
+
+<code>
+Sortable/
+  lib/
+    Doctrine/
+      Template/
+        Listener/
+          Sortable.php
+        Sortable.php
+  tests/
+    run.php
+    Template/
+      SortableTestCase.php
+</code>
+
+このエクステンションがあなたのマシンで動くことを確認するためにエクステンションのテストスイートを実行します。必要なのは{{DOCTRINE_DIR}}環境変数をセットすることです。
+
+<code>
+$ export DOCTRINE_DIR=/path/to/doctrine
+</code>
+
+> **NOTE**
+> 上記のDoctrineへのパスはlibフォルダーではなくメインフォルダーへのパスでなければなりません。テストを実行するにはDoctrineを含めた{{tests}}ディレクトリにアクセスできなければなりません。
+
+{{Sortable}}エクステンションのテストを実行することが可能です:
+
+<code>
+$ cd /path/to/extensions/Sortable/tests
+$ php run.php
+</code>
+
+次のようなテストが成功したことを示すテストの出力が表示されます:
+
+<code>
+Doctrine Unit Tests
+===================
+Doctrine_Template_Sortable_TestCase.............................................passed
+
+Tested: 1 test cases.
+Successes: 26 passes.
+Failures: 0 fails.
+Number of new Failures: 0 
+Number of fixed Failures: 0 
+
+Tests ran in 1 seconds and used 13024.9414062 KB of memory
+</code>
+
+プロジェクトでエクステンションを使いたい場合Doctrineでエクステンションを登録しエクステンションのオートロードメカニズムをセットアップする必要があります。
+
+最初にエクステンションのオートロードをセットアップしましょう。
+
+<code type="php">
+// bootstrap.php
+
+// ...
+spl_autoload_register(array('Doctrine', 'extensionsAutoload'));
+</code>
+
+これでエクステンションを登録したのでエクステンション内部のクラスがオートロードされます。
+
+<code type="php">
+$manager->registerExtension('Sortable');
+</code>
+
+> **NOTE**
+> 異なる場所からエクステンションを登録する必要がある場合、{{registerExtension()}}メソッドの2番目の引数でエクステンションディレクトリへのフルパスを指定します。

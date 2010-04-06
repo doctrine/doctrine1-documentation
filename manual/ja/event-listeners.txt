@@ -1,0 +1,649 @@
+++ はじめに
+
+Doctrineは柔軟なイベントリスナーアーキテクチャを提供します。このアークテクチャは異なるイベントのリスニングだけでなくリスニングされるメソッドの実行を変更することも可能にします。
+
+様々なDoctrineコンポーネント用の異なるリスナーとフックがあります。リスナーは個別のクラスであるのに対してフックはリスニングされるクラスの範囲内の空のテンプレートメソッドです。
+
+フックはイベントリスナーよりもシンプルですがこれらは異なるアスペクトの分離が欠けています。{{Doctrine_Record}}フックを使用する例は次の通りです:
+
+<code type="php">
+// models/BlogPost.php
+
+class BlogPost extends Doctrine_Record 
+{
+    // ...
+
+    public function preInsert($event)
+    {
+        $invoker = $event->getInvoker();
+
+        $invoker->created = date('Y-m-d', time());
+    }
+}
+</code>
+
+> **NOTE**
+> これまでたくさんのモデルを定義してきたので、{{BlogModel}}に対して独自の{{setTableDefinition()}}を定義できます。もしくは独自のカスタムモデルを作りましょう！
+
+次のコードで上記のモデルを使うことができます。{{title}}、{{body}}と{{created}}カラムをモデルに追加することを前提とします:
+
+<code type="php">
+// test.php
+
+// ...
+$blog = new BlogPost();
+$blog->title = 'New title';
+$blog->body = 'Some content';
+$blog->save();
+
+echo $blog->created;
+</code>
+
+上記の例はPHPが理解する現在の日付を出力します。
+
+それぞれのリスナーとフックメソッドは {{Doctrine_Event}}オブジェクトを1つのパラメータとして受け取ります。{{Doctrine_Event}}オブジェクトは問題のイベントの情報を格納しリスニングされるメソッドの実行を変更できます。
+
+ドキュメントの目的のために多くのメソッドテーブルは{{params}}という名前のカラムで提供されます。このカラムはパラメータの名前は与えられたイベント上でイベントオブジェクトが保有するパラメータの名前を示します。例えば{{preCreateSavepoint}}イベントは作成された{{savepoint}}の名前を持つ1つのパラメータを持ちます。
+
+++ 接続リスナー    
+
+接続リスナーは{{Doctrine_Connection}}とそのモジュール({{Doctrine_Transaction}}など)のメソッドをリスニングするために使われます。すべてのリスナーメソッドはリスニングされるイベントの情報を格納する{{Doctrine_Event}}オブジェクトを1つの引数として受け取ります。
+
++++ 新しいリスナーを作成する
+
+リスナーを定義する方法は3つあります。最初に{{Doctrine_EventListener}}を継承するクラスを作成することでリスナーを作成できます:
+
+<code type="php">
+class MyListener extends Doctrine_EventListener
+{
+    public function preExec(Doctrine_Event $event)
+    {
+
+    }
+}
+</code>
+
+{{Doctrine_EventListener}}を継承するクラスを定義することで{{Doctrine_EventListener_Interface}}の範囲内ですべてのメソッドを定義する必要はありません。これは{{Doctrine_EventListener}}が既にこれらすべてのメソッド用の空のスケルトンを持つからです。
+
+ときに{{Doctrine_EventListener}}を継承するリスナーを定義できないことがあります(他の基底クラスを継承するリスナーを用意できます)。この場合{{Doctrine_EventListener_Interface}}を実装させることができます。
+
+<code type="php">
+class MyListener implements Doctrine_EventListener_Interface 
+{
+    public function preTransactionCommit(Doctrine_Event $event) {}
+    public function postTransactionCommit(Doctrine_Event $event) {}
+
+    public function preTransactionRollback(Doctrine_Event $event) {}
+    public function postTransactionRollback(Doctrine_Event $event) {}
+
+    public function preTransactionBegin(Doctrine_Event $event) {}
+    public function postTransactionBegin(Doctrine_Event $event) {}
+
+    public function postConnect(Doctrine_Event $event) {}
+    public function preConnect(Doctrine_Event $event) {}
+
+    public function preQuery(Doctrine_Event $event) {}
+    public function postQuery(Doctrine_Event $event) {}
+
+    public function prePrepare(Doctrine_Event $event) {}
+    public function postPrepare(Doctrine_Event $event) {}
+
+    public function preExec(Doctrine_Event $event) {}
+    public function postExec(Doctrine_Event $event) {}
+
+    public function preError(Doctrine_Event $event) {}
+    public function postError(Doctrine_Event $event) {}
+
+    public function preFetch(Doctrine_Event $event) {}
+    public function postFetch(Doctrine_Event $event) {}
+
+    public function preFetchAll(Doctrine_Event $event) {}
+    public function postFetchAll(Doctrine_Event $event) {}
+
+    public function preStmtExecute(Doctrine_Event $event) {}
+    public function postStmtExecute(Doctrine_Event $event) {}
+}
+</code>
+
+> **CAUTION**
+> すべてのリスナーメソッドはここで定義しなければなりません。さもないとPHPは致命的エラーを投げます。
+
+リスナーを作成する3番目の方法はとても優雅です。{{Doctrine_Overloadable}}を実装するクラスを作成します。インターフェイスは1つのメソッド: {{__call()}}のみを持ちます。このメソッドは*すべての*イベントと補足するために使われます。
+
+<code type="php">
+class MyDebugger implements Doctrine_Overloadable
+{
+    public function __call($methodName, $args) 
+    {
+        echo $methodName . ' called !';
+    }
+}
+</code>
+
++++ リスナーを追加する
+
+setListener()でリスナーを接続に追加できます。
+
+<code type="php">
+$conn->setListener(new MyDebugger());
+</code>
+
+複数のリスナーが必要な場合はaddListener()を使います。
+
+<code type="php">
+$conn->addListener(new MyDebugger());
+$conn->addListener(new MyLogger());
+</code>
+
++++ プレ接続とポスト接続
+
+下記のリスナーのすべては{{Doctrine_Connection}}クラスに含まれます。これらすべては{{Doctrine_Event}}のインスタンスです。
+
+||~ メソッド     ||~ リスニング ||~ パラメータ ||
+|| {{preConnect(Doctrine_Event $event)}} || Doctrine_Connection::connection() || ||
+|| {{postConnect(Doctrine_Event $event)}} || Doctrine_Connection::connection() || ||
+
++++ トランザクションリスナー
+
+下記のリスナーのすべては{{Doctrine_Transaction}}クラスに含まれます。これらすべてに{{Doctrine_Event}}のインスタンスが渡されます。
+
+||~ メソッド     ||~ リスニング ||~ パラメータ ||
+|| {{preTransactionBegin()}}     || {{beginTransaction()}} || ||
+|| {{postTransactionBegin()}}    || {{beginTransaction()}} || ||
+|| {{preTransactionRollback()}}  || {{rollback()}} || ||
+|| {{postTransactionRollback()}} || {{rollback()}} || ||
+|| {{preTransactionCommit()}}    || {{commit()}} || ||
+|| {{postTransactionCommit()}}   || {{commit()}} || ||
+|| {{preCreateSavepoint()}}      || {{createSavepoint()}} || {{savepoint}} ||
+|| {{postCreateSavepoint()}}     || {{createSavepoint()}} || {{savepoint}} ||
+|| {{preRollbackSavepoint()}}    || {{rollbackSavepoint()}} || {{savepoint}} ||
+|| {{postRollbackSavepoint()}}   || {{rollbackSavepoint()}} || {{savepoint}} ||
+|| {{preReleaseSavepoint()}}     || {{releaseSavepoint()}} || {{savepoint}} ||
+|| {{postReleaseSavepoint()}}    || {{releaseSavepoint()}} || {{savepoint}} ||
+
+
+<code type="php">
+class MyTransactionListener extends Doctrine_EventListener
+{
+    public function preTransactionBegin(Doctrine_Event $event)
+    {
+        echo 'beginning transaction... ';
+    }
+
+    public function preTransactionRollback(Doctrine_Event $event)
+    {
+        echo 'rolling back transaction... ';
+    }
+}
+
+</code>
+
++++ クエリ実行リスナー
+
+下記のリスナーのすべては{{Doctrine_Connection}}と{{Doctrine_Connection_Statement}}クラスに含まれます。そしてこれらすべては{{Doctrine_Event}}のインスタンスです。
+
+||~ メソッド              ||~ リスニング     ||~ パラメータ     ||
+|| {{prePrepare()}}      || {{prepare()}}   || {{query}}       ||
+|| {{postPrepare()}}     || {{prepare()}}   || {{query}}       ||
+|| {{preExec()}}         || {{exec()}}      || {{query}}       ||
+|| {{postExec()}}        || {{exec()}}      || {{query, rows}} ||
+|| {{preStmtExecute()}}  || {{execute()}}   || {{query}}       ||
+|| {{postStmtExecute()}} || {{execute()}}   || {{query}}       ||
+|| {{preExecute()}}      || {{execute()}} * || {{query}}       ||
+|| {{postExecute()}}     || {{execute()}} * || {{query}}       ||
+|| {{preFetch()}}        || {{fetch()}}     || {{query, data}} ||
+|| {{postFetch()}}       || {{fetch()}}     || {{query, data}} ||
+|| {{preFetchAll()}}     || {{fetchAll()}}  || {{query, data}} ||
+|| {{postFetchAll()}}    || {{fetchAll()}}  || {{query, data}} ||
+
+> **NOTE**
+> {{Doctrine_Connection::execute()}}がプリペアードステートメントパラメータで呼び出されるときにのみ{{preExecute()}}と{{postExecute()}}は起動します。そうではない場合{{Doctrine_Connection::execute()}}は{{prePrepare()}}、{{postPrepare()}}、{{preStmtExecute()}}と{{postStmtExecute()}}を起動します。
+
+++ ハイドレーションリスナー
+
+ハイドレーションリスナーは結果セットのハイドレーション処理をリスニングするために使われます。ハイドレーション処理をリスニングするために2つのメソッド: {{preHydrate()}}と{{postHydrate()}}が存在します。
+
+ハイドレーションリスナーを接続レベルで設定する場合、{{preHydrate()}}と{{postHydrate()}}ブロックの範囲内のコードは複数のコンポーネントの結果セットの範囲内ですべてのコンポーネントによって実行されます。テーブルレベルで同様のリスナーを追加する場合、テーブルのデータがハイドレイトされているときのみ起動します。
+
+フィールド: {{first_name}}、{{last_name}}と{{age}}を持つ{{User}}クラスを考えてみましょう。次の例では{{first_name}}と{{last_name}}フィールドに基づいて{{full__name}}と呼ばれる生成フィールドを常にビルドするリスナーを作成します。
+
+<code type="php">
+// test.php
+
+// ...
+class HydrationListener extends Doctrine_Record_Listener
+{
+    public function preHydrate(Doctrine_Event $event)
+    {
+        $data = $event->data;
+
+        $data['full_name'] = $data['first_name'] . ' ' . $data['last_name'];
+        $event->data = $data;
+    }
+}
+</code>
+
+行う必要があるのは{{User}}レコードにこのリスナーを追加して複数のユーザーを取得することです:
+
+<code type="php">
+// test.php
+
+// ...
+$userTable = Doctrine_Core::getTable('User');
+$userTable->addRecordListener(new HydrationListener());
+
+$q = Doctrine_Query::create()
+    ->from('User');
+
+$users = $q->execute();
+
+foreach ($users as $user) {
+    echo $user->full_name;
+}
+</code>
+
+++ レコードリスナー
+
+{{Doctrine_Record}}は{{Doctrine_Connection}}とよく似たリスナーを提供します。グローバル、接続、テーブルレベルでリスナーを設定できます。
+
+利用可能なすべてのリスナーメソッドの一覧は次の通りです:
+下記のリスナーすべてが{{Doctrine_Record}}と{{Doctrine_Validator}}クラスに含まれます。そしてこれらすべてに{{Doctrine_Event}}のインスタンスが渡されます。
+
+||~ メソッド     ||~ リスニング ||
+|| {{preSave()}}      || {{save()}} ||
+|| {{postSave()}}     || {{save()}} ||
+|| {{preUpdate()}}    || レコードが{{DIRTY}}のとき{{save()}} ||
+|| {{postUpdate()}}   || レコードが{{DIRTY}}のとき{{save()}} ||
+|| {{preInsert()}}    || レコードが{{DIRTY}}のとき{{save()}} ||
+|| {{postInsert()}}   || レコードが{{DIRTY}}のとき{{save()}} ||
+|| {{preDelete()}}    || {{delete()}} ||
+|| {{postDelete()}}   || {{delete()}} ||
+|| {{preValidate()}}  || {{validate()}} ||
+|| {{postValidate()}} || {{validate()}} ||
+
+接続リスナーと同じようにレコードリスナーを定義する方法は3つあります: {{Doctrine_Record_Listener}}を継承する、{{Doctrine_Record_Listener_Interface}}を実装するもしくは{{Doctrine_Overloadable}}を実装するです。
+
+次の例では{{Doctrine_Overloadable}}を実装することでグローバルレベルのリスナーを作成します:
+
+<code type="php">
+class Logger implements Doctrine_Overloadable
+{
+    public function __call($m, $a) 
+    {
+        echo 'caught event ' . $m;
+        
+        // do some logging here...
+    }
+}
+</code>
+
+マネージャーにリスナーを追加するのは簡単です:
+
+<code type="php">
+$manager->addRecordListener(new Logger());
+</code>
+
+マネージャーレベルのリスナーを追加することでこれらの接続の範囲内ですべてのテーブル/レコードに影響を及ぼします。次の例では接続レベルのリスナーを作成します:
+
+<code type="php">
+class Debugger extends Doctrine_Record_Listener
+{
+    public function preInsert(Doctrine_Event $event)
+    {
+        echo 'inserting a record ...';
+    }
+
+    public function preUpdate(Doctrine_Event $event)
+    {
+        echo 'updating a record...';
+    }
+}
+</code>
+
+接続にリスナーを追加するのも簡単です:
+
+<code type="php">
+$conn->addRecordListener(new Debugger());
+</code>
+
+リスナーが特定のテーブルのみにアクションを適用するようにリスナーをテーブル固有のものにしたい場合がよくあります。
+
+例は次の通りです:
+
+<code type="php">
+class Debugger extends Doctrine_Record_Listener
+{
+    public function postDelete(Doctrine_Event $event)
+    {
+        echo 'deleted ' . $event->getInvoker()->id;
+    }
+}
+</code>
+
+このリスナーを任意のテーブルに追加するのは次のようにできます:
+
+<code type="php">
+class MyRecord extends Doctrine_Record
+{
+    // ...
+
+    public function setUp()
+    {
+        $this->addListener(new Debugger());
+    }
+}
+</code>
+
+++ レコードフック
+
+||~ メソッド     ||~ リスニング ||
+|| {{preSave()}}      || {{save()}} ||
+|| {{postSave()}}     || {{save()}} ||
+|| {{preUpdate()}}    || レコード状態が{{DIRTY}}であるとき{{save()}} ||
+|| {{postUpdate()}}   || レコード状態が{{DIRTY}}であるとき{{save()}} ||
+|| {{preInsert()}}    || レコード状態が{{DIRTY}}であるとき{{save()}} ||
+|| {{postInsert()}}   || レコード状態が{{DIRTY}}であるとき{{save()}} ||
+|| {{preDelete()}}    || {{delete()}} ||
+|| {{postDelete()}}   || {{delete()}} ||
+|| {{preValidate()}}  || {{validate()}} ||
+|| {{postValidate()}} || {{validate()}} ||
+
+{{preInsert()}}と{{preUpdate()}}メソッドを利用するシンプルな例は次の通りです:
+
+<code type="php">
+class BlogPost extends Doctrine_Record
+{
+    public function setTableDefinition()
+    {
+        $this->hasColumn('title', 'string', 200);
+        $this->hasColumn('content', 'string');
+        $this->hasColumn('created', 'date');
+        $this->hasColumn('updated', 'date');
+    }
+
+    public function preInsert($event)
+    {
+        $this->created = date('Y-m-d', time());
+    }
+
+    public function preUpdate($event)
+    {
+        $this->updated = date('Y-m-d', time());
+    }
+}
+</code>
+
+++ DQLフック
+
+レコードリスナーをグローバル、それぞれの接続で、もしくは特定のレコードインスタンスで追加することができます。{{Doctrine_Query}}は{{preDql*()}}フックを実装します。これはクエリが実行されるときに、追加されたレコードリスナーもしくはモデルインスタンス自身でチェックされます。フックを起動したクエリを変更できるフックのためにクエリはクエリの{{from}}部分に関連するすべてのモデルをチェックします。
+
+DQLで使うことができるフックのリストは次の通りです:
+
+||~ メソッド           ||~ リスニング  ||
+|| {{preDqlSelect()}} || {{from()}}   ||
+|| {{preDqlUpdate()}} || {{update()}} ||
+|| {{preDqlDelete()}} || {{delete()}} ||
+
+下記のコードは{{User}}モデル用の{{SoftDelete}}機能を実装するモデルにレコードリスナーを直接追加する例です。
+
+> **TIP**
+> SoftDeleteの機能はDoctrineのビヘイビアとして含まれます。このコードは実行されるクエリを修正するためにDQLリスナーをselect、delete、updateする方法を実演しています。Doctrine_Record::setUp()の定義で$this->actAs('SoftDelete')を指定することでSoftDeleteビヘイビアを使うことができます。
+
+<code type="php">
+class UserListener extends Doctrine_EventListener
+{
+    /**
+     * Skip the normal delete options so we can override it with our own
+     *
+     * @param Doctrine_Event $event
+     * @return void
+     */
+    public function preDelete(Doctrine_Event $event)
+    {
+        $event->skipOperation();
+    }
+
+    /**
+     * Implement postDelete() hook and set the deleted flag to true
+     *
+     * @param Doctrine_Event $event
+     * @return void
+     */
+    public function postDelete(Doctrine_Event $event)
+    {
+        $name = $this->_options['name'];
+        $event->getInvoker()->$name = true;
+        $event->getInvoker()->save();
+    }
+
+    /**
+     * Implement preDqlDelete() hook and modify a dql delete query so it updates the deleted flag
+     * instead of deleting the record
+     *
+     * @param Doctrine_Event $event
+     * @return void
+     */
+    public function preDqlDelete(Doctrine_Event $event)
+    {
+        $params = $event->getParams();
+        $field = $params['alias'] . '.deleted';
+        $q = $event->getQuery();
+        if ( ! $q->contains($field)) {
+            $q->from('')->update($params['component'] . ' ' . $params['alias']);
+            $q->set($field, '?', array(false));
+            $q->addWhere($field . ' = ?', array(true));
+        }
+    }
+
+    /**
+     * Implement preDqlDelete() hook and add the deleted flag to all queries for which this model 
+     * is being used in.
+     *
+     * @param Doctrine_Event $event 
+     * @return void
+     */
+    public function preDqlSelect(Doctrine_Event $event)
+    {
+        $params = $event->getParams();
+        $field = $params['alias'] . '.deleted';
+        $q = $event->getQuery();
+        if ( ! $q->contains($field)) {
+            $q->addWhere($field . ' = ?', array(false));
+        }
+    }
+}
+</code>
+
+オプションとして上記のリスナーのメソッドは下記のユーザークラスに設置できます。Doctrineはそこでフックを同じようにチェックします:
+
+<code type="php">
+class User extends Doctrine_Record
+{
+    // ...
+
+    public function preDqlSelect()
+    {
+        // ...
+    }
+
+    public function preDqlUpdate()
+    {
+        // ...
+    }
+
+    public function preDqlDelete()
+    {
+        // ...
+    }
+}
+</code>
+
+これらのDQLコールバックがチェックされるようにするには、これらを明示的に有効にしなければなりません。これはそれぞれのクエリに対して少量のオーバーヘッドを追加するので、デフォルトでは無効です。以前の章で既にこの属性を有効にしました。
+
+思い出すためにコードを再掲載します:
+
+<code type="php">
+// bootstrap.php
+
+// ...
+$manager->setAttribute(Doctrine::ATTR_USE_DQL_CALLBACKS, true);
+</code>
+
+Userモデルとやりとりをするとき削除フラグが考慮されます:
+
+レコードインスタンスを通してユーザーを削除します:
+
+<code type="php">
+$user = new User();
+$user->username = 'jwage';
+$user->password = 'changeme';
+$user->save();
+$user->delete();
+</code>
+
+> **NOTE**
+> {{$user->delete()}}を呼び出しても実際にはレコードは削除されず代わりに削除フラグがtrueに設定されます。
+
+<code type="php">
+$q = Doctrine_Query::create()
+    ->from('User u');
+
+echo $q->getSql();
+</code>
+
+<code type="sql">
+SELECT u.id AS u__id, u.username AS u__username, u.password AS u__password, u.deleted AS u__deleted FROM user u WHERE u.deleted = ?
+</code>
+
+> **NOTE**
+> {{"u.deleted = ?"}}が//true//のパラメータの値でwhere条件に自動的に追加されたことに注目してください。
+
+++ 複数のリスナーを連結する
+
+異なるイベントリスナーを連結することができます。このことは同じイベントをリスニングするために複数のリスナーを追加できることを意味します。次の例では与えられた接続用に2つのリスナーを追加します:
+
+この例では{{Debugger}}と{{Logger}}は両方とも{{Doctrine_EventListener}}を継承します:
+
+<code type="php">
+$conn->addListener(new Debugger());
+$conn->addListener(new Logger());
+</code>
+
+++ イベントオブジェクト
+
++++ インボーカーを取得する
+
+{{getInvoker()}}を呼び出すことでイベントを起動したオブジェクトを取得できます:
+
+<code type="php">
+class MyListener extends Doctrine_EventListener
+{
+    public function preExec(Doctrine_Event $event)
+    {
+        $event->getInvoker(); // Doctrine_Connection
+    }
+}
+</code>
+
++++ イベントコード
+
+{{Doctrine_Event}}は定数をイベントコードとして使用します。利用可能なイベントの定数の一覧は下記の通りです:
+
+* {{Doctrine_Event::CONN_QUERY}}
+* {{Doctrine_Event::CONN_EXEC}}
+* {{Doctrine_Event::CONN_PREPARE}}
+* {{Doctrine_Event::CONN_CONNECT}}
+* {{Doctrine_Event::STMT_EXECUTE}}
+* {{Doctrine_Event::STMT_FETCH}}
+* {{Doctrine_Event::STMT_FETCHALL}}
+* {{Doctrine_Event::TX_BEGIN}}
+* {{Doctrine_Event::TX_COMMIT}}
+* {{Doctrine_Event::TX_ROLLBACK}}
+* {{Doctrine_Event::SAVEPOINT_CREATE}}
+* {{Doctrine_Event::SAVEPOINT_ROLLBACK}}
+* {{Doctrine_Event::SAVEPOINT_COMMIT}}
+* {{Doctrine_Event::RECORD_DELETE}}
+* {{Doctrine_Event::RECORD_SAVE}}
+* {{Doctrine_Event::RECORD_UPDATE}}
+* {{Doctrine_Event::RECORD_INSERT}}
+* {{Doctrine_Event::RECORD_SERIALIZE}}
+* {{Doctrine_Event::RECORD_UNSERIALIZE}}
+* {{Doctrine_Event::RECORD_DQL_SELECT}}
+* {{Doctrine_Event::RECORD_DQL_DELETE}}
+* {{Doctrine_Event::RECORD_DQL_UPDATE}}
+
+フックの使い方と返されるコードの例は次の通りです:
+
+<code type="php">
+class MyListener extends Doctrine_EventListener
+{
+    public function preExec(Doctrine_Event $event)
+    {
+        $event->getCode(); // Doctrine_Event::CONN_EXEC
+    }
+}
+
+class MyRecord extends Doctrine_Record
+{
+    public function preUpdate(Doctrine_Event $event)
+    {
+        $event->getCode(); // Doctrine_Event::RECORD_UPDATE
+    }
+}
+</code>
+
++++ インボーカーを取得する
+
+{{getInvoker()}}メソッドは与えられたイベントを起動したオブジェクトを返します。例えばイベント用の{{Doctrine_Event::CONN_QUERY}}インボーカーは{{Doctrine_Connection}}オブジェクトです。
+
+{{Doctrine_Record}}インスタンスが保存されupdateがデータベースに発行されるときに起動する{{preUpdate()}}という名前のレコードフックの使い方の例は次の通りです:
+
+<code type="php">
+class MyRecord extends Doctrine_Record
+{
+    public function preUpdate(Doctrine_Event $event)
+    {
+        $event->getInvoker(); // Object(MyRecord)
+    }
+}
+</code>
+
++++ 次のオペレーションをスキップする
+
+リスナーチェーンのビヘイビアの変更と同様にリスニングされているメソッドの実行の変更のために{{Doctrine_Event}}は多くのメソッドを提供します。
+
+多くの理由からリスニングされているメソッドの実行をスキップしたいことがあります。これは次のように実現できます({{preExec()}}は任意のリスナーメソッドにできることに注意してください):
+
+<code type="php">
+class MyListener extends Doctrine_EventListener
+{
+    public function preExec(Doctrine_Event $event)
+    {
+        // some business logic, then:
+
+        $event->skipOperation();
+    }
+}
+</code>
+
++++ 次のリスナーをスキップする
+
+リスナーのチェーンを使うとき次のリスナーの実行をスキップしたいことがあります。これは次のように実現できます:
+
+<code type="php">
+class MyListener extends Doctrine_EventListener
+{
+    public function preExec(Doctrine_Event $event)
+    {
+        // some business logic, then:
+
+        $event->skipNextListener();
+    }
+}
+</code>
+
+++ まとめ
+
+イベントリスナーはDoctrineの素晴らしい機能で[doc behaviors :name]に結びつけられます。これらは最小量のコードで非常に複雑な機能を提供します。
+
+これでパフォーマンスを改善するためのベストな機能である[doc caching :name]を検討する準備ができました。
