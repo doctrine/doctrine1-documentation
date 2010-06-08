@@ -678,7 +678,7 @@ class BlogPost extends Doctrine_Record
 
         $this->actAs('Sluggable', array(
                 'unique'    => true,
-                'fields'    => array('username'),
+                'fields'    => array('title'),
                 'canUpdate' => true
             )
         );
