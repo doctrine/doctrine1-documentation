@@ -1147,7 +1147,7 @@ The following lazy-loads the {{password}} field and executes one additional data
 // test.php
 
 // ...
-$user->description;
+$user->password;
 </code>
 
 Doctrine does the proxy evaluation based on loaded field count. It does not evaluate which fields are loaded on field-by-field basis. The reason for this is simple: performance. Field lazy-loading is very rarely needed in PHP world, hence introducing some kind of variable to check which fields are loaded would introduce unnecessary overhead to basic fetching.
