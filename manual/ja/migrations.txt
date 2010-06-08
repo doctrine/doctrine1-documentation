@@ -297,7 +297,7 @@ $ php migrate.php
 // ...
     public function up()
     {
-        $this->addColumn('table_name', 'column_name', 'string', $options);
+        $this->addColumn('table_name', 'column_name', 'string', $length, $options);
     }
 // ...
 </code>
