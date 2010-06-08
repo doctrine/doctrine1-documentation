@@ -126,7 +126,7 @@ $ svn commit
 Doctrine also provides a PEAR server for installing and updating Doctrine on your servers. You can easily install Doctrine with the following command:
 
 <code>
-$ pear install pear.phpdoctrine.org/Doctrine-1.2.x
+$ pear install pear.doctrine-project.org/Doctrine-1.2.x
 </code>
 
 > **NOTE**

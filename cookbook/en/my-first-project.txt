@@ -5,7 +5,7 @@ uses the the ready to go Doctrine sandbox package. It requires a web server, PHP
 
 ++ Download
 
-To get started, first download the latest Doctrine sandbox package: http://www.phpdoctrine.org/download. Second, extract 
+To get started, first download the latest Doctrine sandbox package: http://www.doctrine-project.org/download. Second, extract 
 the downloaded file and you should have a directory named Doctrine-x.x.x-Sandbox. Inside of that directory is a simple 
 example implementation of a Doctrine based web application.
 

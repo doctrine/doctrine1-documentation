@@ -6,7 +6,7 @@ First we must get the source of Doctrine from svn and place it in the system/dat
 
 <code>
 $ cd system/database
-$ svn co http://svn.phpdoctrine.org/branches/0.11/lib doctrine
+$ svn co http://svn.doctrine-project.org/branches/0.11/lib doctrine
 $ cd ..
 
 // If you use svn in your project you can set Doctrine 
@@ -14,7 +14,7 @@ $ cd ..
 $ svn propedit svn:externals database
 
 // In your favorite editor add the following line
-// doctrine http://svn.phpdoctrine.org/branches/0.11/lib
+// doctrine http://svn.doctrine-project.org/branches/0.11/lib
 </code>
 
 ++ Setup Doctrine

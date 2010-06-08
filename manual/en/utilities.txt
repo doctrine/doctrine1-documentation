@@ -735,10 +735,10 @@ Now you can begin executing commands.
 
 +++ Installation
 
-You can install the sandbox by downloading the special sandbox package from http://www.phpdoctrine.org/download or you can install it via svn below.
+You can install the sandbox by downloading the special sandbox package from http://www.doctrine-project.org/download or you can install it via svn below.
 
 <code>
-svn co http://www.phpdoctrine.org/svn/branches/0.11 doctrine
+svn co http://www.doctrine-project.org/svn/branches/0.11 doctrine
 cd doctrine/tools/sandbox
 chmod 0777 doctrine
 

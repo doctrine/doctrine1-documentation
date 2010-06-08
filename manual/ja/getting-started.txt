@@ -124,7 +124,7 @@ Doctrineはサーバーでインストールとアップデート用のPEARサ�
 次のコマンドでDoctrineを簡単にインストールできます:
 
 <code>
-$ pear install pear.phpdoctrine.org/Doctrine-1.1.x
+$ pear install pear.doctrine-project.org/Doctrine-1.1.x
 </code>
 
 > **NOTE**

@@ -736,10 +736,10 @@ $cli->run($_SERVER['argv']);
 
 +++ インストール方法
 
-http://www.phpdoctrine.org/download からもしくはsvnリポジトリから特別なサンドボックスをインストールできます。
+http://www.doctrine-project.org/download からもしくはsvnリポジトリから特別なサンドボックスをインストールできます。
 
 <code>
-svn co http://www.phpdoctrine.org/svn/branches/0.11 doctrine
+svn co http://www.doctrine-project.org/svn/branches/0.11 doctrine
 cd doctrine/tools/sandbox
 chmod 0777 doctrine
 
