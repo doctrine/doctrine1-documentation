@@ -170,8 +170,8 @@ Here is a list of the available methods you can use to alter your database in yo
         $columns = array(
             'id' => array(
                 'type' => 'integer',
-                'unsigned' => 1
-                'notnull' => 1
+                'unsigned' => 1,
+                'notnull' => 1,
                 'default' => 0
             ),
             'name' => array(
