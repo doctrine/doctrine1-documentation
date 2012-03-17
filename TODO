@@ -1,0 +1,12 @@
+# TODO
+
+* Fix placement of :: around code blocks
+* Fix indenting of first function in code blocks
+* Fix links
+  * %s/{{\[\(.*\) \(.*\)\]}}/`\2 <\1>`/g
+* Replace class references (usually {{.*}}) with :php:class:`.*`
+
+
+# Done
+
+* Replace **NOTE** blocks
