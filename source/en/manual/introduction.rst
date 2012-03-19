@@ -95,8 +95,8 @@ Doctrine is a tool for object-relational mapping in PHP. It sits on top
 of PDO and is itself divided into two main layers, the DBAL and the ORM.
 The picture below shows how the layers of Doctrine work together.
 
-[http://www.doctrine-project.org/images/doctrine-layers.jpg Doctrine
-Layers]
+.. image:: /images/doctrine-layers.jpg
+   :alt: Doctrine Layers: The ORM relies on the DBAL, which relies on PDO
 
 The DBAL (Database Abstraction Layer) completes and extends the basic
 database abstraction/independence that is already provided by PDO. The
