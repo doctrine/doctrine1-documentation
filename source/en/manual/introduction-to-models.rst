@@ -225,8 +225,6 @@ following::
         }
     }
 
-
-
 You should also have a file called ``User.php`` in your
 ``doctrine_test/models`` directory. The file should look like the following::
 
@@ -282,47 +280,50 @@ for autoloading our models from the ``models`` directory::
 
     The model loading is fully explained later in the :ref:`autoloading-models` section of this chapter.
 
-Now we can modify ``test.php`` to include some code which will test the
-changes we made to the ``User`` model:
+Now we can modify ``test.php`` to include some code which will test the changes
+we made to the ``User`` model::
 
-// test.php
-// ...
+    // test.php
+    $user = new User();
+    $user->username = 'jwage';
+    $user->password = 'changeme';
 
-$user = new User(); $user->username = 'jwage'; $user->password =
-'changeme';
-
-echo $user->password; // outputs md5 hash and not changeme
+    echo $user->password; // outputs md5 hash and not changeme
 
 Now when you execute ``test.php`` from your terminal you should see the
 following:
 
- $ php test.php 4cb9c8a8048fd02294477fcb1a41191a
+.. code-block:: sh
 
-Here is an example of some custom functions you might add to the
-``UserTable`` class:
+    php test.php 4cb9c8a8048fd02294477fcb1a41191a
 
- // models/UserTable.php
+Here is an example of some custom functions you might add to the ``UserTable``
+class::
 
-class UserTable extends Doctrine_Table { public function
-getCreatedToday() { $today = date('Y-m-d h:i:s',
-strtotime(date('Y-m-d'))); return $this->createQuery('u')
-->where('u.created_at > ?', $today) ->execute(); } }
+    // models/UserTable.php
+    class UserTable extends Doctrine_Table
+    {
+        public function getCreatedToday()
+        {
+            $today = date('Y-m-d h:i:s', strtotime(date('Y-m-d')));
+            return $this->createQuery('u')
+                ->where('u.created_at > ?', $today)
+                ->execute();
+        }
+    }
 
 In order for custom :php:class:`Doctrine_Table` classes to be loaded you must
-enable the ``autoload_table_classes`` attribute in your
-``bootstrap.php`` file like done below.
+enable the ``autoload_table_classes`` attribute in your ``bootstrap.php`` file
+like done below::
 
-// boostrap.php
-// ...
-$manager->setAttribute(Doctrine_Core::ATTR_AUTOLOAD_TABLE_CLASSES,
-true);
+    // bootstrap.php
+    $manager->setAttribute(Doctrine_Core::ATTR_AUTOLOAD_TABLE_CLASSES, true);
 
 Now you have access to this function when you are working with the
-``UserTable`` instance:
+``UserTable`` instance::
 
-// test.php
-$usersCreatedToday =
-Doctrine_Core::getTable('User')->getCreatedToday();
+    // test.php
+    $usersCreatedToday = Doctrine_Core::getTable('User')->getCreatedToday();
 
 ------------
 Schema Files
@@ -331,71 +332,105 @@ Schema Files
 You can alternatively manage your models with YAML schema files and
 generate PHP classes from them. First lets generate a YAML schema file
 from the existing models we already have to make things easier. Change
-``test.php`` to have the following code inside:
+``test.php`` to have the following code inside::
 
-// test.php
-// ...
-
-Doctrine_Core::generateYamlFromModels('schema.yml', 'models');
+    // test.php
+    Doctrine_Core::generateYamlFromModels('schema.yml', 'models');
 
 Execute the ``test.php`` script:
 
- $ php test.php
+.. code-block:: sh
+
+    php test.php
 
 Now you should see a file named ``schema.yml`` created in the root of
-the ``doctrine_test`` directory. It should look like the following::
+the ``doctrine_test`` directory. It should look like the following:
 
-    User: tableName: user columns: id: type: integer(8) primary: true
-    autoincrement: true is_active: type: integer(1) default: '1'
-    is_super_admin: type: integer(1) default: '0' created_at: type:
-    timestamp(25) notnull: true updated_at: type: timestamp(25) notnull:
-    true first_name: string(255) last_name: string(255) username:
-    string(255) password: string(255) type: string(255)
+.. code-block:: yaml
 
-So now that we have a valid YAML schema file, we can now maintain our
-schema from here and generate the PHP classes from here. Lets create a
-new php script called ``generate.php``. This script will re-generate
-everything and make sure the database is reinstantiated each time the
-script is called:
+    User:
+    tableName: user
+    columns:
+      id:
+        type: integer(8)
+        primary: true
+        autoincrement: true
+      is_active:
+        type: integer(1)
+        default: '1'
+      is_super_admin:
+        type: integer(1)
+        default: '0'
+      created_at:
+        type: timestamp(25)
+        notnull: true
+      updated_at:
+        type: timestamp(25)
+        notnull: true
+      first_name: string(255)
+      last_name: string(255)
+      username: string(255)
+      password: string(255)
+      type: string(255)
 
-// generate.php
-require_once('bootstrap.php');
+So now that we have a valid YAML schema file, we can now maintain our schema
+from here and generate the PHP classes from here. Lets create a new php script
+called ``generate.php``. This script will re-generate everything and make sure
+the database is reinstantiated each time the script is called::
 
-Doctrine_Core::dropDatabases(); Doctrine_Core::createDatabases();
-Doctrine_Core::generateModelsFromYaml('schema.yml', 'models');
-Doctrine_Core::createTablesFromModels('models');
+    // generate.php
+    require_once('bootstrap.php');
+
+    Doctrine_Core::dropDatabases(); Doctrine_Core::createDatabases();
+    Doctrine_Core::generateModelsFromYaml('schema.yml', 'models');
+    Doctrine_Core::createTablesFromModels('models');
 
 Now you can alter your ``schema.yml`` and re-generate your models by
 running the following command from your terminal:
 
- $ php generate.php
+.. code-block:: sh
+
+    php generate.php
 
 Now that we have our YAML schema file setup and we can re-generate our
 models from the schema files lets cleanup the file a little and take
-advantage of some of the power of Doctrine::
+advantage of some of the power of Doctrine:
 
-    User: actAs: [Timestampable] columns: is_active: type: integer(1)
-    default: '1' is_super_admin: type: integer(1) default: '0'
-    first_name: string(255) last_name: string(255) username: string(255)
-    password: string(255) type: string(255)
+.. code-block:: yaml
+
+    User:
+    actAs: [Timestampable]
+    columns:
+      is_active:
+        type: integer(1)
+        default: '1'
+      is_super_admin:
+        type: integer(1)
+        default: '0'
+      first_name: string(255)
+      last_name: string(255)
+      username: string(255)
+      password: string(255)
+      type: string(255)
 
 .. note::
 
     **Notice some of the changes we made:**
 
-    1.) Removed the explicit ``tableName`` definition as it will default
-    to user. 2.) Attached the ``Timestampable`` behavior. 3.) Removed
-    ``id`` column as it is automatically added if no primary key is
-    defined. 4.) Removed ``updated_at`` and ``created_at`` columns as
-    they can be handled automatically by the ``Timestampable`` behavior.
+    #. Removed the explicit ``tableName`` definition as it will default to user.
+    #. Attached the ``Timestampable`` behavior.
+    #. Removed ``id`` column as it is automatically added if no primary key is defined.
+    #. Removed ``updated_at`` and ``created_at`` columns as they can be handled automatically by the ``Timestampable`` behavior.
 
-    Now look how much cleaner the YAML is and is because we take
-    advantage of defaults and utilize core behaviors it is much less
-    work we have to do ourselves.
+    Now look how much cleaner the YAML is and is because we take advantage of
+    defaults and utilize core behaviors it is much less work we have to do
+    ourselves.
 
 Now re-generate your models from the YAML schema file:
 
- $ php generate.php
+.. code-block:: sh
+
+    php generate.php
 
 You can learn more about YAML Schema Files in its :doc:`dedicated chapter <yaml-schema-files>`.
 
@@ -413,17 +448,16 @@ about the models syntax in the :doc:`defining-models` chapter.
 Autoloading Models
 ==================
 
-Doctrine offers two ways of loading models. We have conservative(lazy)
-loading, and aggressive loading. Conservative loading will not require
-the PHP file initially, instead it will cache the path to the class name
-and this path is then used in the :php:meth:`Doctrine_Core::modelsAutoload`.
+Doctrine offers two ways of loading models. We have conservative (lazy)
+loading, and aggressive loading. Conservative loading will not require the PHP
+file initially, instead it will cache the path to the class name and this path
+is then used in the :php:meth:`Doctrine_Core::modelsAutoload`.
 
-To use Doctrine model loading you need to register the model autoloader
-in your bootstrap:
+To use Doctrine model loading you need to register the model autoloader in your
+bootstrap::
 
-// bootstrap.php
-spl_autoload_register(array('Doctrine_Core',
-'modelsAutoload'));
+    // bootstrap.php
+    spl_autoload_register(array('Doctrine_Core', 'modelsAutoload'));
 
 Below are some examples using the both types of model loading.
 
@@ -431,14 +465,13 @@ Below are some examples using the both types of model loading.
 Conservative
 ------------
 
-Conservative model loading is going to be the ideal model loading method
-for a production environment. This method will lazy load all of the
-models instead of loading them all when model loading is executed.
+Conservative model loading is going to be the ideal model loading method for a
+production environment. This method will lazy load all of the models instead of
+loading them all when model loading is executed.
 
-Conservative model loading requires that each file contain only one
-class, and the file must be named after the class. For example, if you
-have a class named ``User``, it must be contained in a file named
-``User.php``.
+Conservative model loading requires that each file contain only one class, and
+the file must be named after the class. For example, if you have a class named
+``User``, it must be contained in a file named :file:`User.php`.
 
 To use conservative model loading we need to set the model loading
 attribute to be conservative::
@@ -447,8 +480,8 @@ attribute to be conservative::
 
 .. note::
 
-    We already made this change in an earlier step in the
-    ``bootstrap.php`` file so you don't need to make this change again.
+    We already made this change in an earlier step in the ``bootstrap.php``
+    file so you don't need to make this change again.
 
 When we use the :php:meth:`Doctrine_Core::loadModels` functionality all found
 classes will be cached internally so the autoloader can require them later::
@@ -479,10 +512,10 @@ Aggressive
 ----------
 
 Aggressive model loading is the default model loading method and is very
-simple, it will look for all files with a ``.php`` extension and will
-include it. Doctrine can not satisfy any inheritance and if your models
-extend another model, it cannot include them in the correct order so it
-is up to you to make sure all dependencies are satisfied in each class.
+simple, it will look for all files with a ``.php`` extension and will include
+it. Doctrine can not satisfy any inheritance and if your models extend another
+model, it cannot include them in the correct order so it is up to you to make
+sure all dependencies are satisfied in each class.
 
 With aggressive model loading you can have multiple classes per file and
 the file name is not required to be related to the name of the class
@@ -511,14 +544,13 @@ classes found will be included right away::
 Conclusion
 ==========
 
-This chapter is probably the most intense chapter so far but it is a
-good one. We learned a little about how to use models, how to generate
-models from existing databases, how to write our own models, and how to
-maintain our models as YAML schema files. We also modified our Doctrine
-test environment to implement some functionality for loading models from
-our models directory.
+This chapter is probably the most intense chapter so far but it is a good one.
+We learned a little about how to use models, how to generate models from
+existing databases, how to write our own models, and how to maintain our models
+as YAML schema files. We also modified our Doctrine test environment to
+implement some functionality for loading models from our models directory.
 
-This topic of Doctrine models is so large that it warranted the chapters
-being split in to three pieces to make it easier on the developer to
-absorb all the information. In :doc:`defining-models` we
-will really get in to the API we use to define our models.
+This topic of Doctrine models is so large that it warranted the chapters being
+split in to three pieces to make it easier on the developer to absorb all the
+information. In :doc:`defining-models` we will really get in to the API we use
+to define our models.
