@@ -1,4 +1,12 @@
-++ はじめに
+..  vim: set ts=4 sw=4 tw=79 :
+
+**********
+Behaviours
+**********
+
+========
+はじめに
+========
 
 モデルの中で似た内容を持つクラスを見つけることはよくあります。これらの内容はコンポーネント自身のスキーマ(リレーション、カラムの定義、インデックスの定義など)に関連することがあります。このコードをリファクタリングする明らかな方法は基底クラスとそれを継承するクラスを用意することです。
 
@@ -18,7 +26,9 @@
 
 ご存知かもしれませんがテンプレートは共通の定義とオプションをレコードクラスに追加するために使われます。ジェネレータの目的はとても複雑です。通常これらはジェネリックレコードクラスを動的に作成するために使われます。これらのジェネリッククラスの定義はオーナーのクラスによります。例えばクラスをバージョニングする``AuditLog``カラムの定義はすべてのsequenceとautoincrementの定義が削除された親クラスのカラムです。
 
-++ シンプルなテンプレート
+===========
+シンプルなテンプレート
+===========
 
 次の例において``TimestampBehavior``と呼ばれるテンプレートを定義します。基本的にテンプレートの目的はこのテンプレートをロードするレコードクラスに日付カラムの'created'と'updated'を追加することです。加えてこのテンプレートはレコードのアクションに基づいてこれらのカラムを更新するTimestampリスナーを使用します。
 
@@ -95,7 +105,9 @@ print\_r($blogPost->toArray());
     behaviors:core-behaviors:timestampable
     :name]セクションに戻って詳細内容を読むことができます。
 
-++ リレーション付きのテンプレート
+===============
+リレーション付きのテンプレート
+===============
 
 以前の章よりも状況は複雑になりがちです。他のモデルクラスへのリレーションを持つクラスがあり任意のクラスを格調されたクラスで置き換えたいことがあります。
 
@@ -238,7 +250,9 @@ print\_r($user->toArray(true));
 
     テンプレート用の実装はマネージャー、接続とテーブルレベルでも設定できます。
 
-++ デリゲートメソッド
+=========
+デリゲートメソッド
+=========
 
 フルテーブル定義のデリゲートシステムとして振る舞うことに加えて、``Doctrine\_Template``はメソッドの呼び出しのデリゲートを可能にします。これはロードされたテンプレート内のすべてのメソッドはテンプレートをロードしたレコードの中で利用できることを意味します。この機能を実現するために内部では``\__call()``と呼ばれるマジックメソッドが使用されます。
 
@@ -302,7 +316,9 @@ $users = $userTable->findUsersWithEmail();
     それぞれのクラスは複数のテンプレートから構成されます。テンプレートが似たような定義を格納する場合最新のロードされたテンプレートは
     前のものを常にオーバーライドします。
 
-++ ビヘイビアを作成する
+==========
+ビヘイビアを作成する
+==========
 
 この節では独自ビヘイビア作成用の方法を説明します。一対多のEメールが必要な様々なRecordクラスを考えてみましょう。Emailクラスを即座に作成する一般的なビヘイビアを作成することでこの機能を実現します。
 
@@ -341,19 +357,25 @@ function initOptions() { $this->setOption('className', '%CLASS%Email');
 
 }
 
-++ コアビヘイビア
+=======
+コアビヘイビア
+=======
 
 コアビヘイビアを使う次のいくつかの例のために以前の章で作成したテスト環境から既存のスキーマとモデルをすべて削除しましょう。
 
  $ rm schema.yml $ touch schema.yml $ rm -rf models/\*
 
-+++ 紹介
+--
+紹介
+--
 
 Doctrineにはモデルにそのまま使える機能を提供するテンプレートが搭載されています。モデルでこれらのテンプレートを簡単に有効にできます。``Doctrine_Records``で直接行うもしくはYAMLでモデルを管理しているのであればこれらをYAMLスキーマで指定できます。
 
 次の例ではDoctrineに搭載されているビヘイビアの一部を実演します。
 
-+++ Versionable
+-----------
+Versionable
+-----------
 
 バージョン管理の機能を持たせるために``BlogPost``モデルを作成しましょう:
 
@@ -440,7 +462,9 @@ test [version] => 1 )
     **NOTE**
     ``version``カラムの値が1に設定され``title``は``BlogPost``を作成するときに設定されたオリジナルの値に戻ります。
 
-+++ Timestampable
+-------------
+Timestampable
+-------------
 
 Timestampableビヘイビアは``created\_at``と``updated_at``カラムを追加しレコードが挿入と更新されたときに値を自動的に設定します。
 
@@ -463,9 +487,6 @@ YAMLフォーマットでの例は次の通りです。[doc yaml-schema-files
 :name]の章でYAMLの詳細を読むことができます:
 
  # schema.yml
-
-...
-===
 
 BlogPost: actAs: # ... Timestampable: # ...
 
@@ -507,7 +528,9 @@ date()]関数で生成される \|\| \|\| ``disabled`` \|\| ``false`` \|\|
 \|\|``true`` \|\| レコードが最初に挿入されるときに更新日付を設定するか
 \|\|
 
-+++ Sluggable
+---------
+Sluggable
+---------
 
 ``Sluggable``ビヘイビアは素晴らしい機能の1つでタイトル、題目などのカラムから作成できる人間が読解できるユニークな識別子を保存するためにモデルにカラムを自動的に追加します。これらの値は検索エンジンにフレンドリーなURLに使うことができます。
 
@@ -537,9 +560,6 @@ YAMLフォーマットでの例は次の通りです。[doc yaml-schema-files
 :name]の章でYAMLの詳細を読むことができます:
 
  # schema.yml
-
-...
-===
 
 BlogPost: actAs: # ... Sluggable: unique: true fields: [title]
 canUpdate: true # ...
@@ -583,7 +603,9 @@ incrementな整数がスラッグに自動的に追加されます。
 スラッグをビルドするために使う``Class::method()`` \|\| \|\|
 ``indexName`` \|\| ``sluggable`` \|\| 作成するインデックスの名前 \|\|
 
-+++ I18n
+----
+I18n
+----
 
 ``Doctrine_I18n``パッケージはレコードクラス用の国際化サポートを提供するビヘイビアです。次の例では``title``と``content``の2つのフィールドを持つ``NewsItem``クラスがあります。異なる言語サポートを持つ``title``フィールドを用意したい場合を考えます。これは次のように実現できます:
 
@@ -677,7 +699,9 @@ echo $newsItems[0]->Translation['fi']->title;
 
  $ php test.php joku otsikko
 
-+++ NestedSet
+---------
+NestedSet
+---------
 
 ``NestedSet``ビヘイビアによってモデルを入れ子集合ツリー構造(nested set
 tree
@@ -708,9 +732,6 @@ YAMLフォーマットでの例は次の通りです。[doc yaml-schema-files
 
  # schema.yml
 
-...
-===
-
 Category: actAs: NestedSet: hasManyRoots: true rootColumnName: root\_id
 columns: name: string(255)
 
@@ -733,7 +754,9 @@ root\_id INT, lft INT, rgt INT, level SMALLINT, PRIMARY KEY(id)) ENGINE
 ここでは``NestedSet``ビヘイビアの100％を検討しません。とても大きなビヘイビアなので[doc
 hierarchical-data 専用の章]があります。
 
-+++ Searchable
+----------
+Searchable
+----------
 
 ``Searchable``ビヘイビアは全文インデックス作成と検索機能を提供します。データベースとファイルの両方のインデックスと検索に使われます。
 
@@ -785,7 +808,9 @@ CASCADE ON DELETE CASCADE
 ``Searchable``ビヘイビアは非常に大きなトピックなので、詳細は[doc
 searching :name]の章で見つかります。
 
-+++ Geographical
+------------
+Geographical
+------------
 
 下記のコードはデモのみです。Geographicalビヘイビアは2つのレコードの間のマイルもしくはキロメータの数値を決定するためのレコードデータで使うことができます。
 
@@ -810,9 +835,6 @@ YAMLフォーマットでの例は次の通りです。[doc yaml-schema-files
 :name]の章でYAMLの詳細を読むことができます:
 
  # schema.yml
-
-...
-===
 
 Zipcode: actAs: [Geographical] columns: zipcode: string(255) city:
 string(255) state: string(2) county: string(255) zip\_class: string(255)
@@ -929,7 +951,9 @@ $array = parseCsvFile('zipcodes.csv', false);
 foreach ($array as $key => $value) { $zipcode = new Zipcode();
 :code:`zipcode->fromArray(`\ value); $zipcode->save(); }
 
-+++ SoftDelete
+----------
+SoftDelete
+----------
 
 ``SoftDelete``ビヘイビアは``delete()``機能をオーバーライドし``deleted``カラムを追加するとてもシンプルだが大いにおすすめできるモデルビヘイビアです。``delete()``が呼び出されるとき、データベースからレコードを削除する代わりに、削除フラグを1にセットします。下記のコードは``SoftDelete``ビヘイビアでモデルを作る方法です。
 
@@ -952,9 +976,6 @@ YAMLフォーマットでの例は次の通りです。[doc yaml-schema-files
 :name]の章でYAMLの詳細を読むことができます:
 
  # schema.yml
-
-...
-===
 
 SoftDeleteTest: actAs: [SoftDelete] columns: name: type: string(255)
 primary: true
@@ -1027,7 +1048,9 @@ soft\_delete\_test s WHERE (s.deleted = ? OR s.deleted IS NULL)
 
 上記のコード0をechoします。deleteフラグが設定されたので保存されたレコードが除外されます。
 
-++ 入れ子のビヘイビア
+=========
+入れ子のビヘイビア
+=========
 
 versionable、searchable、sluggable、と完全なI18nである完全なwikiデータベースを与える複数のビヘイビアの例です。
 
@@ -1066,10 +1089,13 @@ YAMLフォーマットでの例は次の通りです。[doc yaml-schema-files
 fields: [title, content] Searchable: fields: [title, content] Sluggable:
 fields: [title] columns: title: string(255) content: string
 
-    **NOTE**
+.. note::
+
     現在上記の入れ子のビヘイビアは壊れています。開発者は後方互換性を修正するために懸命に取り組んでいます。修正ができたときにアナウンスを行いドキュメントを更新します。
 
-++ ファイルを生成する
+=========
+ファイルを生成する
+=========
 
 デフォルトではビヘイビアによって生成されるクラスは実行時に評価されクラスを格納するファイルはディスクに書き込まれません。これは設定オプションで変更できます。下記のコードは実行時にクラスを評価する代わりにクラスを生成してファイルに書き込むためのI18nビヘイビアを設定する方法の例です。
 
@@ -1102,7 +1128,9 @@ string(255) author: string(255)
 コードを生成して実行時に評価するために``[http://www.php.net/eval
 eval()]``を使用する代わりにこれでビヘイビアはファイルを生成します。
 
-++ 生成クラスをクエリする
+===========
+生成クラスをクエリする
+===========
 
 自動生成モデルをクエリしたい場合添付されたモデルを持つモデルがロードされ初期化されることを確認する必要があります。``Doctrine_Core::initializeModels()``スタティックメソッドを使用することでこれをできます。例えば``BlogPost``モデル用の翻訳テーブルにクエリをしたい場合、次のコードを実行する必要があります:
 
@@ -1113,10 +1141,13 @@ $q = Doctrine\_Query::create() ->from('BlogPostTranslation t')
 
 $translations = $q->execute();
 
-    **NOTE**
+.. note::
+
     モデルが最初にインスタンス化されるまでビヘイビアはインスタンス化されないのでこれは必須です。上記の``initializeModels()``メソッドは渡されたモデルをインスタンス化して情報がロードされたモデルの配列に適切にロードされることを確認します。
 
-++ まとめ
+===
+まとめ
+===
 
 Doctrineビヘイビアについて多くのことを学びます。Doctrineに搭載されている素晴らしいビヘイビアの使い方と同じようにモデル用の独自ビヘイビアの書き方を学びます。
 
