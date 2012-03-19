@@ -1,6 +1,11 @@
-++ はじめに
+.. vim: set ft=rst tw=4 sw=4 et :
 
-    **SIDEBAR**
+====
+はじめに
+====
+
+.. sidebar::
+
     [http://www.postgresql.jp/document/pg820doc/html/ddl-constraints.html
     PostgreSQLのドキュメント]より引用: >
     データ型は、テーブルに格納するデータの種類を限定するための方法です。しかし、多くのアプリケーションでは、型が提供する制約では精密さに欠けます。例えば、製品の価格が入る列には、おそらく正数のみを受け入れるようにする必要があります。しかし、正数のみを受け入れるという標準のデータ型はありません。また、他の列や行に関連して列データを制約したい場合もあります。例えば、製品の情報が入っているテーブルでは、1つの製品番号についての行が2行以上あってはなりません。
@@ -68,14 +73,15 @@ YAMLフォーマットでの例は次の通りです。[doc yaml-schema-files
 
  # schema.yml
 
-...
-===
-
 User: columns: username: type: string(255) minlength: 12 # ...
 
-++ 例
+=
+例
+=
 
-+++ Not Null
+--------
+Not Null
+--------
 
 ``not-null``制約はカラムがnullの値を想定してはならないことを指定します。``not-null``制約は常にカラムの制約として記述されます。
 
@@ -107,9 +113,6 @@ YAMLフォーマットでの例は次の通りです。[doc yaml-schema-files
 
  # schema.yml
 
-...
-===
-
 User: columns: username: type: string(255) notnull: true primary: true #
 ...
 
@@ -122,7 +125,9 @@ not-null制約はアプリケーションレベルのバリデータとして振
 
 これらのカラムがnullの値を含む場合``Doctrine\_Validator_Exception``が起動します。
 
-+++ Eメール
+----
+Eメール
+----
 
 Eメールバリデータは入力された値が本当に有効なEメールアドレスでありアドレスドメイン用のMXレコードがEメールアドレスとして解決することをチェックします。
 
@@ -151,9 +156,6 @@ YAMLフォーマットでの同じサンプルは次の通りです。[doc yaml-
 
  # schema.yml
 
-...
-===
-
 User: columns: # ... email: type: string(255) email: true # ...
 
 無効なEメールアドレスを持つユーザーを作成しようとするとバリデートは行われません:
@@ -177,7 +179,9 @@ if ( ! $user->isValid()) { echo 'User is invalid!'; }
 ドメインの``somefakedomainiknowdoesntexist.com``が存在せずPHPの``[http://www.php.net/checkdnsrr
 checkdnsrr()]``関数はfalseを返すので上記のコードはエラーになります。
 
-+++ Not Blank
+---------
+Not Blank
+---------
 
 not blankバリデータはnot
 nullバリデートと似ていますが空の文字列もしくは空白文字が含まれる場合はエラーになります。
@@ -207,9 +211,6 @@ YAMLフォーマットでの例は次の通りです。[doc yaml-schema-files
 
  # schema.yml
 
-...
-===
-
 User: columns: username: type: string(255) notblank: true # ...
 
 1つの空白スペースを含むusernameを持つ``User``レコードを保存しようとすると、バリデーションはエラーになります:
@@ -220,7 +221,9 @@ User: columns: username: type: string(255) notblank: true # ...
 
 if ( ! $user->isValid()) { echo 'User is invalid!'; }
 
-+++ No Space
+--------
+No Space
+--------
 
 no
 spaceバリデータは単純です。値にスペースが含まれないことをチェックします。
@@ -250,9 +253,6 @@ YAMLフォーマットでの例は次の通りです。[doc yaml-schema-files
 
  # schema.yml
 
-...
-===
-
 User: columns: username: type: string(255) nospace: true # ...
 
 スペースを含む``username``を持つ``User``を保存しようとするとバリデーションが失敗します:
@@ -261,7 +261,9 @@ User: columns: username: type: string(255) nospace: true # ...
 
 if ( ! $user->isValid()) { echo 'User is invalid!'; }
 
-+++ Past
+----
+Past
+----
 
 pastバリデータは値が過去の有効な日付であるかをチェックします。この例では``birthday``カラムを持つ``User``モデルがあり日付が過去のものであることバリデートします。
 
@@ -290,14 +292,13 @@ YAMLフォーマットでの例は次の通りです。[doc yaml-schema-files
 
  # schema.yml
 
-...
-===
-
 User: columns: # ... birthday: type: timestamp past: true # ...
 
 過去にはない誕生日を設定しようとするとバリデーションエラーになります。
 
-+++ Future
+------
+Future
+------
 
 futureバリデータはpastバリデータの反対でデータが未来の有効な日付であることをチェックします。この例では``next\_appointment_date``カラムを持つ``User``モデルがあり日付が未来のものであることをバリデートします。
 
@@ -326,15 +327,14 @@ YAMLフォーマットでの例は次の通りです。[doc yaml-schema-files
 
  # schema.yml
 
-...
-===
-
 User: columns: # ... next\_appointment\_date: type: timestamp future:
 true # ...
 
 予約日が未来のものでなければ、バリデーションエラーになります。
 
-+++ 最小長
+---
+最小長
+---
 
 最小長は正確な表現ではありません。文字列の長さが最小の長さよりも大きいことをチェックします。この例では``password``カラムを持つ``User``モデルがあり``password``の長さが少なくとも5文字であることを確認します。
 
@@ -360,9 +360,6 @@ YAMLフォーマットでの例は次の通りです。[doc yaml-schema-files
 
  # schema.yml
 
-...
-===
-
 User: columns: # ... password: type: timestamp minlength: 5 # ...
 
 5文字より短い``password``を持つ``User``を保存しようとすると、バリデーションはエラーになります。
@@ -375,7 +372,9 @@ User: columns: # ... password: type: timestamp minlength: 5 # ...
 if ( ! $user->isValid()) { echo 'User is invalid because "test" is only
 4 characters long!'; }
 
-+++ Country
+-------
+Country
+-------
 
 countryバリデータは値が有効なcountryコードであるかチェックします。
 
@@ -404,9 +403,6 @@ YAMLフォーマットでの例は次の通りです。[doc yaml-schema-files
 
  # schema.yml
 
-...
-===
-
 User: columns: # ... country: type: string(2) country: true # ...
 
 無効な国コードを持つ``User``を保存しようとするとバリデーションがエラーになります。
@@ -419,7 +415,9 @@ $user->country\_code = 'zz';
 if ( ! $user->isValid()) { echo 'User is invalid because "zz" is not a
 valid country code!'; }
 
-+++ IPアドレス
+------
+IPアドレス
+------
 
 IPアドレスバリデータは値が有効なIPアドレスであることをチェックします。
 
@@ -448,9 +446,6 @@ YAMLフォーマットでの例は次の通りです。[doc yaml-schema-files
 
  # schema.yml
 
-...
-===
-
 User: columns: # ... ip\_address: type: string(15) ip: true # ...
 
 無効なIPアドレスを持つ``User``を保存しようとするとバリデーションはエラーになります。
@@ -461,7 +456,9 @@ User: columns: # ... ip\_address: type: string(15) ip: true # ...
 if ( ! $user->isValid()) { echo 'User is invalid because "123.123" is
 not a valid ip address }
 
-+++ HTML Color
+----------
+HTML Color
+----------
 
 htmlcolorバリデータは値が有効な16進法のhtmlカラーであることをチェックします。
 
@@ -487,9 +484,6 @@ YAMLフォーマットでの例は次の通りです。[doc yaml-schema-files
 
  # schema.yml
 
-...
-===
-
 User: columns: # ... favorite\_color: type: string(7) htmlcolor: true #
 ...
 
@@ -503,7 +497,9 @@ $user->favorite\_color = 'red';
 if ( ! $user->isValid()) { echo 'User is invalid because "red" is not a
 valid hex color'; }
 
-+++ Range
+-----
+Range
+-----
 
 rangeバリデータは値が与えられた数の範囲にあることをチェックします。
 
@@ -531,9 +527,6 @@ YAMLフォーマットでの例は次の通りです。[doc yaml-schema-files
 :name]の章でYAMLの詳細を読むことができます:
 
  # schema.yml
-
-...
-===
 
 User: columns: # ... age: type: integer(3) range: [10, 100] # ...
 
@@ -571,12 +564,11 @@ YAML構文の例は次のようになります:
 
  # schema.yml
 
-...
-===
-
 User: columns: # ... age: type: integer(3) range: 1: 100 # ...
 
-+++ Unique
+------
+Unique
+------
 
 unique制約は1つのカラムもしくはカラムのグループに含まれるデータがテーブルのすべての列に関してユニークであること保証します。
 
@@ -609,15 +601,14 @@ YAMLフォーマットでの例は次の通りです。[doc yaml-schema-files
 
  # schema.yml
 
-...
-===
-
 User: columns: username: type: string(255) unique: true # ....
 
     **NOTE**
     主キーは既にuniqueなので主キー以外のカラムに対してのみunique制約を使うべきです。
 
-+++ 正規表現
+----
+正規表現
+----
 
 正規表現バリデータは独自の正規表現に対してカラムの値をバリデートするシンプルな方法です。この例ではユーザー名は有効な文字もしくは数字だけを含むことを確認します。
 
@@ -646,9 +637,6 @@ YAMLフォーマットでの例は次の通りです。[doc yaml-schema-files
 
  # schema.yml
 
-...
-===
-
 User: columns: username: type: string(255) regexp: '/ [1]_+$/' # ...
 
 文字か数字以外の文字を含む``username``を持つ``User``を保存しようとすると、バリデーションはエラーになります:
@@ -660,7 +648,9 @@ User: columns: username: type: string(255) regexp: '/ [1]_+$/' # ...
 if ( ! $user->isValid()) { echo 'User is invalid because the username
 contains a [ character'; }
 
-+++ クレジットカード
+--------
+クレジットカード
+--------
 
 creditcardバリデータは値が本当に有効なクレジットカード番号であることをチェックします。
 
@@ -689,13 +679,12 @@ YAMLフォーマットでの例は次の通りです。[doc yaml-schema-files
 
  # schema.yml
 
-...
-===
-
 User: columns: # ... cc\_number: type: integer(16) creditcard: true #
 ...
 
-+++ Read Only
+---------
+Read Only
+---------
 
 ``readonly``バリデータが有効なカラムを修正しようとするとバリデーションに失敗します。
 
@@ -724,15 +713,14 @@ YAMLフォーマットでの例は次の通りです。[doc yaml-schema-files
 
  # schema.yml
 
-...
-===
-
 User: columns: # ... readonly\_value: type: integer(16) readonly: true #
 ...
 
 ``User``オブジェクトインスタンスから``readonly_value``という名前のカラムを修正しようとすると、バリデーションはエラーになります。
 
-+++ Unsigned
+--------
+Unsigned
+--------
 
 unsignedバリデータは整数が符号無しであることをチェックします。
 
@@ -761,9 +749,6 @@ YAMLフォーマットでの例は次の通りです。[doc yaml-schema-files
 
  # schema.yml
 
-...
-===
-
 User: columns: # ... age: type: integer(3) unsigned: true # ...
 
 マイナス年齢の``User``を保存しようとするとバリデーションはエラーになります:
@@ -776,7 +761,9 @@ User: columns: # ... age: type: integer(3) unsigned: true # ...
 if ( ! $user->isValid()) { echo 'User is invalid because -100 is
 signed'; }
 
-+++ US State
+--------
+US State
+--------
 
 usstateバリデータは文字列が有効なUSの州コードであることをチェックします。
 
@@ -791,9 +778,6 @@ YAMLフォーマットでの例は次の通りです。[doc yaml-schema-files
 
  # schema.yml
 
-...
-===
-
 State: columns: name: string(255) code: type: string(2) usstate: true
 
 無効な州コードで``State``を保存しようとするとバリデーションがエラーになります。
@@ -803,7 +787,9 @@ State: columns: name: string(255) code: type: string(2) usstate: true
 if ( ! $state->isValid()) { echo 'State is invalid because "ZZ" is not a
 valid state code'; }
 
-++ まとめ
+===
+まとめ
+===
 
 データを永続的にデータベースに保存する前にDoctrineにデータのバリデーションを行わせる方法を理解しDoctrineコアが提供する共通のバリデータを使うことができます。
 

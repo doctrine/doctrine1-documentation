@@ -1,3 +1,5 @@
+.. vim: set ft=rst tw=4 sw=4 et :
+
 ******************
 Component Overview
 ******************

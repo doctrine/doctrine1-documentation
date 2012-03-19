@@ -1,3 +1,5 @@
+..  vim: set ts=4 sw=4 tw=4 :
+
 ********************************************
 Attribution-Share Alike 3.0 Unported License
 ********************************************
@@ -362,7 +364,7 @@ f. The rights granted under, and the subject matter referenced, in this
    License; this License is not intended to restrict the license of any
    rights under applicable law.
 
-    **SIDEBAR** Creative Commons Notice
+.. sidebar:: Creative Commons Notice
 
     Creative Commons is not a party to this License, and makes no
     warranty whatsoever in connection with the Work. Creative Commons

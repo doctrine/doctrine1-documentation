@@ -1,3 +1,5 @@
+.. vim: set ft=rst tw=4 sw=4 et :
+
 ************
 Introduction
 ************
@@ -40,36 +42,35 @@ We are faced with many problems when building web applications. Instead
 of trying to explain it all it is best to read what Wikipedia has to say
 about object relational mappers.
 
-**Pulled from [http://en.wikipedia.org/wiki/Object-relational\_mapping
-Wikipedia]:**
+    Data management tasks in object-oriented (OO) programming are typically
+    implemented by manipulating objects, which are almost always non-scalar
+    values. For example, consider an address book entry that represents a
+    single person along with zero or more phone numbers and zero or more
+    addresses. This could be modeled in an object-oriented implementation by
+    a "person object" with "slots" to hold the data that comprise the entry:
+    the person's name, a list (or array) of phone numbers, and a list of
+    addresses. The list of phone numbers would itself contain "phone number
+    objects" and so on. The address book entry is treated as a single value
+    by the programming language (it can be referenced by a single variable,
+    for instance). Various methods can be associated with the object, such
+    as a method to return the preferred phone number, the home address, and
+    so on.
 
-Data management tasks in object-oriented (OO) programming are typically
-implemented by manipulating objects, which are almost always non-scalar
-values. For example, consider an address book entry that represents a
-single person along with zero or more phone numbers and zero or more
-addresses. This could be modeled in an object-oriented implementation by
-a "person object" with "slots" to hold the data that comprise the entry:
-the person's name, a list (or array) of phone numbers, and a list of
-addresses. The list of phone numbers would itself contain "phone number
-objects" and so on. The address book entry is treated as a single value
-by the programming language (it can be referenced by a single variable,
-for instance). Various methods can be associated with the object, such
-as a method to return the preferred phone number, the home address, and
-so on.
+    However, many popular database products such as SQL DBMS can only store
+    and manipulate scalar values such as integers and strings organized
+    within tables.
 
-However, many popular database products such as SQL DBMS can only store
-and manipulate scalar values such as integers and strings organized
-within tables.
+    The programmer must either convert the object values into groups of
+    simpler values for storage in the database (and convert them back upon
+    retrieval), or only use simple scalar values within the program.
+    Object-relational mapping is used to implement the first approach.
 
-The programmer must either convert the object values into groups of
-simpler values for storage in the database (and convert them back upon
-retrieval), or only use simple scalar values within the program.
-Object-relational mapping is used to implement the first approach.
+    The height of the problem is translating those objects to forms that can
+    be stored in the database for easy retrieval, while preserving the
+    properties of the objects and their relationships; these objects are
+    then said to be persistent.
 
-The height of the problem is translating those objects to forms that can
-be stored in the database for easy retrieval, while preserving the
-properties of the objects and their relationships; these objects are
-then said to be persistent.
+    -- Pulled from ``Wikipedia <http://en.wikipedia.org/wiki/Object-relational_mapping>``
 
 ====================
 Minimum Requirements

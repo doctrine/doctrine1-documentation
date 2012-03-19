@@ -1,4 +1,6 @@
-++ はじめに
+====
+はじめに
+====
 
 大抵のユーザーは一度はSQLデータベースで階層データを扱います。階層データの管理はリレーショナルデータベースが意図していることはではないことは疑いの余地はありません。リレーショナルデータベースのテーブルは(XMLのように)階層的ではなく、シンプルでフラットなリストです。階層データは親子のリレーションを持ちリレーショナルデータベーステーブルで自然に表現されません。
 
@@ -19,9 +21,13 @@
 -  [http://dev.mysql.com/tech-resources/articles/hierarchical-data.html
    http://dev.mysql.com/tech-resources/articles/hierarchical-data.html]
 
-++ 入れ子集合
+=====
+入れ子集合
+=====
 
-+++ はじめに
+----
+はじめに
+----
 
 入れ子集合はとても早い読み込みアクセス方法を提供する階層データを保存するための解決方法です。しかしながら、入れ子集合の更新はコストがかかります。それゆえこの解決方法は書き込みよりも読み込みがはるかに多い階層に最適です。ウェブの性質から、この方法は大抵のウェブアプリケーションに当てはまります。
 
@@ -32,7 +38,9 @@
 -  [http://dev.mysql.com/tech-resources/articles/hierarchical-data.html
    http://dev.mysql.com/tech-resources/articles/hierarchical-data.html]
 
-+++ セットアップする
+--------
+セットアップする
+--------
 
 モデルを入れ子集合としてセットアップするには、モデルの``setUp()``メソッドにコードを追加しなければなりません。例として下記の``Category``モデルを考えてみましょう:
 
@@ -55,9 +63,6 @@ YAMLフォーマットでの例は次の通りです。[doc yaml-schema-files
 
  # schema.yml
 
-...
-===
-
 Category: actAs: [NestedSet] columns: name: string(255)
 
 Doctrineのテンプレートモデルの詳細情報は[doc behaviors :index
@@ -67,7 +72,9 @@ Doctrineのテンプレートモデルの詳細情報は[doc behaviors :index
     **CAUTION**
     ``lft``、``rgt``、``level``に値を割り当ててはなりません。これらは入れ子集合で透過的に管理されているからです。
 
-+++ マルチプルツリー
+--------
+マルチプルツリー
+--------
 
 入れ子集合の実装によってテーブルが複数のrootノードを持つ、すなわち同じテーブルで複数の木を持つことが可能になります。
 
@@ -95,9 +102,6 @@ YAMLフォーマットでの例は次の通りです。[doc yaml-schema-files
 
  # schema.yml
 
-...
-===
-
 Category: actAs: NestedSet: hasManyRoots: true rootColumnName: root\_id
 columns: name: string(255)
 
@@ -105,7 +109,9 @@ columns: name: string(255)
 
 一般的に``root\_id``を直接扱う必要はありません。例えば、新しいノードを既存の木に差し込むもしくはツリーの間でノードを移動させるときDoctrineは関連する``root_id``の変更を透過的に処理します。
 
-+++ Working with Trees
+------------------
+Working with Trees
+------------------
 
 モデルを入れ子集合としてセットアップが成功したら作業を始めることができます。Doctrineの入れ子集合を実装する作業は2つのクラス:
 ``Doctrine\_Tree\_NestedSet``と``Doctrine\_Node\_NestedSet``で行われます。これらのクラスは``Doctrine\_Tree\_Interface``と``Doctrine\_Node_Interface``インターフェイスの実装です。ツリーオブジェクトはテーブルオブジェクトにバインドされノードオブジェクトはレコードオブジェクトにバインドされます。これらの内容は次の通りです:
@@ -126,7 +132,9 @@ columns: name: string(255)
 
 次のセクションでノードとツリークラスでもっともよく使われるオペレーションを実演するコードスニペットを見ます。
 
-++++ rootノードを作成する
+^^^^^^^^^^^^
+rootノードを作成する
+^^^^^^^^^^^^
 
  // test.php
 
@@ -136,7 +144,9 @@ $category->save();
 $treeObject = Doctrine\_Core::getTable('Category')->getTree();
 :code:`treeObject->createRoot(`\ category);
 
-++++ ノードを挿入する
+^^^^^^^^
+ノードを挿入する
+^^^^^^^^
 
 次の例では新しい``Category``インスタンスを``Category``のrootの子として追加しています:
 
@@ -149,7 +159,9 @@ $child2 = new Category(); $child2->name = 'Child Category 1';
 :code:`child1->getNode()->insertAsLastChildOf(`\ category);
 :code:`child2->getNode()->insertAsLastChildOf(`\ category);
 
-++++ ノードを削除する
+^^^^^^^^
+ノードを削除する
+^^^^^^^^
 
 ツリーからノードを削除するのは簡単でノードオブジェクトで``delete()``メソッドを呼び出します:
 
@@ -164,7 +176,9 @@ $category->getNode()->delete();
 
 ノードを削除するとそのノードのすべての子孫も削除されます。ですのでこれらの子孫を削除したくなければノードを削除するまえにどこか別の場所に移動させてください。
 
-++++ ノードを移動させる
+^^^^^^^^^
+ノードを移動させる
+^^^^^^^^^
 
 ノードの移動は簡単です。Doctrineはツリーの間でノードを移動させるためのいくつかのメソッドを提供します:
 
@@ -189,7 +203,9 @@ $childCategory = $categoryTable->findOneByName('Child Category 1');
 
 メソッドの名前はその名の通りでなけれればなりません。
 
-++++ ノードを検査する
+^^^^^^^^
+ノードを検査する
+^^^^^^^^
 
 次のメソッドを使うことでノードとその型を検査することができます:
 
@@ -201,7 +217,9 @@ $category->getNode()->isRoot();
     **NOTE**
     上記のメソッドは葉ノードであるかrootノードであるかによってtrue/falseを返します。
 
-++++ 兄弟の検査と読み込み
+^^^^^^^^^^
+兄弟の検査と読み込み
+^^^^^^^^^^
 
 次のメソッドを使うことでノードが次もしくは前の兄弟を持つのか簡単にチェックできます:
 
@@ -226,7 +244,9 @@ $category->getNode()->getPrevSibling();
 
 // ... $siblings = $category->getNode()->getSiblings();
 
-++++ 子孫の検査と読み取り
+^^^^^^^^^^
+子孫の検査と読み取り
+^^^^^^^^^^
 
 次のメソッドを使用することでノードが親もしくは子を持つことをチェックできます:
 
@@ -274,7 +294,9 @@ $numDescendants = $category->getNode()->getNumberDescendants();
 ``getDescendants()``と``getAncestors()``は結果ブランチの``depth``を指定するために使用できるパラメータを受けとります。例えば``getDescendants(1)``は直接の子孫のみを読み取ります(1レベル下の子孫で、これは``getChildren()``と同じです)。同じ流儀で
 ``getAncestors(1)``は直接の祖先(親など)のみを読み取ります。rootノードもしくは特定の祖先までのこのノードのパスを効率的に決定するために``getAncestors()``はとても便利です(すなわちパンくずナビゲーションを構築するため).
 
-++++ 単純木をレンダリングする
+^^^^^^^^^^^^
+単純木をレンダリングする
+^^^^^^^^^^^^
 
     **NOTE**
     次の例では``hasManyRoots``をfalseに設定することを前提とします。下記の例を適切に動作させるためにこのオプションをfalsenに設定しなければなりません。前のセクションでは値をtrueに設定しました。
@@ -287,11 +309,15 @@ $tree = $treeObject->fetchTree();
 foreach ($tree as $node) { echo str\_repeat('  ', $node['level']) .
 $node['name'] . ""; }
 
-+++ 高度な使い方
+------
+高度な使い方
+------
 
 以前のセクションでは入れ子集合の基本的な使い方を説明しました。このセクションは高度な内容に進みます。
 
-++++ リレーションでツリーを取得する
+^^^^^^^^^^^^^^^
+リレーションでツリーを取得する
+^^^^^^^^^^^^^^^
 
 ソフトウェア開発者に要求している場合すでにこの質問が念頭にあるかもしれません:
 "関連データを持つツリー/ブランチを取得するには？". Simple example:
@@ -336,7 +362,9 @@ $treeObject = Doctrine\_Core::getTable('Category')->getTree();
 :code:`treeObject->resetBaseQuery(); </code> ```\ tree``で素晴らしく構造化された配列が手に入ります。ともかくレコードにアクセスする配列を使う場合、このような変更はコードの他の部分に影響を与えません。クエリを修正するこのメソッドはすべてのノードとツリーメソッド(``getAncestors()``,
 ``getDescendants()``、``getChildren()``、``getParent()``)に対して使うことができます。クエリを作り、ツリーオブジェクトの基本クエリとして設定し適切なメソッドとして起動させます。
 
-+++ インデントでレンダリングする
+--------------
+インデントでレンダリングする
+--------------
 
 下記の例ではすべてのツリーが適切なインデントでレンダリングされます。``fetchRoots()``メソッドを使用してrootを読み取り``fetchTree()``メソッドを使用して個別のツリーを読み取ることができます。
 
@@ -354,7 +382,9 @@ str\_repeat(' ', $node['level']) . $node['name'] . ""; } }
 
  $ php test.php Root Category 1 Root Category 2 Child Category 1
 
-++ まとめ
+===
+まとめ
+===
 
 ``NestedSet``ビヘイビアに関するすべての内容と階層データを管理する方法を学んだので[doc
 data-fixtures
