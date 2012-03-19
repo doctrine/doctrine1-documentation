@@ -1,4 +1,4 @@
-.. vim: set ft=rst tw=4 sw=4 et :
+..  vim: set ts=4 sw=4 tw=79 :
 
 ************
 Introduction
@@ -70,7 +70,7 @@ about object relational mappers.
     properties of the objects and their relationships; these objects are
     then said to be persistent.
 
-    -- Pulled from ``Wikipedia <http://en.wikipedia.org/wiki/Object-relational_mapping>``
+    -- Pulled from `Wikipedia <http://en.wikipedia.org/wiki/Object-relational_mapping>`_
 
 ====================
 Minimum Requirements
@@ -95,7 +95,7 @@ Doctrine is a tool for object-relational mapping in PHP. It sits on top
 of PDO and is itself divided into two main layers, the DBAL and the ORM.
 The picture below shows how the layers of Doctrine work together.
 
-.. image:: /images/doctrine-layers.jpg
+.. image:: /_static/images/doctrine-layers.jpg
    :alt: Doctrine Layers: The ORM relies on the DBAL, which relies on PDO
 
 The DBAL (Database Abstraction Layer) completes and extends the basic
@@ -109,81 +109,76 @@ included.
 Doctrine Explained
 ==================
 
-The following section tries to explain where Doctrine stands in the
-world of ORM tools. The Doctrine ORM is mainly built around the
-[http://www.martinfowler.com/eaaCatalog/activeRecord.html Active
-Record], [http://www.martinfowler.com/eaaCatalog/dataMapper.html Data
-Mapper] and [http://www.martinfowler.com/eaaCatalog/metadataMapping.html
-Meta Data Mapping] patterns.
+The following section tries to explain where Doctrine stands in the world of
+ORM tools. The Doctrine ORM is mainly built around the `Active Record
+<http://www.martinfowler.com/eaaCatalog/activeRecord.html>`_, `Data Mapper
+<http://www.martinfowler.com/eaaCatalog/dataMapper.html>`_ and `Data Mapping
+<http://www.martinfowler.com/eaaCatalog/metadataMapping.html Meta>`_ patterns.
 
-Through extending a specific base class named ``Doctrine_Record``, all
-the child classes get the typical ActiveRecord interface
-(save/delete/etc.) and it allows Doctrine to easily participate in and
-monitor the lifecycles of your records. The real work, however, is
-mostly forwarded to other components, like the ``Doctrine_Table``
-class. This class has the typical Data Mapper interface,
-``createQuery()``, ``find(id)``, ``findAll()``, ``findBy*()``,
-``findOneBy*()`` etc. So the ActiveRecord base class enables Doctrine to
-manage your records and provides them with the typical ActiveRecord
-interface whilst the mapping footwork is done elsewhere.
+Through extending a specific base class named :php:class:`Doctrine_Record`, all
+the child classes get the typical ActiveRecord interface (save/delete/etc.) and
+it allows Doctrine to easily participate in and monitor the lifecycles of your
+records. The real work, however, is mostly forwarded to other components, like
+the :php:class:`Doctrine_Table` class. This class has the typical Data Mapper
+interface, :php:meth:`createQuery`, :php:meth:`find(id)`, :php:meth:`findAll`,
+:php:meth:`findBy*`, :php:meth:`findOneBy*` etc. So the ActiveRecord base class
+enables Doctrine to manage your records and provides them with the typical
+ActiveRecord interface whilst the mapping footwork is done elsewhere.
 
-The ActiveRecord approach comes with its typical limitations. The most
-obvious is the enforcement for a class to extend a specific base class
-in order to be persistent (a ``Doctrine_Record``). In general, the
-design of your domain model is pretty much restricted by the design of
-your relational model. There is an exception though. When dealing with
-inheritance structures, Doctrine provides some sophisticated mapping
-strategies which allow your domain model to diverge a bit from the
-relational model and therefore give you a bit more freedom.
+The ActiveRecord approach comes with its typical limitations. The most obvious
+is the enforcement for a class to extend a specific base class in order to be
+persistent (a :php:class:`Doctrine_Record`). In general, the design of your
+domain model is pretty much restricted by the design of your relational model.
+There is an exception though. When dealing with inheritance structures,
+Doctrine provides some sophisticated mapping strategies which allow your domain
+model to diverge a bit from the relational model and therefore give you a bit
+more freedom.
 
-Doctrine is in a continuous development process and we always try to add
-new features that provide more freedom in the modeling of the domain.
-However, as long as Doctrine remains mainly an ActiveRecord approach,
-there will always be a pretty large, (forced) similarity of these two
-models.
+Doctrine is in a continuous development process and we always try to add new
+features that provide more freedom in the modeling of the domain.  However, as
+long as Doctrine remains mainly an ActiveRecord approach, there will always be
+a pretty large, (forced) similarity of these two models.
 
-The current situation is depicted in the following picture.
+.. The current situation is depicted in the following picture.
 
-[http://www.doctrine-project.org/relational-bounds.jpg Relational
-Bounds]
+.. `Relational Bounds <http://www.doctrine-project.org/relational-bounds.jpg>`_
 
-As you see in the picture, the domain model can't drift far away from
-the bounds of the relational model.
+.. As you see in the picture, the domain model can't drift far away from the
+   bounds of the relational model.
 
-After mentioning these drawbacks, it's time to mention some advantages
-of the ActiveRecord approach. Apart from the (arguably slightly) simpler
-programming model, it turns out that the strong similarity of the
-relational model and the Object Oriented (OO) domain model also has an
-advantage: It makes it relatively easy to provide powerful generation
-tools, that can create a basic domain model out of an existing
-relational schema. Further, as the domain model can't drift far from the
-relational model due to the reasons above, such generation and
-synchronization tools can easily be used throughout the development
-process. Such tools are one of Doctrine's strengths.
+After mentioning these drawbacks, it's time to mention some advantages of the
+ActiveRecord approach. Apart from the (arguably slightly) simpler programming
+model, it turns out that the strong similarity of the relational model and the
+Object Oriented (OO) domain model also has an advantage: It makes it relatively
+easy to provide powerful generation tools, that can create a basic domain model
+out of an existing relational schema. Further, as the domain model can't drift
+far from the relational model due to the reasons above, such generation and
+synchronization tools can easily be used throughout the development process.
+Such tools are one of Doctrine's strengths.
 
-We think that these limitations of the ActiveRecord approach are not
-that much of a problem for the majority of web applications because the
-complexity of the business domains is often moderate, but we also admit
-that the ActiveRecord approach is certainly not suited for complex
-business logic (which is often approached using Domain-Driven Design) as
-it simply puts too many restrictions and has too much influence on your
-domain model.
+We think that these limitations of the ActiveRecord approach are not that much
+of a problem for the majority of web applications because the complexity of the
+business domains is often moderate, but we also admit that the ActiveRecord
+approach is certainly not suited for complex business logic (which is often
+approached using Domain-Driven Design) as it simply puts too many restrictions
+and has too much influence on your domain model.
 
-Doctrine is a great tool to drive the persistence of simple or
-moderately complex domain models``(1)`` and you may even find that it's
-a good choice for complex domain models if you consider the trade-off
-between making your domain model more database-centric and implementing
-all the mapping on your own (because at the time of this writing we are
-not aware of any powerful ORM tools for PHP that are not based on an
-ActiveRecord approach).
+Doctrine is a great tool to drive the persistence of simple or moderately
+complex domain models [#domain_complexity]_ and you may even find that it's a good choice for
+complex domain models if you consider the trade-off between making your domain
+model more database-centric and implementing all the mapping on your own
+(because at the time of this writing we are not aware of any powerful ORM tools
+for PHP that are not based on an ActiveRecord approach).
 
-    **NOTE** ``(1)`` Note that complexity != size. A domain model can be
-    pretty large without being complex and vice versa. Obviously, larger
-    domain models have a greater probability of being complex.
+Now you already know a lot about what Doctrine is and what it is not. If you
+would like to dive in now and get started right away, jump straight to the next
+chapter :doc:`getting-started`.
 
-Now you already know a lot about what Doctrine is and what it is not. If
-you would like to dive in now and get started right away, jump straight
-to the next chapter "Getting Started".
+.. rubric:: Notes
+
+.. [#domain_complexity] Complexity != Size. A domain model can be pretty large without being
+    complex and vice versa. Obviously, larger domain models have a greater
+    probability of being complex.
 
 ============
 Key Concepts
@@ -207,31 +202,33 @@ Take this example DQL query:
 The things to notice about this query:
 
 -  We select from **classes** and not **tables**. We are selecting from
-   the ``User`` class/model.
+   the :php:class:`User` class/model.
 -  We join along **associations** (u.Phonenumbers)
 -  We can reference **fields** (u.level)
 -  There is no join condition (ON x.y = y.x). The associations between
    your classes and how these are expressed in the database are known to
    Doctrine (You need to make this mapping known to Doctrine, of course.
-   How to do that is explained later in the [doc defining-models :name]
+   How to do that is explained later in the :doc:`defining-models`
    chapter.).
 
-    **NOTE** DQL expresses a query in the terms of your domain model
+.. note::
+
+    DQL expresses a query in the terms of your domain model
     (your classes, the attributes they have, the relations they have to
     other classes, etc.).
 
 It's very important that we speak about classes, fields and associations
-between classes here. ``User`` is **not** a table / table name . It may
-be that the name of the database table that the ``User`` class is mapped
-to is indeed named ``User`` but you should nevertheless adhere to this
+between classes here. :php:class:`User` is **not** a table / table name . It may
+be that the name of the database table that the :php:class:`User` class is mapped
+to is indeed named :php:class:`User` but you should nevertheless adhere to this
 differentiation of terminology. This may sound nit picky since, due to
 the ActiveRecord approach, your relational model is often very similar
 to your domain model but it's really important. The column names are
 rarely the same as the field names and as soon as inheritance is
 involved, the relational model starts to diverge from the domain model.
-You can have a class ``User`` that is in fact mapped to several tables
+You can have a class :php:class:`User` that is in fact mapped to several tables
 in the database. At this point it should be clear that talking about
-"selecting from the ``User`` table" is simply wrong then. And as
+"selecting from the :php:class:`User` table" is simply wrong then. And as
 Doctrine development continues there will be more features available
 that allow the two models to diverge even more.
 
@@ -242,12 +239,12 @@ Further Reading
 For people new to object-relational mapping and (object-oriented) domain
 models we recommend the following literature:
 
-The [http://www.martinfowler.com/books.html books by Martin Fowler]
+The `books by Martin Fowler <http://www.martinfowler.com/books.html>`_
 cover a lot of the basic ORM terminology, the different approaches of
 modeling business logic and the patterns involved.
 
-Another good read is about [http://domaindrivendesign.org/books/#DDD
-Domain Driven Design]. Though serious Domain-Driven Design is currently
+Another good read is about `Driven Design <http://domaindrivendesign.org/books/#DDD
+Domain>`_. Though serious Domain-Driven Design is currently
 not possible with Doctrine, this is an excellent resource for good
 domain modeling, especially in complex business domains, and the
 terminology around domain models that is pretty widespread nowadays is
@@ -260,4 +257,4 @@ Conclusion
 Well, now that we have given a little educational reading about the
 methodologies and principals behind Doctrine we are pretty much ready to
 dive in to everything that is Doctrine. Lets dive in to setting up
-Doctrine in the [doc getting-started :name] chapter.
+Doctrine in the :doc:`getting-started` chapter.
