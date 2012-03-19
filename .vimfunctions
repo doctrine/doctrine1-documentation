@@ -63,11 +63,3 @@ function! FixLinks()
 endfunction
 noremap <Leader>fl :call FixLinks()<CR>
 
-" :'<,'>s/^-  /*  /
-" .. vim: set ft=rst tw=4 sw=4 et :
-
-" Saved Macros
-let @a='/^\+kbkb++ kDkDkDVy[pkdVr=VykuP'
-let @b='/^+++ kDkDkDVy[pkdVr-VykuP'
-let @c='/^++++ kDkDkDkDkDVypVr^VykuP'
-
