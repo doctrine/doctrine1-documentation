@@ -1,4 +1,6 @@
-++ はじめに
+========
+はじめに
+========
 
 Doctrineは多くの人の作業の成果物です。他の言語のORMは開発者の学習のための主要なリソースです。
 
@@ -7,12 +9,16 @@ Doctrineは多くの人の作業の成果物です。他の言語のORMは開発
     symfony]と[http://framework.zend.com Zend
     Framework]です。Doctrineのライセンス情報は``LICENSE``という名前のファイルで見つかります。
 
-++ アーキテクチャ
+==============
+アーキテクチャ
+==============
 
 Doctrineは3つのパッケージ:
 CORE、ORMとDBALに分割されます。下記のリストはそれぞれのパッケージを構成するメインクラスの一部のリストは下記の通りです。
 
-+++ Doctrine CORE
+--------------------------
+Doctrine CORE
+--------------------------
 
 -  Doctrine
 -  [doc component-overview:manager Doctrine\_Manager]
@@ -27,7 +33,9 @@ CORE、ORMとDBALに分割されます。下記のリストはそれぞれのパ
 -  Doctrine\_Configurable
 -  [doc event-listeners Doctrine\_EventListener]
 
-+++ Doctrine DBAL
+--------------------------
+Doctrine DBAL
+--------------------------
 
 -  [doc component-overview:record:using-expression-values
    Doctrine\_Expression\_Driver]
@@ -39,7 +47,9 @@ CORE、ORMとDBALに分割されます。下記のリストはそれぞれのパ
 
 Doctrine DBALはドライバパッケージにも分割されます。
 
-+++ Doctrine ORM
+------------------------
+Doctrine ORM
+------------------------
 
 -  [doc component-overview:record Doctrine\_Record]
 -  [doc component-overview:table Doctrine\_Table]
@@ -68,7 +78,9 @@ Doctrine用のビヘイビアもあります:
 -  [doc behaviors:core-behaviors:timestampable :name]
 -  [doc behaviors:core-behaviors:versionable :name]
 
-++ デザインパターン
+================
+デザインパターン
+================
 
 使用されている``GoF (Gang of Four)``デザインパターン:
 
@@ -113,7 +125,9 @@ Doctrine用のビヘイビアもあります:
 -  [http://www.martinfowler.com/eaaCatalog/queryObject.html Query
    Object]、DQL APIはQuery Objectパターンの基本アイディアの拡張
 
-++ 動作速度
+========
+動作速度
+========
 
 -  **遅延初期化** - コレクション要素
 -  **Subselectの取得** -
@@ -137,7 +151,9 @@ Doctrine用のビヘイビアもあります:
 -  **データベース抽象化のためのPDO** -
    PDOはPHPの最速のデータベース抽象化レイヤーです。
 
-++ まとめ
+======
+まとめ
+======
 
 この章ではDoctrineのコンポーネントの完全な鳥瞰図と編成の情報を提供します。これまでこれらを個別の部分として見てきましたが3つのメインパッケージの個別のリストによってこれまでわからなかったことが明らかになります。
 

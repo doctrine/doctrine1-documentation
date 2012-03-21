@@ -1,10 +1,14 @@
-++ はじめに
+========
+はじめに
+========
 
 最初から複数の接続を扱えるようにDoctrineは設計されてきました。個別に指定しない限りDoctrineはクエリの実行には現在の接続を使います。
 
 この章ではDoctrineの接続の作成と扱い方を示します。
 
-++ 接続を開く
+==========
+接続を開く
+==========
 
 ``Doctrine\_Manager``はスタティックメソッドの``Doctrine_Manager::connection()``を提供します。このメソッドは新しい接続を開きます。
 
@@ -16,7 +20,9 @@
 Doctrine\_Manager::connection('mysql://username:password@localhost/test',
 'connection 1');
 
-++ 接続を読み取る
+==============
+接続を読み取る
+==============
 
 ``Doctrine_Manager::connection()``メソッドを使用し引数を渡さない場合現在の接続が返されます:
 
@@ -27,7 +33,9 @@ Doctrine\_Manager::connection('mysql://username:password@localhost/test',
 if ($conn === $conn2) { echo 'Doctrine\_Manager::connection() returns
 the current connection'; }
 
-++ 現在の接続
+==========
+現在の接続
+==========
 
 現在の接続は最後に開いた接続です。次の例では``Doctrine_Manager``インスタンスから現在の接続を取得する方法が示されています:
 
@@ -40,7 +48,9 @@ Doctrine\_Manager::connection('mysql://username2:password2@localhost/test2',
 if ($conn2 === $manager->getCurrentConnection()) { echo 'Current
 connection is the connection we just created!'; }
 
-++ 現在の接続を変更する
+====================
+現在の接続を変更する
+====================
 
 ``Doctrine_Manager::setCurrentConnection()``を呼び出すことで現在の接続を変更できます。
 
@@ -50,7 +60,9 @@ connection is the connection we just created!'; }
 
 echo $manager->getCurrentConnection()->getName(); // connection 1
 
-++ 接続を反復する
+==============
+接続を反復する
+==============
 
 foreach句にマネージャーオブジェクトを渡すことで開いた接続をイテレートできます。``Doctrine_Manager``が特殊な``IteratorAggregate``インターフェイスを実装するのでこれは可能です。
 
@@ -58,7 +70,9 @@ foreach句にマネージャーオブジェクトを渡すことで開いた接�
 
 // ... foreach($manager as $conn) { echo $conn->getName() . ""; }
 
-++ 接続名を取得する
+================
+接続名を取得する
+================
 
 次のコードで``Doctrine_Connection``インスタンスの名前を簡単に取得できます:
 
@@ -70,7 +84,9 @@ $name = :code:`manager->getConnectionName(`\ conn);
 
 echo $name; // connection 1
 
-++ 接続を閉じる
+============
+接続を閉じる
+============
 
 接続を閉じたりDoctrine接続レジストリから削除のは簡単です:
 
@@ -86,7 +102,9 @@ echo $name; // connection 1
 
 // ... $conn = Doctrine\_Manager::connection(); $conn->close();
 
-++ すべての接続を取得する
+======================
+すべての接続を取得する
+======================
 
 ``Doctrine_Manager::getConnections()``メソッドを使用して登録されたすべての接続の配列を読み取ることができます:
 
@@ -101,7 +119,9 @@ $conn) { echo $conn->getName() . ""; }
 
 // ... foreach ($manager as $conn) { echo $conn->getName() . ""; }
 
-++ 接続をカウントする
+==================
+接続をカウントする
+==================
 
 ``Countable``インターフェイスを実装するので``Doctrine_Manager``オブジェクトから接続数を取得できます。
 
@@ -117,7 +137,9 @@ echo $num;
 
 // ... $num = $manager->count();
 
-++ データベースの作成と削除
+========================
+データベースの作成と削除
+========================
 
 Doctrineを使用して接続を作成するとき、これらの接続に関連するデータベースの作成と削除する機能が簡単に手に入ります。
 
@@ -141,7 +163,9 @@ $manager->dropDatabases();
 
 $conn->dropDatabase();
 
-++ カスタム接続を書く
+==================
+カスタム接続を書く
+==================
 
 ときには独自のカスタム接続クラスを作りこれらを活用する機能が必要になることがあります。mysqlを拡張するもしくは独自のデータベース型を独自に書くことが必要になることがあります。これはいくつかのクラスを書き接続型をDoctrineに登録することで可能です。
 
@@ -171,7 +195,9 @@ $manager->openConnection('test://username:password@localhost/dbname');
 get\_class(:code:`conn); // Doctrine_Connection_Test echo get_class(`\ conn->getDbh());
 // Doctrine\_Adapter\_Test
 
-++ まとめ
+======
+まとめ
+======
 
 Doctrineの接続すべてを学びましたので[doc introduction-to-models
 :name]の章でモデルに直に飛び込む準備ができました。Doctrineのモデルも少し学びました。少し遊んで最初のテストモデルを作成しDoctrineが提供するマジックを見ることになります。

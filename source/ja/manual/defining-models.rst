@@ -2,7 +2,9 @@
 
 この章ではPHPコードを使用してスキーマ情報をマッピングする方法を詳しく説明します。
 
-++ カラム
+======
+カラム
+======
 
 データベースの互換性の問題の1つは多くのデータベースにおいて返されるクエリの結果セットが異なることです。MySQL
 はフィールドの名前はそのままにします。このことは``"SELECT myField FROM
@@ -18,7 +20,9 @@ under\_scores(アンダースコア)、camelCase(キャメルケース)もしく
     **NOTE**
     Doctrineにおいてカラムとカラムのエイリアスは大文字と小文字を区別します。DQLクエリでカラムを使用するとき、カラム/フィールドの名前はモデルの定義のケースにマッチしなければなりません。
 
-+++ カラムのエイリアス
+------------------
+カラムのエイリアス
+------------------
 
 Doctrineはカラムのエイリアスを定義する方法を提供します。これはデータベースのロジックからアプリケーションのロジックを分離するのを維持したい場合にとても役に立ちます。例えば
 データベースフィールドの名前を変更したい場合、アプリケーションで変更する必要のあるのはカラムの定義だけです。
@@ -34,9 +38,6 @@ setTableDefinition() { $this->hasColumn('bookTitle as title', 'string');
 
  # schema.yml
 
-...
-===
-
 Book: columns: bookTitle: name: bookTitle as title type: string
 
 Now
@@ -46,7 +47,9 @@ Now
 
 // ... $book = new Book(); $book->title = 'Some book'; $book->save();
 
-+++ デフォルトの値
+--------------
+デフォルトの値
+--------------
 
 Doctrineはすべてのデータ型のデフォルト値をサポートします。デフォルト値がレコードのカラムに付属するとき2つのことを意味します。まずこの値はすべての新しく作成されたRecordに添付されDoctrineがデータベースを作成するときにcreate
 tableステートメントにデフォルト値を含めます。
@@ -71,9 +74,6 @@ YAMLフォーマットのサンプルコードは次の通りです。[doc yaml-
 
  # schema.yml
 
-...
-===
-
 User: # ... columns: username: type: string(255) default: default
 username # ...
 
@@ -84,9 +84,13 @@ username # ...
 // ... $user = new User(); echo $user->username; //
 デフォルトのユーザー名
 
-+++ データの型
+----------
+データの型
+----------
 
-++++ はじめに
+^^^^^^^^
+はじめに
+^^^^^^^^
 
 データベースフィールドに保存できる情報用にすべてのDBMSはデータの型の複数の選択肢を提供します。しかしながら、利用可能なデータ型の一式はDBMSによって異なります。
 
@@ -107,7 +111,9 @@ Doctrineのアプリケーションプログラミングインターフェイス
 一般的に
 Doctrineは指定された長さによってどのinteger/string型を使うのか知っているほど賢いです。
 
-++++ 型修飾子
+^^^^^^^^
+型修飾子
+^^^^^^^^
 
 Doctrine APIの範囲内で
 オプションのテーブルデザインに役立つように設計された修飾子が少しあります:
@@ -136,7 +142,9 @@ NULL"フィールド型を定義するために、定義配列に追加パラメ
 
 上記の例ではデータベースのテーブルで長さ12のフィールドを変更する文字が作られます。長さの定義が省略される場合、Doctrineは指定されたデータ型で許容される最大長を作成されます。これはフィールドの型とインデックス作成において問題を引き起こす可能性があります。ベストプラクティスはすべてもしくは大抵のフィールドに対して長さを定義することです。
 
-++++ 論理型
+^^^^^^
+論理型
+^^^^^^
 
 論理型は0か1の2つの値のどちらかだけを表します。効率性の観点からDBMSドライバの中には単独の文字のテキストフィールドで整数型を実装するものがあるのでこれらの論理型を整数型として保存されることを想定しないでください。この型のフィールドに割り当てできる3番目の利用可能な値としてnullを使うことで三値論理は可能です。
 
@@ -151,7 +159,9 @@ YAMLフォーマットでの同じ例です。[doc yaml-schema-files
 
  Test: columns: booltest: boolean
 
-++++ 整数型
+^^^^^^
+整数型
+^^^^^^
 
 整数型はPHPの整数型と同じです。それぞれのDBMSが扱える大きさの整数型の値を保存します。
 
@@ -168,7 +178,9 @@ YAMLフォーマットでの例です。[doc yaml-schema-files
 
  Test: columns: integertest: type: integer(4) unsigned: true
 
-++++ 浮動小数点型
+^^^^^^^^^^^^
+浮動小数点型
+^^^^^^^^^^^^
 
 浮動小数点のデータ型は10進法の浮動小数点数を保存できます。このデータ型は高い精度を必要としない大きなスケールの範囲の数値を表現するのに適しています。スケールと精度に関してデータベースに保存される値の制限は使用されるDBMSに依存します。
 
@@ -180,7 +192,9 @@ setTableDefinition() { $this->hasColumn('floattest', 'float'); } }
 
  Test: columns: floattest: float
 
-++++ 小数型
+^^^^^^
+小数型
+^^^^^^
 
 小数型のデータは固定精度の小数を保存できます。このデータ型は高い正確度と精度を必要とする数値を表現するのに適しています。
 
@@ -203,7 +217,9 @@ YAMLフォーマットでの例は次の通りです。[doc yaml-schema-files
 
  Test: columns: decimaltest: type: decimal(18) scale: 2
 
-++++ 文字列型
+^^^^^^^^
+文字列型
+^^^^^^^^
 
 テキストデータ型では長さに対して2つのオプションが利用可能です:
 1つは明示的に制限された長さでもう一つはデータベースが許容する限りの大きさの未定義の長さです。
@@ -223,7 +239,9 @@ YAMLフォーマットでの同じ例は次の通りです。[doc yaml-schema-fi
 
  Test: columns: stringtest: type: string(200) fixed: true
 
-++++ 配列
+^^^^
+配列
+^^^^
 
 これはPHPの'array'型と同じです。
 
@@ -236,7 +254,9 @@ YAMLフォーマットでの同じ例は次の通りです。[doc yaml-schema-fi
 
  Test: columns: arraytest: array(10000)
 
-++++ オブジェクト
+^^^^^^^^^^^^
+オブジェクト
+^^^^^^^^^^^^
 
 Doctrineはオブジェクトをカラム型としてサポートします。基本的にオブジェクトをフィールドに設定可能でDoctrineはそのオブジェクトのシリアライズ/アンシリアライズを自動的に処理します。
 
@@ -251,7 +271,9 @@ YAMLフォーマットでの同じ例は次の通りです。[doc yaml-schema-fi
     **NOTE**
     配列とオブジェクト型はデータベースで永続化するときはデータをシリアライズしデータベースから引き出すときはデータをアンシリアライズします
 
-++++ blob
+^^^^^^^^
+blob
+^^^^^^^^
 
 blob(Binary Large
 OBject)データ型は、通常はファイルに保存されるデータのようにテキストフィールドに大きすぎる未定義の長さのデータを保存することを意味します。
@@ -266,7 +288,9 @@ YAMLフォーマットでの同じ例は次の通りです。[doc yaml-schema-fi
 
  Test: columns: blobtest: blob
 
-++++ clob
+^^^^^^^^
+clob
+^^^^^^^^
 
 clob (Character Large
 OBject)データ型は、通常はファイルに保存されるデータのように、テキストフィールドで保存するには大きすぎる未定義の長さのデータを保存することを意味します。
@@ -283,7 +307,9 @@ YAMLフォーマットでの例は次の通りです。[doc yaml-schema-files
 
  Test: columns: clobtest: clob
 
-++++ timestamp
+^^^^^^^^^^^^^^^^^^
+timestamp
+^^^^^^^^^^^^^^^^^^
 
 timestampデータ型は日付と時間のデータ型の組み合わせに過ぎません。timestamp型の値の表記は日付と時間の文字列の値は1つのスペースで連結することで実現されます。それゆえ、フォーマットのテンプレートは``YYYY-MM-DD
 HH:MI:SS``です。表される値は日付と時間データ型で説明したルールと範囲に従います。
@@ -297,7 +323,9 @@ YAMLフォーマットでの同じ例は次の通りです。[doc yaml-schema-fi
 
  Test: columns: timestamptest: timestamp
 
-++++ time
+^^^^^^^^
+time
+^^^^^^^^
 
 timeデータ型はその日の与えられた瞬間の時間を表します。DBMS独自の時間の表記もISO-8601標準に従ってテキストの文字列を使用することで実現できます。
 
@@ -313,7 +341,9 @@ YAMLフォーマットでの例は次の通りです。[doc yaml-schema-files
 
  Test: columns: timetest: time
 
-++++ date
+^^^^^^^^
+date
+^^^^^^^^
 
 dateデータ型は年、月と日にちのデータを表します。DBMS独自の日付の表記はISO-8601標準の書式のテキスト文字列を使用して実現されます。
 
@@ -329,7 +359,9 @@ YAMLフォーマットでの例は次の通りです。[doc yaml-schema-files
 
  Test: columns: datetest: date
 
-++++ enum
+^^^^^^^^
+enum
+^^^^^^^^
 
 Doctrineはunifiedなenum型を持ちます。カラムに対して可能な値は``Doctrine_Record::hasColumn()``でカラム定義に指定できます。
 
@@ -349,7 +381,9 @@ YAMLフォーマットでの例は次の通りです。[doc yaml-schema-files
 
  Test: columns: enumtest: type: enum values: [php, java, python]
 
-++++ gzip
+^^^^^^^^
+gzip
+^^^^^^^^
 
 gzipデータ型は存続するときに自動的に圧縮取得されたときに解凍される以外は文字列と同じです。ビットマップ画像など、大きな圧縮率でデータを保存するときにこのデータ型は役に立ちます。
 
@@ -365,7 +399,9 @@ YAMLフォーマットでの同じ例は次の通りです。[doc yaml-schema-fi
     内部ではgzipカラム型の内容の圧縮と解凍を行うために[http://www.php.net/gzcompress
     圧縮]系のPHP関数が使われています。
 
-+++ 例
+----------
+例
+----------
 
 次の定義を考えましょう:
 
@@ -475,9 +511,13 @@ Mysqlではスキーマは次のデータベーステーブルを作成します
 ``someclob`` \|\| ``longtext`` \|\| \|\| ``someblob`` \|\| ``longblob``
 \|\|
 
-++ リレーション
+============
+リレーション
+============
 
-+++ はじめに
+--------
+はじめに
+--------
 
 Doctrineにおいてすべてのレコードのリレーションは``Doctrine\_Record::hasMany``、``Doctrine_Record::hasOne``メソッドで設定されます。Doctrineはほとんどの種類のデータベースリレーションをサポートします
 from
@@ -536,9 +576,6 @@ YAMLフォーマットでの例は次の通りです。[doc yaml-schema-files
 
  # schema.yml
 
-...
-===
-
 Forum\_Board: columns: name: string(100) description: string(5000)
 
 ``Forum\_Thread``クラスの内容を少しのぞいて見ましょう。カラムの内容は適当ですが、リレーションの定義方法に注意をはらってください。それぞれの``Thread``は1つの``Board``のみを持つことができるので``hasOne()``メソッドを使っています。またエイリアスの使い方とlocalカラムが``board_id``である一方で外部カラムは``id``カラムであることに注目してください。
@@ -574,9 +611,6 @@ YAMLフォーマットでの例は次の通りです。[doc yaml-schema-files
 :name]の章でYAMLの詳細を読むことができます:
 
  # schema.yml
-
-...
-===
 
 Forum\_Thread: columns: user\_id: integer board\_id: integer title:
 string(200) updated: integer(10) closed: integer(1) relations: User:
@@ -663,9 +697,13 @@ $board->Threads[1]->title = 'new thread 2';
     **NOTE**
     Doctrine内部でautoincrementの主キーと外部キーが自動的に設定されることに注意してください。主キーと外部キーの設定に悩む必要はまったくありません！
 
-+++ 外部キーのアソシエーション
+--------------------------
+外部キーのアソシエーション
+--------------------------
 
-++++ 一対一
+^^^^^^
+一対一
+^^^^^^
 
 一対一のリレーションは最も基本的なリレーションでしょう。次の例ではリレーションが一対一である``User``と``Email``の2つのクラスを考えます。
 
@@ -699,9 +737,6 @@ YAMLフォーマットでの同じ例は次の通りです。[doc yaml-schema-fi
 
  # schema.yml
 
-...
-===
-
 Email: columns: user\_id: integer address: string(150) relations: User:
 local: user\_id foreign: id foreignType: one
 
@@ -734,12 +769,11 @@ YAMLフォーマットでの同じ例は次の通りです。[doc yaml-schema-fi
 
  # schema.yml
 
-...
-===
-
 User: # ... relations: # ... Email: local: id foreign: user\_id
 
-++++ 一対多と多対一
+^^^^^^^^^^^^^^
+一対多と多対一
+^^^^^^^^^^^^^^
 
 一対多と多対一のリレーションは一対一のリレーションとよく似ています。以前の章で見た推奨される慣習は一対多と多対一のリレーションにも適用されます。
 
@@ -787,16 +821,15 @@ YAMLフォーマットでの同じです。[doc yaml-schema-files
 
  # schema.yml
 
-...
-===
-
 User: # ... relations: # ... Phonenumbers: type: many class: Phonenumber
 local: id foreign: user\_id
 
 Phonenumber: columns: user\_id: integer phonenumber: string(50)
 relations: User: local: user\_id foreign: id
 
-++++ ツリー構造
+^^^^^^^^^^
+ツリー構造
+^^^^^^^^^^
 
 ツリー構造は自己参照の外部キーのリレーションです。次の定義は階層データの概念の用語では隣接リスト(Adjacency
 List)とも呼ばれます。
@@ -831,18 +864,19 @@ YAMLフォーマットでの同じ例です。[doc yaml-schema-files
 
  # schema.yml
 
-...
-===
-
 Task: columns: name: string(100) parent\_id: integer relations: Parent:
 class: Task local: parent\_id foreign: id foreignAlias: Subtasks
 
     **NOTE**
     上記の実装は純粋な例で階層データを保存し読み取るための最も効率的な方法ではありません。階層データを扱い推奨方法に関してはDoctrineに含まれる``NestedSet``ビヘイビアを確認してください。
 
-+++ テーブルのアソシエーションをジョインする
+----------------------------------------
+テーブルのアソシエーションをジョインする
+----------------------------------------
 
-++++ 多対多
+^^^^^^
+多対多
+^^^^^^
 
 リレーショナルデータベースの背景知識があれば、多対多のアソシエーションを扱う方法になれているかもしれません:
 追加のアソシエーションテーブルが必要です。
@@ -905,9 +939,6 @@ YAMLフォーマットでの例は次の通りです。[doc yaml-schema-files
 
  # schema.yml
 
-...
-===
-
 Group: tableName: groups columns: name: string(30) relations: Users:
 class: User local: group\_id foreign: user\_id refClass: UserGroup
 
@@ -936,9 +967,6 @@ YAMLフォーマットでの例は次の通りです。[doc yaml-schema-files
 :name]の章でYAMLの詳細を読むことができます:
 
  # schema.yml
-
-...
-===
 
 UserGroup: columns: user\_id: type: integer primary: true group\_id:
 type: integer primary: true
@@ -972,9 +1000,6 @@ YAMLフォーマットでの例は次の通りです。[doc yaml-schema-files
 
  # schema.yml
 
-...
-===
-
 Order: tableName: orders columns: product\_id: integer quantity: integer
 relations: Product: local: product\_id foreign: id
 
@@ -991,7 +1016,9 @@ product\_id\_idx (product\_id) )
 
 この状況においてordersテーブルは参照するテーブルでproductsテーブルはは参照されるテーブルです。同じように参照と参照されるカラムがあります。
 
-++++ 外部キーの名前
+^^^^^^^^^^^^^^
+外部キーの名前
+^^^^^^^^^^^^^^
 
 Doctrineでリレーションを定義し外部キーがデータベースで作成されるとき、Doctrineは外部キーの名前をつけようとします。ときには、その名前が望んだものとは違うことがあるのでリレーションのセットアップで``foreignKeyName``オプションを使うことで名前をカスタマイズできます。
 
@@ -1018,13 +1045,12 @@ yaml-schema-files :name]の章で読むことができます:
 
  # schema.yml
 
-...
-===
-
 Order: # ... relations: Product: local: product\_id foreign: id
 foreignKeyName: product\_id\_fk
 
-++++ 整合アクション
+^^^^^^^^^^^^^^
+整合アクション
+^^^^^^^^^^^^^^
 
 **CASCADE**
 
@@ -1082,18 +1108,19 @@ YAMLフォーマットでの同じ例は次の通りです。[doc yaml-schema-fi
 
  # schema.yml
 
-...
-===
-
 Phonenumber: # ... relations: # ... User: local: user\_id foreign: id
 onDelete: CASCADE
 
     **NOTE**
     外部キーがあるところで整合性制約がおかれていることに注目してください。整合性制約がデータベースのプロパティにエクスポートされるためにこれは必須です。
 
-++ インデックス
+============
+インデックス
+============
 
-+++ はじめに
+--------
+はじめに
+--------
 
 インデックスは特定のカラムの値を持つ列を素早く見つけるために使われます。インデックスなしでは、データベースは最初の列から始め関連する列をすべて見つけるためにテーブル全体を読み込まなければなりません。
 
@@ -1102,7 +1129,9 @@ onDelete: CASCADE
 インデックスはinsertとupdateを遅くなるコストがついてきます。しかしながら、一般的に
 SQLのwhere条件で使われるフィールドに対して**常に**インデックスを使うべきです。
 
-+++ インデックスを追加する
+----------------------
+インデックスを追加する
+----------------------
 
 ``Doctrine_Record::index``を使用してインデックスを追加できます。インデックスをnameという名前のフィールドに追加するシンプルな例です:
 
@@ -1176,7 +1205,9 @@ YAMLフォーマットでの同じ例です。[doc yaml-schema-files
  MultipleIndexTest: columns: name: string code: string age: integer
 indexes: myindex: fields: [name, code] ageindex: fields: [age]
 
-+++ インデックスオプション
+----------------------
+インデックスオプション
+----------------------
 
 Doctrineは多くのインデックスオプションを提供します。これらの一部はデータベース固有のものです。利用可能なオプションの全リストは次の通りです:
 
@@ -1216,7 +1247,9 @@ yaml-schema-files :name]の章で読むことができます:
 indexes: myindex: fields: name: sorting: ASC length: 10 code: - type:
 unique
 
-+++ 特別なインデックス
+------------------
+特別なインデックス
+------------------
 
 Doctrineは多くの特別なインデックスをサポートします。これらにはMysqlのFULLTEXTとPgsqlのGiSTインデックスが含まれます。次の例では'content'フィールドに対してMysqlのFULLTEXTインデックスを定義します。
 
@@ -1244,16 +1277,15 @@ YAMLフォーマットでの同じ例は次の通りです。[doc yaml-schema-fi
 
  # schema.yml
 
-...
-===
-
 Article: options: type: MyISAM columns: name: string(255) content:
 string indexes: content: fields: [content] type: fulltext
 
     **NOTE**
     テーブルの型を``MyISAM``に設定していることに注目してください。これは``fulltext``インデックス型は``MyISAM``でのみサポートされるため``InnoDB``などを使う場合はエラーを受け取るからです。
 
-++ チェック
+========
+チェック
+========
 
 ``Doctrine_Record``の``check()``メソッドを使用することで任意の``CHECK``制約を作成できます。最後の例では価格がディスカウント価格よりも常に高いことを保証するために制約を追加します。
 
@@ -1276,9 +1308,6 @@ YAMLフォーマットでの同じ例は次の通りです。[doc yaml-schema-fi
 
  # schema.yml
 
-...
-===
-
 Product: # ... checks: price\_check: price > discounted\_price
 
 生成されるSQL(pgsql):
@@ -1294,7 +1323,9 @@ Doctrineバリデータが定義で有効な場合はレコードが保存され
 
 トランザクションの範囲で保存される価格の中にゼロよりも小さいものがある場合、Doctrineは``Doctrine\_Validator_Exception``を投げトランザクションを自動的にロールバックします。
 
-++ テーブルオプション
+==================
+テーブルオプション
+==================
 
 Doctrineはさまざまなテーブルオプションを提供します。すべてのテーブルオプションは``Doctrine_Record::option``関数を通して設定できます。
 
@@ -1338,7 +1369,9 @@ utf8\_unicode\_ci charset: utf8
 
  $conn = Doctrine\_Manager::connection(); $conn->setCharset('utf8');
 
-++ レコードフィルター
+==================
+レコードフィルター
+==================
 
 Doctrineはモデルを定義するときにレコードフィルターを添付する機能を持ちます。レコードフィルターは無効なモデルのプロパティにアクセスするときに起動されます。ですのでこれらのフィルターの1つを使うことを通してプロパティをモデルに追加することが本質的に可能になります。
 
@@ -1428,19 +1461,27 @@ filterSet(Doctrine\_Record $record, $name, $value) { //
     **NOTE**
     ``filterSet()``もしくは``filterGet()``がプロパティを見つけられない場合、例外クラスの``Doctrine_Record_UnknownPropertyException``のインスタンスが投げられていることをかならず確認してください。
 
-++ 遷移的な永続化
+==============
+遷移的な永続化
+==============
 
 Doctrineはデータベースとアプリケーションレベルでカスケーディングオペレーションを提供します。このセクションではアプリケーションとデータベースレベルの両方でセットアップする詳細な方法を説明します。
 
-+++ アプリケーションレベルのカスケード
+----------------------------------
+アプリケーションレベルのカスケード
+----------------------------------
 
 とりわけオブジェクトグラフを扱うとき、個別のオブジェクトの保存と削除はとても退屈です。Doctrineはアプリケーションレベルでオペレーションのカスケード機能を提供します。
 
-++++ 保存カスケード
+^^^^^^^^^^^^^^
+保存カスケード
+^^^^^^^^^^^^^^
 
 デフォルトでは``save()``オペレーションは関連オブジェクトに既にカスケードされていることにお気づきかもしれません。
 
-++++ 削除カスケード
+^^^^^^^^^^^^^^
+削除カスケード
+^^^^^^^^^^^^^^
 
 Doctrineは2番目のカスケードスタイル:
 deleteを提供します。``save()``カスケードとは異なり、``delete``カスケードは次のコードスニペットのように明示的に有効にする必要があります:
@@ -1472,9 +1513,6 @@ YAMLフォーマットでの同じ例は次の通りです。[doc yaml-schema-fi
 
  # schema.yml
 
-...
-===
-
 User: # ... relations: # ... Addresses: class: Address local: id
 foreign: user\_id cascade: [delete]
 
@@ -1503,7 +1541,9 @@ Doctrineは参照照合性を維持しながらすべての削除を並べ替え
 -  関連の照合順序でたくさんのオブジェクトがあるとき多くの値を持つアソシエーションではアプリケーションレベルの削除カスケードはうまく実行されませんこれらがデータベースから取得される必要があるためで、実際の削除はとても効率的です)。
 -  アプリケーションレベルの削除カスケードはデータベースレベルのカスケードが行うようにオブジェクトのライフサイクルをスキップしません(次の章を参照)。それゆえ登録されたすべてのイベントリスナーと他のコールバックメソッドはアプリケーションレベルのカスケードで適切に実行されます。
 
-+++ データベースレベルのカスケード
+------------------------------
+データベースレベルのカスケード
+------------------------------
 
 データベースレベルでカスケードオペレーションはとても効率的にできるものがあります。もっともよい例は削除カスケードです。
 
@@ -1542,9 +1582,6 @@ YAMLフォーマットの同じ例は次の通りです。[doc yaml-schema-files
 
  # schema.yml
 
-...
-===
-
 Address: columns: user\_id: integer address: string(255) country:
 string(255) city: string(255) state: string(2) postal\_code: string(25)
 relations: User: local: user\_id foreign: id onDelete: CASCADE
@@ -1556,7 +1593,9 @@ Doctrineがテーブルを作成するとき``onDelete``オプションは適切
 
 現在、2つのデータベースレベルのカスケードスタイルは``onDelete``と``onUpdate``に対してのみです。Doctrineがテーブルを作成するとき両方とも外部キーを所有する側で指定されデータベーススキーマに適用されます。
 
-++ まとめ
+======
+まとめ
+======
 
 これでDoctrineのモデルを定義するすべての方法を知りました。アプリケーションで[doc
 work-with-models モデルと連携する]方法を学ぶ準備ができています。

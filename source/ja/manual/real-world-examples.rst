@@ -1,4 +1,6 @@
-++ ユーザー管理システム
+====================
+ユーザー管理システム
+====================
 
 ほとんどすべてのアプリケーションではユーザー、ロール、パーミッションなど何らかのセキュリティもしくは認証システムを提供する必要があります。基本的なユーザー管理とセキュリティシステムを提供するいくつかのモデルの例です。
 
@@ -103,7 +105,9 @@ integer primary: true relations: User: Role:
 UserPermission: columns: user\_id: type: integer primary: true
 permission\_id: type: integer primary: true relations: User: Permission:
 
-++ フォーラムアプリケーション
+==========================
+フォーラムアプリケーション
+==========================
 
 カテゴリ、ボードと、スレッドと投稿機能を持つフォーラムアプリケーションの例は次の通りです:
 
@@ -228,7 +232,9 @@ closed: integer(1) relations: Board: class: Forum\_Board local:
 board\_id foreign: id Entries: class: Forum\_Entry local: id foreign:
 thread\_id
 
-++ まとめ
+======
+まとめ
+======
 
 これらの実際の世界のスキーマの例によってDoctrineの実際のアプリケーションを使うことに役立つことを願っております。この本の最後の章では[doc
 coding-standards

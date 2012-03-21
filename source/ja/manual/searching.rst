@@ -1,4 +1,6 @@
-++ はじめに
+========
+はじめに
+========
 
 検索は巨大なトピックなので、この章全体では``Searchable``と呼ばれるビヘイビアを専門に扱います。これは全文インデックス作成と検索ツールでデータベースとファイルの両方で使うことができます。
 
@@ -14,9 +16,6 @@ YAMLフォーマットでの例は次の通りです。[doc yaml-schema-files
 :name]の章でYAMLの詳細を読むことができます:
 
  # schema.yml
-
-...
-===
 
 NewsItem: columns: title: string(255) body: clob
 
@@ -52,9 +51,6 @@ YAMLフォーマットでの例は次の通りです。[doc yaml-schema-files
 
  # schema.yml
 
-...
-===
-
 NewsItem: actAs: Searchable: fields: [title, content] # ...
 
 上記のモデルで生成されたSQLをチェックしてみましょう:
@@ -79,7 +75,9 @@ Here we tell Doctrine that
 1. インバース検索インデックスを更新するもしくは
 2. インバース検索インデックスに新しいエントリを追加する(バッチでインバース検索インデックスを更新するのが効率的であることがあります)
 
-++ インデックス構造
+================
+インデックス構造
+================
 
 Doctrineが使用するインバースインデックスの構造は次の通りです:
 
@@ -102,7 +100,9 @@ Doctrineが使用するインバースインデックスの構造は次の通り
 
 この例において単語の``database``は``1``の``id``を持つ``NewsItem``の``title``フィールドの3番目の単語です。
 
-++ インデックスのビルド
+====================
+インデックスのビルド
+====================
 
 検索可能なレコードがデータベースにinsertされるときDoctrineはインデックスビルドのプロシージャを実行します。プロシージャが検索リスナーによって起動されているときこれはバックグラウンドで行われます。このプロシージャのフェーズは次の通りです:
 
@@ -133,9 +133,6 @@ YAMLフォーマットでの例は次の通りです。[doc yaml-schema-files
 
  # schema.yml
 
-...
-===
-
 NewsItem: actAs: Searchable: fields: [title, content] batchUpdates: true
 # ...
 
@@ -157,7 +154,9 @@ $newsItem->body = 'test'; $newsItem->save();
 // ... $newsItemTable = Doctrine\_Core::getTable('NewsItem');
 $newsItemTable->batchUpdateIndex();
 
-++ テキストアナライザー
+====================
+テキストアナライザー
+====================
 
 デフォルトではDoctrineはテキスト分析のために``Doctrine\_Search\_Analyzer_Standard``を使用します。このクラスは次のことを実行します:
 
@@ -187,12 +186,16 @@ $newsItemTable ->getTemplate('Doctrine\_Template\_Searchable')
 
 $search->setOption('analyzer', new MyAnalyzer());
 
-++ クエリ言語
+==========
+クエリ言語
+==========
 
 ``Doctrine_Search``はApache
 Luceneに似たクエリ言語を提供します。``Doctrine\_Search_Query``は人間が読解でき、構築が簡単なクエリ言語を同等の複雑なDQLに変換します。そしてこのDQLは通常のSQLに変換されます。
 
-++ 検索を実行する
+==============
+検索を実行する
+==============
 
 次のコードはレコードのidと関連データを読み取るシンプルな例です。
 
@@ -267,7 +270,9 @@ print\_r($newsItems->toArray());
 
 )
 
-++ ファイル検索
+============
+ファイル検索
+============
 
 前に述べたように``Doctrine\_Search``はファイル検索にも使うことができます。検索可能なディレクトリを用意したい場合を考えてみましょう。最初に``Doctrine\_Search\_File``のインスタンスを作る必要があります。これは``Doctrine_Search``の子クラスでファイル検索に必要な機能を提供します。
 
@@ -317,7 +322,9 @@ models/generated/BaseNewsItem.php )
 
 )
 
-++ まとめ
+======
+まとめ
+======
 
 ``Searchable``ビヘイビアのすべてを学んだので[doc hierarchical-data
 :name]の章で``NestedSet``ビヘイビアの詳細を学ぶ準備ができています。``NestedSet``は``Searchable``ビヘイビアのように大きなトピックなので1つの章全体で扱います。

@@ -4,7 +4,9 @@ Doctrineは3種類の継承戦略をサポートします。これらの戦略�
 
  $ rm schema.yml $ touch schema.yml $ rm -rf models/\*
 
-++ 単一継承
+========
+単一継承
+========
 
 単一継承は最も簡単でシンプルです。単一継承においてすべての子クラスは同じカラムを親として共有しすべての情報は親テーブルに保存されます。
 
@@ -33,9 +35,6 @@ YAMLフォーマットでの例は次の通りです。[doc yaml-schema-files
 
  # schema.yml
 
-...
-===
-
 Entity: columns: name: string(30) username: string(20) password:
 string(16) created\_at: timestamp updated\_at: timestamp
 
@@ -59,7 +58,9 @@ VARCHAR(255), name VARCHAR(30), PRIMARY KEY(id)) ENGINE = INNODB
     **NOTE**
     YAMLスキーマファイルを使うとき子クラスでカラムを定義できますがYAMLが解析されるときカラムは自動的に親に移動します。これはカラムを簡単に組織できるようにするためだけです。
 
-++ 具象継承
+========
+具象継承
+========
 
 具象継承は子クラス用の独立したテーブルを作成します。しかしながら具象継承ではそれぞれのクラスはすべてのカラムを含むテーブルを生成します(継承されたカラムを含む)。具象継承を使うには下記で示されるように子クラスへの明示的な``parent::setTableDefinition()``を追加する必要があります。
 
@@ -86,9 +87,6 @@ YAMLフォーマットでの例は次の通りです。[doc yaml-schema-files
 :name]の章でYAMLの詳細を読むことができます:
 
  # schema.yml
-
-...
-===
 
 TextItem: columns: topic: string(100)
 
@@ -157,7 +155,9 @@ BIGINT, PRIMARY KEY(id)) ENGINE = INNODB CREATE TABLE entity (id BIGINT
 AUTO\_INCREMENT, name VARCHAR(30), username VARCHAR(20), password
 VARCHAR(16), created BIGINT, PRIMARY KEY(id)) ENGINE = INNODB
 
-++ カラム集約
+==========
+カラム集約
+==========
 
 次の例において``entity``という名前の1つのデータベーステーブルがあります。``Users``と``groups``は両方とも``entities``でこれらは同じデータベーステーブルを共有します。
 
@@ -270,7 +270,9 @@ echo $q->getSqlQuery();
     **NOTE**
     ``User``型であるレコードのみが返されるように``type``の条件が自動的に追加されたことに注目してください。
 
-++ まとめ
+======
+まとめ
+======
 
 モデルでPHPの継承機能を利用する方法を学んだので[doc behaviors
 :name]の章に移動します。これは複雑なモデルを小さくて簡単なコードで維持するためのもっとも洗練された便利な機能の1つです。

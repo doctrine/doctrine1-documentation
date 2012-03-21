@@ -1,4 +1,6 @@
-++ はじめに
+========
+はじめに
+========
 
 Doctrineは柔軟なイベントリスナーアーキテクチャを提供します。このアークテクチャは異なるイベントのリスニングだけでなくリスニングされるメソッドの実行を変更することも可能にします。
 
@@ -40,11 +42,15 @@ echo $blog->created;
 
 ドキュメントの目的のために多くのメソッドテーブルは``params``という名前のカラムで提供されます。このカラムはパラメータの名前は与えられたイベント上でイベントオブジェクトが保有するパラメータの名前を示します。例えば``preCreateSavepoint``イベントは作成された``savepoint``の名前を持つ1つのパラメータを持ちます。
 
-++ 接続リスナー
+============
+接続リスナー
+============
 
 接続リスナーは``Doctrine\_Connection``とそのモジュール(``Doctrine\_Transaction``など)のメソッドをリスニングするために使われます。すべてのリスナーメソッドはリスニングされるイベントの情報を格納する``Doctrine_Event``オブジェクトを1つの引数として受け取ります。
 
-+++ 新しいリスナーを作成する
+------------------------
+新しいリスナーを作成する
+------------------------
 
 リスナーを定義する方法は3つあります。最初に``Doctrine_EventListener``を継承するクラスを作成することでリスナーを作成できます:
 
@@ -108,7 +114,9 @@ postTransactionCommit(Doctrine\_Event $event) {}
  class MyDebugger implements Doctrine\_Overloadable { public function
 \_\_call($methodName, $args) { echo $methodName . ' called !'; } }
 
-+++ リスナーを追加する
+------------------
+リスナーを追加する
+------------------
 
 setListener()でリスナーを接続に追加できます。
 
@@ -119,7 +127,9 @@ setListener()でリスナーを接続に追加できます。
  $conn->addListener(new MyDebugger()); $conn->addListener(new
 MyLogger());
 
-+++ プレ接続とポスト接続
+--------------------
+プレ接続とポスト接続
+--------------------
 
 下記のリスナーのすべては``Doctrine\_Connection``クラスに含まれます。これらすべては``Doctrine_Event``のインスタンスです。
 
@@ -129,7 +139,9 @@ Doctrine\_Connection::connection() \|\| \|\| \|\|
 ``postConnect(Doctrine_Event $event)`` \|\|
 Doctrine\_Connection::connection() \|\| \|\|
 
-+++ トランザクションリスナー
+------------------------
+トランザクションリスナー
+------------------------
 
 下記のリスナーのすべては``Doctrine\_Transaction``クラスに含まれます。これらすべてに``Doctrine_Event``のインスタンスが渡されます。
 
@@ -163,7 +175,9 @@ transaction... '; }
 
 }
 
-+++ クエリ実行リスナー
+------------------
+クエリ実行リスナー
+------------------
 
 下記のリスナーのすべては``Doctrine\_Connection``と``Doctrine\_Connection\_Statement``クラスに含まれます。そしてこれらすべては``Doctrine_Event``のインスタンスです。
 
@@ -184,7 +198,9 @@ transaction... '; }
     **NOTE**
     ``Doctrine\_Connection::execute()``がプリペアードステートメントパラメータで呼び出されるときにのみ``preExecute()``と``postExecute()``は起動します。そうではない場合``Doctrine_Connection::execute()``は``prePrepare()``、``postPrepare()``、``preStmtExecute()``と``postStmtExecute()``を起動します。
 
-++ ハイドレーションリスナー
+========================
+ハイドレーションリスナー
+========================
 
 ハイドレーションリスナーは結果セットのハイドレーション処理をリスニングするために使われます。ハイドレーション処理をリスニングするために2つのメソッド:
 ``preHydrate()``と``postHydrate()``が存在します。
@@ -221,7 +237,9 @@ $users = $q->execute();
 
 foreach ($users as $user) { echo $user->full\_name; }
 
-++ レコードリスナー
+================
+レコードリスナー
+================
 
 ``Doctrine\_Record``は``Doctrine_Connection``とよく似たリスナーを提供します。グローバル、接続、テーブルレベルでリスナーを設定できます。
 
@@ -296,7 +314,9 @@ $event->getInvoker()->id; } }
 
 }
 
-++ レコードフック
+==============
+レコードフック
+==============
 
 \|\|~ メソッド \|\|~ リスニング \|\| \|\| ``preSave()`` \|\| ``save()``
 \|\| \|\| ``postSave()`` \|\| ``save()`` \|\| \|\| ``preUpdate()`` \|\|
@@ -329,7 +349,9 @@ $this->hasColumn('content', 'string'); $this->hasColumn('created',
 
 }
 
-++ DQLフック
+============
+DQLフック
+============
 
 レコードリスナーをグローバル、それぞれの接続で、もしくは特定のレコードインスタンスで追加することができます。``Doctrine_Query``は``preDql\*()``フックを実装します。これはクエリが実行されるときに、追加されたレコードリスナーもしくはモデルインスタンス自身でチェックされます。フックを起動したクエリを変更できるフックのためにクエリはクエリの``from``部分に関連するすべてのモデルをチェックします。
 
@@ -455,7 +477,9 @@ u**password, u.deleted AS u**deleted FROM user u WHERE u.deleted = ?
     **NOTE** ``"u.deleted =
     ?"``が//true//のパラメータの値でwhere条件に自動的に追加されたことに注目してください。
 
-++ 複数のリスナーを連結する
+========================
+複数のリスナーを連結する
+========================
 
 異なるイベントリスナーを連結することができます。このことは同じイベントをリスニングするために複数のリスナーを追加できることを意味します。次の例では与えられた接続用に2つのリスナーを追加します:
 
@@ -463,9 +487,13 @@ u**password, u.deleted AS u**deleted FROM user u WHERE u.deleted = ?
 
  $conn->addListener(new Debugger()); $conn->addListener(new Logger());
 
-++ イベントオブジェクト
+====================
+イベントオブジェクト
+====================
 
-+++ インボーカーを取得する
+----------------------
+インボーカーを取得する
+----------------------
 
 ``getInvoker()``を呼び出すことでイベントを起動したオブジェクトを取得できます:
 
@@ -473,7 +501,9 @@ u**password, u.deleted AS u**deleted FROM user u WHERE u.deleted = ?
 preExec(Doctrine\_Event $event) { $event->getInvoker(); //
 Doctrine\_Connection } }
 
-+++ イベントコード
+--------------
+イベントコード
+--------------
 
 ``Doctrine_Event``は定数をイベントコードとして使用します。利用可能なイベントの定数の一覧は下記の通りです:
 
@@ -510,7 +540,9 @@ class MyRecord extends Doctrine\_Record { public function
 preUpdate(Doctrine\_Event $event) { $event->getCode(); //
 Doctrine\_Event::RECORD\_UPDATE } }
 
-+++ インボーカーを取得する
+----------------------
+インボーカーを取得する
+----------------------
 
 ``getInvoker()``メソッドは与えられたイベントを起動したオブジェクトを返します。例えばイベント用の``Doctrine\_Event::CONN\_QUERY``インボーカーは``Doctrine_Connection``オブジェクトです。
 
@@ -520,7 +552,9 @@ Doctrine\_Event::RECORD\_UPDATE } }
 preUpdate(Doctrine\_Event $event) { $event->getInvoker(); //
 Object(MyRecord) } }
 
-+++ 次のオペレーションをスキップする
+--------------------------------
+次のオペレーションをスキップする
+--------------------------------
 
 リスナーチェーンのビヘイビアの変更と同様にリスニングされているメソッドの実行の変更のために``Doctrine_Event``は多くのメソッドを提供します。
 
@@ -536,7 +570,9 @@ preExec(Doctrine\_Event $event) { // some business logic, then:
 
 }
 
-+++ 次のリスナーをスキップする
+--------------------------
+次のリスナーをスキップする
+--------------------------
 
 リスナーのチェーンを使うとき次のリスナーの実行をスキップしたいことがあります。これは次のように実現できます:
 
@@ -550,7 +586,9 @@ preExec(Doctrine\_Event $event) { // some business logic, then:
 
 }
 
-++ まとめ
+======
+まとめ
+======
 
 イベントリスナーはDoctrineの素晴らしい機能で[doc behaviors
 :name]に結びつけられます。これらは最小量のコードで非常に複雑な機能を提供します。

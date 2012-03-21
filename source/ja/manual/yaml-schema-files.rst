@@ -1,10 +1,14 @@
-++ はじめに
+========
+はじめに
+========
 
 スキーマファイルの目的はPHPコードの編集よりもYAMLファイルでモデルの定義を直接管理できるようにすることです。すべてのモデルの定義/クラスを生成するためにYAMLスキーマファイルは解析され使われます。これによってDoctrineモデルの定義がはるかにポータブルなものになります。
 
 スキーマファイルはPHPコードで書く通常のすべての内容をサポートします。接続バインディング用のコンポーネント、リレーション、属性、テンプレート/ビヘイビア、インデックスなどがあります。
 
-++ 省略構文
+========
+省略構文
+========
 
 Doctrineは省略記法でスキーマを指定する機能を提供します。多くのスキーマパラメータはデフォルトの値を持ち、これによって構文をできるのでDoctrineはデフォルトを利用できます。すべての省略記法を利用したスキーマの例は下記の通りです。
 
@@ -19,7 +23,9 @@ User: columns: username: string password: string contact\_id: integer
 Contact: columns: first\_name: string last\_name: string phone: string
 email: string address: string
 
-++ 冗長な構文
+==========
+冗長な構文
+==========
 
 上記のスキーマを100%冗長にしたものは次の通りです:
 
@@ -34,15 +40,21 @@ contact\_id foreignAlias: Contact foreignType: one type: one
 
 上記の例では``detect_relations``オプションを定義せず、代わりにローカル/外部キー、型、とそれぞれの側のリレーションのエイリアスの設定を通して完全にコントロールできるように手動でリレーションを定義します。
 
-++ リレーション
+============
+リレーション
+============
 
 リレーションを指定するとき外部キーが存在している方のリレーションを指定することだけが必要です。スキーマファイルが解析されるとき、Doctrineはリレーションを反映し反対側を自動的にビルドします。もう一方のリレーションを指定する場合、自動生成は行われません。
 
-+++ リレーションを検出する
+----------------------
+リレーションを検出する
+----------------------
 
 前に見たようにDoctrineは``detect\_relations``オプションを指定する機能を提供します。この機能はカラムの名前に基づいてリレーションを自動的に構築します。``contact_id``を持つ``User``モデルと``Contact``という名前を持つクラスが存在する場合、2つの間のリレーションが自動的に作成されます。
 
-+++ リレーションをカスタマイズする
+------------------------------
+リレーションをカスタマイズする
+------------------------------
 
 Doctrineは外部キーが存在している側のリレーションを指定することのみを要求します。リレーションの反対側は反映されもう一方側に基づいてビルドされます。スキーマ構文はリレーションのエイリアスと反対側の型をカスタマイズする機能を提供します。すべての関連するリレーションを一箇所で維持できるのでこれはよいニュースです。下記の内容はエイリアスと反対側のリレーションの型をカスタマイズする方法です。これは``User``が1つの``Contact``を持ち``Contact``は1つの``User``を``UserModel``として持つというリレーションを示しています。通常は自動生成された``User``は1つの``Contact``を持ち``Contact``は複数の``User``を持ちます。``foreignType``と``foreignAlias``オプションによって反対側のリレーションをカスタマイズできます。
 
@@ -68,7 +80,9 @@ name: type: string(255) image\_file: type: string(255)
 
 結果のリレーションは``User``は1つの``Avatar``を持ち``Avatar``は複数の``User``を持ちます。
 
-+++ 一対一
+------
+一対一
+------
 
  User: columns: id: type: integer(4) primary: true autoincrement: true
 contact\_id: type: integer(4) username: type: string(255) password:
@@ -77,7 +91,9 @@ type: string(255) relations: Contact: foreignType: one
 Contact: columns: id: type: integer(4) primary: true autoincrement: true
 name: type: string(255)
 
-+++ 一対多
+------
+一対多
+------
 
  User: columns: id: type: integer(4) primary: true autoincrement: true
 contact\_id: type: integer(4) username: type: string(255) password:
@@ -87,7 +103,9 @@ Phonenumber: columns: id: type: integer(4) primary: true autoincrement:
 true name: type: string(255) user\_id: type: integer(4) relations: User:
 foreignAlias: Phonenumbers
 
-+++ 多対多
+------
+多対多
+------
 
  User: columns: id: type: integer(4) autoincrement: true primary: true
 username: type: string(255) password: type: string(255) attributes:
@@ -103,9 +121,13 @@ GroupUsers User: foreignAlias: GroupUsers
 
 この場合``User``は複数の``Groups``を持ち、``Group``は複数の``Users``を持ち、``GroupUser``は1つの``User``を持ち``GroupUser``は1つの``Group``を持つモデルのセットが作られます。
 
-++ 機能と例
+========
+機能と例
+========
 
-+++ 接続バインディング
+------------------
+接続バインディング
+------------------
 
 モデルを管理するためにスキーマファイルを使わないのであれば、通常は次のコードのようにコンポーネントを接続名にバインドするために使います:
 
@@ -125,7 +147,9 @@ Doctrineのブートストラップスクリプトでモデルをその接続に
 true autoincrement: true contact\_id: type: integer(4) username: type:
 string(255) password: type: string(255)
 
-+++ 属性
+----
+属性
+----
 
 Doctrine\_Record子クラスを手作業で書いたのと同じようにDoctrineはスキーマファイルで生成モデル用の属性を直接設定する手段を提供します。
 
@@ -134,7 +158,9 @@ true autoincrement: true contact\_id: type: integer(4) username: type:
 string(255) password: type: string(255) attributes: export: none
 validate: false
 
-+++ 列挙型
+------
+列挙型
+------
 
 スキーマファイルでenumカラムを使うために型をenumとして指定し可能なenumの値として値の配列を指定しなければなりません。
 
@@ -142,7 +168,9 @@ validate: false
 notes: type: string taping: type: enum length: 4 values: ['live',
 'tape'] region: type: enum length: 4 values: ['US', 'CA']
 
-+++ ActAsビヘイビア
+--------------------
+ActAsビヘイビア
+--------------------
 
 ``actAs``オプションでモデルにビヘイビアを取り付けることができます:
 
@@ -159,7 +187,9 @@ a length
  User: connection: connection1 columns: # ... actAs: [Timestampable,
 Sluggable]
 
-+++ リスナー
+--------
+リスナー
+--------
 
 モデルに取り付けたいリスナーがある場合、同じようにYAMLファイルで直接これらを指定できます。
 
@@ -173,7 +203,9 @@ username: type: string(255) password: type: string(255)
 
 public setUp() { // ... $this->addListener(new MyCustomListener()); } }
 
-+++ オプション
+----------
+オプション
+----------
 
 テーブル用のオプションを指定するとDoctrineがモデルからテーブルを作成するときにオプションはcreate
 tableステートメントに設定されます。
@@ -183,7 +215,9 @@ true autoincrement: true contact\_id: type: integer(4) username: type:
 string(255) password: type: string(255) options: type: INNODB collate:
 utf8\_unicode\_ci charset: utf8
 
-+++ インデックス
+------------
+インデックス
+------------
 
 インデックスとオプションの詳細情報は[doc defining-models chapter]の[doc
 defining-models:indexes
@@ -201,11 +235,15 @@ array( 'sorting' => 'ASC',
  'length' => '10', 'primary' => true ), 'last\_name' => array()), 'type'
 => 'unique' ) );
 
-+++ 継承
+----
+継承
+----
 
 下記のコードはYAMLスキーマファイルを使用して異なるタイプの継承をセットアップする方法を示しています。
 
-++++ 単一継承
+^^^^^^^^
+単一継承
+^^^^^^^^
 
  Entity: columns: name: string(255) username: string(255) password:
 string(255)
@@ -220,7 +258,9 @@ Group: inheritance: extends: Entity type: simple
 [doc inheritance:simple
 :fullname]の章でこのトピックの詳細を読むことができます。
 
-++++ 具象継承
+^^^^^^^^
+具象継承
+^^^^^^^^
 
  TextItem: columns: topic: string(255)
 
@@ -230,7 +270,9 @@ string(300)
 [doc inheritance:concrete
 :fullname]の章でこのトピックの詳細を読むことができます。
 
-++++ カラム集約継承
+^^^^^^^^^^^^^^
+カラム集約継承
+^^^^^^^^^^^^^^
 
     **NOTE**
     単一継承のように、PHPクラスが生成されたとき子に追加されるカラムもしくはリレーションは自動的に削除され親に移動します。
@@ -261,7 +303,9 @@ type keyValue: Group columns: description: string(255)
 [doc inheritance:column-aggregation
 :fullname]で詳細トピックを読むことができます。
 
-+++ カスタムのエイリアス
+--------------------
+カスタムのエイリアス
+--------------------
 
 データベースのカラム名以外のカラム名のエイリアスを作成したい場合、Doctrineでこれを実現するのは簡単です。カラムの名前で"``column\_name
 as field\_name``"の構文を使います:
@@ -271,7 +315,9 @@ password: type: string(255)
 
 上記の例では``username``エイリアスからカラム名の``login``にアクセスできます。
 
-+++ パッケージ
+----------
+パッケージ
+----------
 
 Doctrineはサブフォルダでモデルを生成する"package"パラメータを提供します。大きなスキーマファイルによってフォルダの内外でスキーマをよりよく編成できます。
 
@@ -280,14 +326,18 @@ Doctrineはサブフォルダでモデルを生成する"package"パラメータ
 このスキーマファイルからのモデルファイルはUserという名前のフォルダに設置されます。"package:
 User.Models"とさらにサブフォルダを指定すればモデルはUser/Modelsになります。
 
-++++ カスタムパスのパッケージ
+^^^^^^^^^^^^^^^^^^^^^^^^
+カスタムパスのパッケージ
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 パッケージファイルを生成する完全なカスタムパスを指定することで適切なパスでパッケージを自動生成することもできます:
 
  User: package: User package\_custom\_path: /path/to/generate/package
 columns: username: string(255)
 
-+++ グローバルスキーマの情報
+------------------------
+グローバルスキーマの情報
+------------------------
 
 Doctrineスキーマによってスキーマファイルで定義されたすべてのモデルに適用する特定のパラメータを指定できます。スキーマファイル用に設定できるグローバルパラメータの例が見つかります。
 
@@ -315,7 +365,9 @@ name: type: string(255)
 
 トップレベルのすべての設定はYAMLで定義されたすべてのモデルに適用されます。
 
-++ スキーマファイルを使う
+======================
+スキーマファイルを使う
+======================
 
 一旦スキーマファイルを定義したらYAMLの定義からモデルをビルドするコードが必要です。
 
@@ -356,7 +408,9 @@ docブロックで生成するphpDocのサブパッケージ名 \|\| \|\| ``phpD
 \|\| \|\| docブロックで生成するphpDocの著者名 \|\| \|\| ``phpDocEmail``
 \|\| \|\| docブロックで生成するphpDocのメール \|\|
 
-++ まとめ
+======
+まとめ
+======
 
 YAMLスキーマファイルのすべてを学んだので[doc data-validation
 :name]に関する大きなトピックに移ります。これは重要なトピックです。ユーザーが入力したデータをあなた自身でバリデートしたくない場合データベースに永続的に保存する前にDoctrineにデータをバリデートさせます。

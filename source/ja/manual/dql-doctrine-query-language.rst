@@ -1,4 +1,6 @@
-++ はじめに
+========
+はじめに
+========
 
 Doctrine Query Language
 (DQL)は複雑なオブジェクト読み取りを手助けするためのObject Query
@@ -19,9 +21,6 @@ YAMLフォーマットでの同じ例は次の通りです。[doc yaml-schema-fi
 :name]の章でYAMLの詳細を読むことができます:
 
  # schema.yml
-
-...
-===
 
 Account: columns: name: string(255) amount: decimal
 
@@ -96,7 +95,9 @@ foreach($users as $user) { echo $user->username . " has phonenumbers: ";
     **CAUTION**
     DQLの文字列で二重引用符(")を使うのは非推奨です。これはMySQLの標準では使えますがDQLにおいて識別子と混同される可能性があります。代わりに値に対してプリペアードステートメントを使うことが推奨されます。これによって適切にエスケープされます。
 
-++ SELECTクエリ
+==================
+SELECTクエリ
+==================
 
 ``SELECT``文の構文:
 
@@ -265,9 +266,13 @@ echo $q->getSqlQuery();
 
  SELECT u.id AS u**id, u.username AS u**username FROM user u LIMIT 20
 
-+++ DISTINCTキーワード
+--------------------------
+DISTINCTキーワード
+--------------------------
 
-+++ 集約値
+------
+集約値
+------
 
 集約値用の``SELECT``構文:
 
@@ -296,7 +301,9 @@ forum\_\_thread f ON u.id = f.user\_id WHERE u.id = ? GROUP BY u.id
 
 // ... echo $users->num\_threads . ' threads found';
 
-++ UPDATEクエリ
+==================
+UPDATEクエリ
+==================
 
 ``UPDATE``文の構文:
 
@@ -328,7 +335,9 @@ echo $q->getSqlQuery();
 
 echo $rows;
 
-++ DELETEクエリ
+==================
+DELETEクエリ
+==================
 
  DELETE FROM WHERE ORDER BY LIMIT
 
@@ -360,7 +369,9 @@ echo $rows;
     **NOTE**
     DQLのUPDATEとDELETEクエリを実行すると影響を受けた列の数が返されます。
 
-++ FROM句
+==========
+FROM句
+==========
 
 構文:
 
@@ -382,7 +393,9 @@ echo $q->getSqlQuery();
 
 ``User``はクラス(コンポーネント)の名前で``u``はエイリアスです。常に短いエイリアスを使うべきです。大抵の場合これらによってクエリははるかに短くなるのと例えばキャッシュを利用するときに短いエイリアスが使われていればクエリのキャッシュされたフォームの取るスペースが少なくなるからです。
 
-++ JOINの構文
+==============
+JOINの構文
+==============
 
 DQL JOINの構文:
 
@@ -436,7 +449,9 @@ echo $q->getSqlQuery();
  SELECT u.id AS u**id, p.id AS p**id FROM User u LEFT JOIN Phonenumbers
 p ON u.id = p.user\_id
 
-+++ ONキーワード
+--------------
+ONキーワード
+--------------
 
 このビヘイビアをオーバーライドして独自のカスタムjoin条件を追加したい場合``ON``キーワードで実現できます。次のDQLクエリを考えてみましょう:
 
@@ -455,7 +470,9 @@ p ON u.id = 2
     **NOTE**
     通常追加される``ON``条件が現れず代わりにユーザーが指定した条件が使われていることに注目してください。
 
-+++ WITHキーワード
+------------------
+WITHキーワード
+------------------
 
 大体の場合最初のjoin条件をオーバーライドする必要はありません。むしろカスタム条件を追加したいことがあります。これは``WITH``キーワードで実現できます。
 
@@ -492,7 +509,9 @@ u2.user\_id LEFT JOIN groups g ON g.id = u2.group\_id INNER JOIN
 phonenumber p ON u.id = p.user\_id AND u.id > 3 LEFT JOIN email e ON
 u.id = e.user\_id
 
-++ INDEXBYキーワード
+========================
+INDEXBYキーワード
+========================
 
 ``INDEXBY``キーワードはコレクション/配列のキーなどの特定のカラムをマッピングする方法を提供します。デフォルトではDoctrineは数値のインデックス付きの配列/コレクションに複数の要素のインデックスを作成します。マッピングはゼロから始まります。このビヘイビアをオーバーライドするには下記で示されるように``INDEXBY``キーワードを使う必要があります:
 
@@ -527,7 +546,9 @@ drinkers clubの作成日を出力してみましょう。
 
 // ... echo $users['jack daniels']->Groups['drinkers club']->createdAt;
 
-++ WHERE句
+============
+WHERE句
+============
 
 構文:
 
@@ -556,9 +577,13 @@ echo $q->getSqlQuery();
  SELECT u.id AS u\_\_id FROM user u WHERE u.type = ? AND u.is\_active =
 ? OR u.is\_super\_admin = ?
 
-++ 条件式
+======
+条件式
+======
 
-+++ リテラル
+--------
+リテラル
+--------
 
 **文字列**
 
@@ -643,7 +668,9 @@ echo $q->getSqlQuery();
 
 予め定義され予約済みのリテラルは大文字と小文字を区別しますが、これらを大文字で書くのが良い標準です。
 
-+++ 入力パラメータ
+--------------
+入力パラメータ
+--------------
 
 位置パラメータの使用の例は次の通りです:
 
@@ -707,7 +734,9 @@ echo $q->getSqlQuery();
  SELECT u.id AS u\_\_id FROM user u WHERE u.id > :id AND u.username LIKE
 :name
 
-+++ 演算子と優先順位
+----------------
+演算子と優先順位
+----------------
 
 演算子の一覧は優先順位が低い順です。
 
@@ -718,7 +747,9 @@ echo $q->getSqlQuery();
 NULL, IS [NOT] EMPTY \|\| \|\| \|\| \|\| //論理演算子: // \|\| \|\| NOT
 \|\| \|\| \|\| AND \|\| \|\| \|\| OR \|\| \|\|
 
-+++ IN式
+------
+IN式
+------
 
 構文:
 
@@ -756,7 +787,9 @@ echo $q->getSqlQuery();
 
  SELECT u.id AS u\_\_id FROM user u WHERE u.id IN (?, ?, ?, ?)
 
-+++ LIKE式
+----------
+LIKE式
+----------
 
 構文:
 
@@ -804,7 +837,9 @@ echo $q->getSqlQuery();
 
  SELECT u.id AS u\_\_id FROM user u WHERE u.username LIKE ?
 
-+++ EXISTS式
+--------------
+EXISTS式
+--------------
 
 構文:
 
@@ -835,9 +870,6 @@ array( 'primary' => true ) );
 :name]の章でYAMLの詳細を読むことができます:
 
  # schema.yml
-
-...
-===
 
 ReaderLog: columns: article\_id: type: integer primary: true user\_id:
 type: integer primary: true
@@ -877,7 +909,9 @@ echo $q->getSqlQuery();
  SELECT a.id AS a**id FROM article a WHERE NOT EXISTS (SELECT r.id AS
 r**id FROM reader\_log r WHERE r.article\_id = a.id)
 
-+++ AllとAnyの式
+------------------
+AllとAnyの式
+------------------
 
 構文:
 
@@ -913,7 +947,9 @@ C2(col1))');
 $q = Doctrine\_Query::create() ->from('C') ->where('C.col1 NOT IN (FROM
 C2(col1))');
 
-+++ サブクエリ
+----------
+サブクエリ
+----------
 
 サブクエリは通常のSELECTクエリが含むことができる任意のキーワードもしくは句を含むことができます。
 
@@ -957,9 +993,13 @@ echo $q->getSqlQuery();
 u2**id FROM user u2 INNER JOIN user\_group u3 ON u2.id = u3.user\_id
 INNER JOIN groups g ON g.id = u3.group\_id)
 
-++ 関数式
+======
+関数式
+======
 
-+++ 文字列関数
+----------
+文字列関数
+----------
 
 //CONCAT//関数は引数を連結した文字列を返します。上記の例においてユーザーの``first\_name``と``last_name``を連結して``name``という値にマッピングします。
 
@@ -1033,7 +1073,9 @@ LOWER(u.username) = 'someone'
 
 //LENGTH//関数は文字の文字列の長さを整数として返します。
 
-+++ 算術関数
+--------
+算術関数
+--------
 
 利用可能なDQLの算術関数です:
 
@@ -1045,13 +1087,19 @@ simple\_arithmetic\_expression)
 -  //SQRT//関数は与えられた数の平方根を返します。
 -  //MOD//関数は2番目の引数で最初の引数を割ったときの余りを返します。
 
-++ サブクエリ
+==========
+サブクエリ
+==========
 
-+++ はじめに
+--------
+はじめに
+--------
 
 DoctrineではFROM、SELECTとWHERE文でDQLのサブクエリを使うことができます。下記のコードではDoctrineが提供する異なる型のすべてのサブクエリの例が見つかります。
 
-+++ サブクエリを利用する比較
+------------------------
+サブクエリを利用する比較
+------------------------
 
 指定されたグループに所属しないすべてのユーザーを見つける。
 
@@ -1084,7 +1132,9 @@ echo $q->getSqlQuery();
  SELECT u.id AS u**id, (SELECT p.phonenumber AS p**phonenumber FROM
 phonenumber p WHERE p.user\_id = u.id LIMIT 1) AS u\_\_0 FROM user u
 
-++ GROUP BY、HAVING句
+================================
+GROUP BY、HAVING句
+================================
 
 DQLのGROUP BY構文:
 
@@ -1166,9 +1216,13 @@ HAVING p**0 >= 2
 foreach($users as $user) { echo $user->name . ' has ' .
 $user->num\_phonenumbers . ' phonenumbers'; }
 
-++ ORDER BY句
+==================
+ORDER BY句
+==================
 
-+++ はじめに
+--------
+はじめに
+--------
 
 レコードのコレクションはORDER
 BY句を使用してデータベースレベルで効率的にソートできます。
@@ -1209,7 +1263,9 @@ echo $q->getSqlQuery();
  SELECT u.id AS u**id, u.username AS u**username FROM user u LEFT JOIN
 email e ON u.id = e.user\_id ORDER BY e.address DESC, u.id ASC
 
-+++ 集約値でソートする
+------------------
+集約値でソートする
+------------------
 
 次の例ではすべてのユーザーを取得しユーザーが持つ電話番号の数でユーザーをソートします。
 
@@ -1226,7 +1282,9 @@ echo $q->getSqlQuery();
  SELECT u.id AS u**id, u.username AS u**username, COUNT(p.id) AS p**0
 FROM user u INNER JOIN phonenumber p ON u.id = p.user\_id ORDER BY p**0
 
-+++ ランダム順を使う
+----------------
+ランダム順を使う
+----------------
 
 次の例ではランダムな投稿を取得するために``ORDER
 BY``句でランダム機能を使います。
@@ -1243,7 +1301,9 @@ echo $q->getSqlQuery();
  SELECT f.id AS f**id, RAND() AS f**0 FROM forum**thread f ORDER BY f**0
 LIMIT 1
 
-++ LIMITとOFFSET句
+==========================
+LIMITとOFFSET句
+==========================
 
 おそらく最も複雑機能であるDQLパーサーは``LIMIT``句パーサーです。DQL
 LIMIT句パーサーは``LIMIT``データベースポータビリティを考慮するだけでなく複雑なクエリ分析とサブクエリを使用することで列の代わりにレコードの数を制限できる機能を持ちます。
@@ -1269,7 +1329,9 @@ echo $q->getSqlQuery();
 p.phonenumber AS p**phonenumber FROM user u LEFT JOIN phonenumber p ON
 u.id = p.user\_id
 
-+++ ドライバーのポータビリティ
+--------------------------
+ドライバーのポータビリティ
+--------------------------
 
 DQLの``LIMIT``句はサポートされるすべてのデータベース上でポータブルです。次の事実に対して特別な注意を払う必要があります:
 
@@ -1282,7 +1344,9 @@ DQLの``LIMIT``句はサポートされるすべてのデータベース上で�
    テーブル/カラム
    名前/エイリアス)、limitサブクエリは可能な限りショートエイリアスを使いメインクエリでエイリアスの衝突を回避しなければなりません。
 
-+++ limit-subquery-algorithm
+------------------------------------------------
+limit-subquery-algorithm
+------------------------------------------------
 
 limit-subquery-algorithmはDQLパーサーが内部で使用するアルゴリズムです。1対多/多対多のリレーショナルデータは同時に取得されているときに内部で使用されます。SQLの結果セットの列の代わりにレコードの数を制限するためにこの種の特別なアルゴリズムはLIMIT句に必要です。
 
@@ -1330,7 +1394,9 @@ echo $q->getSqlQuery();
 p.user\_id AS p**user\_id, p.phonenumber AS p\_\_phonenumber FROM user u
 INNER JOIN phonenumber p ON u.id = p.user\_id
 
-++ 名前付きクエリ
+==============
+名前付きクエリ
+==============
 
 変化する可能性があるモデルを扱うが、クエリを簡単に更新できるようにする必要があるとき、クエリを定義する簡単な方法を見つける必要があります。例えば1つのフィールドを変更して何も壊れていないことを確認するためにアプリケーションのすべてのクエリを追跡する必要がある状況を想像してください。
 
@@ -1352,7 +1418,9 @@ $userTable = Doctrine\_Core::getTable('User');
 
 このサポートを簡略化するために、``Doctrine\_Table``は``Doctrine\_Query_Registry``へのアクセサをサポートします。
 
-+++ 名前付きクエリを作成する
+------------------------
+名前付きクエリを作成する
+------------------------
 
 trueとして定義された``generateTableClasses``オプションでモデルをビルドするとき、それぞれのレコードクラスは``Doctrine_Table``を継承する``\*Table``クラスも生成します。
 
@@ -1376,7 +1444,9 @@ u.id = ?');
 
 }
 
-+++ 名前付きクエリにアクセスする
+----------------------------
+名前付きクエリにアクセスする
+----------------------------
 
 ``Doctrine_Table``のサブクラスである``MyFooTable``クラスにリーチするには、次のようにできます:
 
@@ -1393,7 +1463,9 @@ echo $q->getSqlQuery();
  SELECT u.id AS u**id, u.username AS u**username FROM user u WHERE u.id
 = ?
 
-+++ 名前付きクエリを実行する
+------------------------
+名前付きクエリを実行する
+------------------------
 
 名前付きクエリを実行するには2つの方法があります。1つめの方法は通常のインスタンスとして``Doctrine_Query``を読み取り通常通りに実行します:
 
@@ -1412,7 +1484,9 @@ echo $q->getSqlQuery();
 
 ``find()``メソッドはハイドレーションモード用の3番目の引数を受け取ります。
 
-+++ 名前付きクエリにクロスアクセスする
+----------------------------------
+名前付きクエリにクロスアクセスする
+----------------------------------
 
 それで十分でなければ、Doctrineは``Doctrine\_Query_Registry``を利用しオブジェクト間の名前付きクエリにクロスアクセスできるようにする名前空間クエリを使います。``Article``レコードの``\*Table``クラスのインスタンスがあることを想定します。``User``レコードの"get.by.id"
 名前付きクエリを呼び出したいとします。名前付きクエリにアクセスするには、次のように行わなければなりません:
@@ -1423,7 +1497,9 @@ echo $q->getSqlQuery();
 
 $users = $articleTable->find('User/get.by.id', array(1, 2, 3));
 
-++ BNF
+======
+BNF
+======
 
  QL\_statement ::= select\_statement \| update\_statement \|
 delete\_statement select\_statement ::= select\_clause from\_clause
@@ -1567,7 +1643,9 @@ simple\_arithmetic\_expression, simple\_arithmetic\_expression)\| TRIM(
 LOWER( string\_primary) \| UPPER( string\_primary) trim\_specification
 ::=LEADING \| TRAILING \| BOTH
 
-++ マジックファインダー
+====================
+マジックファインダー
+====================
 
 Doctrineはモデルに存在する任意のカラムでレコードを見つけることを可能にするDoctrineモデル用のマジックファインダー(magic
 finder)を提供します。ユーザーの名前でユーザーを見つけたり、グループの名前でグループを見つけるために役立ちます。通常これは``Doctrine_Query``インスタンスを書き再利用できるようにこれをどこかに保存することが必要です。このようなシンプルな状況にはもはや必要ありません。
@@ -1617,7 +1695,9 @@ true, true);
     **NOTE** 上記のマジックファインダーはPHPの``[http://php.net/\_\_call
     **call()]``のオーバーロード機能を使うことで作成されます。内在する関数は``Doctrine\_Query``オブジェクトがビルドされる``Doctrine_Table::**call()``に転送され、実行されてユーザーに返されます。
 
-++ クエリをデバッグする
+====================
+クエリをデバッグする
+====================
 
 ``Doctrine_Query``オブジェクトはクエリの問題をデバッグするための手助けになる機能を少々提供します:
 
@@ -1643,7 +1723,9 @@ echo $q->getSqlQuery();
 
 // ... print\_r($q->getParams());
 
-++ まとめ
+======
+まとめ
+======
 
 Doctrine Query
 Languageはこれまでのところ最も高度で役に立つDoctrineの機能です。これによってRDBMSのリレーションからとても複雑なデータを簡単にかつ効率的に選択できます！

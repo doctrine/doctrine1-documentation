@@ -1,6 +1,8 @@
 データフィクスチャはテストするデータをデータベースに投入するためにモデルを通してテストデータの小さなセットをロードするための手段です。データフィクスチャはユニット/機能テストスィートでよく使われます。
 
-++ インポートする
+==============
+インポートする
+==============
 
 データフィクスチャのインポートはダンプと同じ簡単です。``loadData()``メソッドを使うことができます:
 
@@ -16,7 +18,9 @@
 
  Doctrine\_Core::loadData('/path/to/data.yml', true);
 
-++ ダンプする
+==========
+ダンプする
+==========
 
 データフィクスチャを書き始めるのを手助けするために多くの異なるフォーマットでフィクスチャファイルにデータをダンプできます。次のようんデータフィクスチャを1つの大きなYAMLファイルにダンプできます:
 
@@ -26,7 +30,9 @@
 
  Doctrine\_Core::dumpData('/path/to/directory', true);
 
-++ 実装
+====
+実装
+====
 
 データフィクスチャを知ったので次のセクションで使われるフィクスチャの例をテストできるように、以前の章で利用してきたテスト環境で実装してみましょう。
 
@@ -40,7 +46,9 @@
 
 // ... Doctrine\_Core::loadData('fixtures');
 
-++ 書く
+====
+書く
+====
 
 手作業でフィクスチャファイルを書いてアプリケーションでロードできます。下記のコードはサンプルの``data.yml``フィクスチャファイルです。データフィクスチャを複数のファイルに分割することもできます。Doctrineはすべてのフィクスチャファイルを読み込み解析し、すべてのデータをロードします。
 
@@ -187,22 +195,18 @@ Resourceが持つTagsを指定する代わりにそれぞれのタグが関係�
 
  # fixtures/data.yml
 
-...
-===
-
 Tag: tutorial: name: tutorial Resources: [Resource\_1, Resource\_2]
 doctrine: name: doctrine Resources: [Resource\_1] help: name: help
 Resources: [Resource\_1, Resource\_2] cheat: name: cheat Resources:
 [Resource\_1]
 
-++ 入れ子集合用のフィクスチャ
+==========================
+入れ子集合用のフィクスチャ
+==========================
 
 入れ子集合のツリー用のフィクスチャファイルの書き方は通常のフィクスチャファイルの書き方と少し異なります。ツリーの構造は次のように定義されます:
 
  # fixtures/data.yml
-
-...
-===
 
 Category: Category\_1: name: Categories # the root node children:
 Category\_2: name: Category 1 Category\_3: name: Category 2 children:
@@ -215,36 +219,31 @@ Category\_4: name: Subcategory of Category 2
 
  # fixtures/data.yml
 
-...
-===
-
 Category: NestedSet: true Category\_1: name: Categories # ...
 
 もしくはchildrenキーワードを指定することでNestedSetのAPIを使用してデータをインポートします。
 
  # fixtures/data.yml
 
-...
-===
-
 Category: Category\_1: name: Categories children: [] # ...
 
 上記の方法を使わない場合入れ子集合レコード用にlft、rgtとレベルの値を手動で指定するのはあなた次第です。
 
-++ 国際化用のフィクスチャ
+======================
+国際化用のフィクスチャ
+======================
 
 ``I18n``用のフィクスチャはカスタマイズできません。``I18n``は動的に構築されるリレーションの通常の集合にすぎないからです:
 
  # fixtures/data.yml
 
-...
-===
-
 Article: Article\_1: Translation: en: title: Title of article body: Body
 of article fr: title: French title of article body: French body of
 article
 
-++ まとめ
+======
+まとめ
+======
 
 データフィクスチャを書いてアプリケーションにロードできるようになりました。内在する[doc
 database-abstraction-layer
