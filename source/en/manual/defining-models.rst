@@ -1,10 +1,12 @@
+..  vim: set ts=4 sw=4 tw=79 :
+
 ***************
 Defining Models
 ***************
 
 As we mentioned before, at the lowest level in Doctrine your schema is
-represented by a set of php classes that map the schema meta data for
-your database tables.
+represented by a set of php classes that map the schema meta data for your
+database tables.
 
 In this chapter we will explain in detail how you can map your schema
 information using php code.
@@ -13,11 +15,10 @@ information using php code.
 Columns
 =======
 
-One problem with database compatibility is that many databases differ in
-their behavior of how the result set of a query is returned. MySQL
-leaves the field names unchanged, which means if you issue a query of
-the form ``"SELECT myField FROM ..."`` then the result set will contain
-the field ``myField``.
+One problem with database compatibility is that many databases differ in their
+behavior of how the result set of a query is returned. MySQL leaves the field
+names unchanged, which means if you issue a query of the form ``"SELECT myField
+FROM ..."`` then the result set will contain the field ``myField``.
 
 Unfortunately, this is just the way MySQL and some other databases do
 it. Postgres for example returns all field names in lowercase whilst
@@ -25,67 +26,83 @@ Oracle returns all field names in uppercase. "So what? In what way does
 this influence me when using Doctrine?", you may ask. Fortunately, you
 don't have to bother about that issue at all.
 
-Doctrine takes care of this problem transparently. That means if you
-define a derived Record class and define a field called ``myField`` you
-will always access it through ``:code:`record->myField`` (or ```\ record['myField']``,
-whatever you prefer) no matter whether you're using MySQL or Postgres or
-Oracle etc.
+Doctrine takes care of this problem transparently. That means if you define a
+derived Record class and define a field called ``myField`` you will always
+access it through ``$record->myField`` (or ``$record['myField']``, whatever
+you prefer) no matter whether you're using MySQL or Postgres or Oracle etc.
 
-In short: You can name your fields however you want, using
-under\_scores, camelCase or whatever you prefer.
+In short: You can name your fields however you want, using under_scores,
+camelCase or whatever you prefer.
 
 .. note::
 
-    In Doctrine columns and column aliases are case sensitive.
-    So when you are using columns in your DQL queries, the column/field
-    names must match the case in your model definition.
+    In Doctrine columns and column aliases are case sensitive.  So when you are
+    using columns in your DQL queries, the column/field names must match the
+    case in your model definition.
 
 --------------
 Column Lengths
 --------------
 
-In Doctrine column length is an integer that specifies the column
-length. Some column types depend not only the given portable type but
-also on the given length. For example type string with length 1000 will
-be translated into native type TEXT on mysql.
+In Doctrine column length is an integer that specifies the column length. Some
+column types depend not only the given portable type but also on the given
+length. For example type ``string`` with length 1000 will be translated into native
+type ``TEXT`` on mysql.
 
 The length is different depending on the type of column you are using:
 
--  //integer// - Length is the the number of bytes the integer occupies.
--  //string// - Number of the characters allowed in the string.
--  //float/decimal// - Total number of characters allowed excluding the
-   decimal.
--  //enum// - If using native enum length does not apply but if using
-   emulated enums then it is just the string length of the column value.
+*   ``integer``
+        Length is the the number of bytes the integer occupies.
+*   ``string``
+        Number of the characters allowed in the string.
+*   ``float/decimal``
+        Total number of characters allowed excluding the decimal.
+*   ``enum``
+        If using native enum length does not apply but if using
+        emulated enums then it is just the string length of the
+        column value.
 
 --------------
 Column Aliases
 --------------
 
-Doctrine offers a way of setting column aliases. This can be very useful
-when you want to keep the application logic separate from the database
-logic. For example if you want to change the name of the database field
-all you need to change at your application is the column definition.
+Doctrine offers a way of setting column aliases. This can be very useful when
+you want to keep the application logic separate from the database logic. For
+example if you want to change the name of the database field all you need to
+change at your application is the column definition.
 
- // models/Book.php
+::
 
-class Book extends Doctrine\_Record { public function
-setTableDefinition() { $this->hasColumn('bookTitle as title', 'string');
-} }
+    // models/Book.php
+    class Book extends Doctrine_Record
+    {
+        public function setTableDefinition()
+        {
+            $this->hasColumn('bookTitle as title', 'string');
+        }
+    }
 
 Here is the same example in YAML format. You can read more about YAML in
-the [doc yaml-schema-files :name] chapter:
+the :doc:`yaml-schema-files` chapter:
 
- # schema.yml
+.. code-block:: yaml
 
-Book: columns: bookTitle: name: bookTitle as title type: string
+    # schema.yml
+    Book:
+      columns:
+        bookTitle:
+          name: bookTitle as title
+          type: string
 
 Now the column in the database is named bookTitle but you can access the
 property on your objects using title.
 
- // test.php
+.. code-block:: php
 
-// ... $book = new Book(); $book->title = 'Some book'; $book->save();
+    // test.php
+    $book = new Book();
+    $book->title = 'Some book';
+    $book->save();
 
 --------------
 Default values
@@ -97,35 +114,39 @@ is attached to every newly created Record and when Doctrine creates your
 database tables it includes the default value in the create table
 statement.
 
- // models/generated/BaseUser.php
-
-class User extends BaseUser { public function setTableDefinition() {
-$this->hasColumn('username', 'string', 255, array('default' => 'default
-username'));
-
 ::
 
-        // ...
+    // models/generated/BaseUser.php
+    class User extends BaseUser
+    {
+        public function setTableDefinition()
+        {
+            $this->hasColumn('username', 'string', 255,
+                array('default' => 'default username'));
+        }
     }
 
-    // ...
-
-}
 
 Here is the same example in YAML format. You can read more about YAML in
-the [doc yaml-schema-files :name] chapter:
+the :doc:`yaml-schema-files` chapter:
 
- # schema.yml
+.. code-block:: yaml
 
-User: # ... columns: username: type: string(255) default: default
-username # ...
+    # schema.yml
+    User:
+      # ...
+      columns:
+        username:
+          type: string(255)
+          default: default username
+        #...
 
 Now when you print the name on a brand new User record it will print the
-default value:
+default value::
 
- // test.php
-
-// ... $user = new User(); echo $user->username; // default username
+    // test.php
+    $user = new User();
+    echo $user->username; // default username
 
 ----------
 Data types
@@ -135,39 +156,36 @@ Data types
 Introduction
 ^^^^^^^^^^^^
 
-All DBMS provide multiple choice of data types for the information that
-can be stored in their database table fields. However, the set of data
-types made available varies from DBMS to DBMS.
+All DBMS provide multiple choice of data types for the information that can be
+stored in their database table fields. However, the set of data types made
+available varies from DBMS to DBMS.
 
-To simplify the interface with the DBMS supported by Doctrine, a base
-set of data types was defined. Applications may access them
-independently of the underlying DBMS.
+To simplify the interface with the DBMS supported by Doctrine, a base set of
+data types was defined. Applications may access them independently of the
+underlying DBMS.
 
-The Doctrine applications programming interface takes care of mapping
-data types when managing database options. It is also able to convert
-that is sent to and received from the underlying DBMS using the
-respective driver.
+The Doctrine applications programming interface takes care of mapping data
+types when managing database options. It is also able to convert that is sent
+to and received from the underlying DBMS using the respective driver.
 
 The following data type examples should be used with Doctrine's
-``createTable()`` method. The example array at the end of the data types
-section may be used with ``createTable()`` to create a portable table on
-the DBMS of choice (please refer to the main Doctrine documentation to
-find out what DBMS back ends are properly supported). It should also be
-noted that the following examples do not cover the creation and
-maintenance of indices, this chapter is only concerned with data types
-and the proper usage thereof.
+:php:meth:`createTable` method. The example array at the end of the data types
+section may be used with :php:meth:`createTable` to create a portable table on
+the DBMS of choice (please refer to the main Doctrine documentation to find out
+what DBMS back ends are properly supported). It should also be noted that the
+following examples do not cover the creation and maintenance of indices, this
+chapter is only concerned with data types and the proper usage thereof.
 
-It should be noted that the length of the column affects in database
-level type as well as application level validated length (the length
-that is validated with Doctrine validators).
+It should be noted that the length of the column affects in database level type
+as well as application level validated length (the length that is validated
+with Doctrine validators).
 
-Example 1. Column named 'content' with type 'string' and length 3000
-results in database type 'TEXT' of which has database level length of
-4000. However when the record is validated it is only allowed to have
-'content' -column with maximum length of 3000.
-
-Example 2. Column with type 'integer' and length 1 results in 'TINYINT'
-on many databases.
+#. Example: Column named ``content`` with type ``string`` and length 3000 results in
+   database type ``TEXT`` of which has database level length of 4000. However when
+   the record is validated it is only allowed to have 'content' -column with
+   maximum length of 3000.
+#. Example: Column with type ``integer`` and length 1 results in ``TINYINT``
+   on many databases.
 
 In general Doctrine is smart enough to know which integer/string type to
 use depending on the specified length.
@@ -179,56 +197,63 @@ Type modifiers
 Within the Doctrine API there are a few modifiers that have been
 designed to aid in optimal table design. These are:
 
--  The notnull modifiers
--  The length modifiers
--  The default modifiers
--  unsigned modifiers for some field definitions, although not all
+*  The notnull modifiers
+*  The length modifiers
+*  The default modifiers
+*  unsigned modifiers for some field definitions, although not all
    DBMS's support this modifier for integer field types.
--  collation modifiers (not supported by all drivers)
--  fixed length modifiers for some field definitions.
+*  collation modifiers (not supported by all drivers)
+*  fixed length modifiers for some field definitions.
 
 Building upon the above, we can say that the modifiers alter the field
-definition to create more specific field types for specific usage
-scenarios. The notnull modifier will be used in the following way to set
-the default DBMS NOT NULL Flag on the field to true or false, depending
-on the DBMS's definition of the field value: In PostgreSQL the "NOT
-NULL" definition will be set to "NOT NULL", whilst in MySQL (for
-example) the "NULL" option will be set to "NO". In order to define a
-"NOT NULL" field type, we simply add an extra parameter to our
-definition array (See the examples in the following section)
+definition to create more specific field types for specific usage scenarios.
+The notnull modifier will be used in the following way to set the default DBMS
+NOT NULL Flag on the field to true or false, depending on the DBMS's definition
+of the field value: In PostgreSQL the "NOT NULL" definition will be set to "NOT
+NULL", whilst in MySQL (for example) the "NULL" option will be set to "NO". In
+order to define a "NOT NULL" field type, we simply add an extra parameter to
+our definition array (See the :ref:`examples <data-type-examples>` in the
+following section)
 
- 'sometime' = array( 'type' => 'time', 'default' => '12:34:05',
-'notnull' => true, ),
+.. code-block:: text
+
+    'sometime' = array(
+        'type' => 'time',
+        'default' => '12:34:05',
+        'notnull' => true,
+    ),
 
 Using the above example, we can also explore the default field operator.
-Default is set in the same way as the notnull operator to set a default
-value for the field. This value may be set in any character set that the
-DBMS supports for text fields, and any other valid data for the field's
-data type. In the above example, we have specified a valid time for the
-"Time" data type, '12:34:05'. Remember that when setting default dates
-and times, as well as datetimes, you should research and stay within the
-epoch of your chosen DBMS, otherwise you will encounter difficult to
-diagnose errors!
+Default is set in the same way as the notnull operator to set a default value
+for the field. This value may be set in any character set that the DBMS
+supports for text fields, and any other valid data for the field's data type.
+In the above example, we have specified a valid time for the "Time" data type,
+'12:34:05'. Remember that when setting default dates and times, as well as
+datetimes, you should research and stay within the epoch of your chosen DBMS,
+otherwise you will encounter difficult to diagnose errors!
 
- 'sometext' = array( 'type' => 'string', 'length' => 12, ),
+.. code-block:: text
 
-The above example will create a character varying field of length 12
-characters in the database table. If the length definition is left out,
-Doctrine will create a length of the maximum allowable length for the
-data type specified, which may create a problem with some field types
-and indexing. Best practice is to define lengths for all or most of your
-fields.
+    'sometext' = array(
+        'type' => 'string',
+        'length' => 12,
+    ),
+
+The above example will create a character varying field of length 12 characters
+in the database table. If the length definition is left out, Doctrine will
+create a length of the maximum allowable length for the data type specified,
+which may create a problem with some field types and indexing. Best practice is
+to define lengths for all or most of your fields.
 
 ^^^^^^^
 Boolean
 ^^^^^^^
 
-The boolean data type represents only two values that can be either 1 or
-0. Do not assume that these data types are stored as integers because
-some DBMS drivers may implement this type with single character text
-fields for a matter of efficiency. Ternary logic is possible by using
-null as the third possible value that may be assigned to fields of this
-type.
+The boolean data type represents only two values that can be either 1 or 0. Do
+not assume that these data types are stored as integers because some DBMS
+drivers may implement this type with single character text fields for a matter
+of efficiency. Ternary logic is possible by using null as the third possible
+value that may be assigned to fields of this type.
 
 .. note::
 
@@ -237,20 +262,32 @@ type.
     you how to use the different Doctrine data types using PHP code or
     YAML schema files.
 
- class Test extends Doctrine\_Record { public function
-setTableDefinition() { $this->hasColumn('booltest', 'boolean'); } }
+::
+
+    class Test extends Doctrine_Record
+    {
+        public function setTableDefinition()
+        {
+            $this->hasColumn('booltest', 'boolean');
+        }
+    }
+
 
 Here is the same example in YAML format. You can read more about YAML in
-the [doc yaml-schema-files :name] chapter:
+the :doc:`yaml-schema-files` chapter:
 
- Test: columns: booltest: boolean
+.. code-block:: yaml
+
+    Test:
+      columns:
+        booltest: boolean
 
 ^^^^^^^
 Integer
 ^^^^^^^
 
-The integer type is the same as integer type in PHP. It may store
-integer values as large as each DBMS may handle.
+The integer type is the same as integer type in PHP. It may store integer
+values as large as each DBMS may handle.
 
 Fields of this type may be created optionally as unsigned integers but
 not all DBMS support it. Therefore, such option may be ignored. Truly
@@ -260,14 +297,27 @@ option.
 The integer type maps to different database type depending on the column
 length.
 
- class Test extends Doctrine\_Record { public function
-setTableDefinition() { $this->hasColumn('integertest', 'integer', 4,
-array( 'unsigned' => true ) ); } }
+::
+
+    class Test extends Doctrine_Record
+    {
+        public function setTableDefinition()
+        {
+            $this->hasColumn('integertest', 'integer', 4, array(
+                'unsigned' => true
+            ));
+        }
+    }
+
 
 Here is the same example in YAML format. You can read more about YAML in
-the [doc yaml-schema-files :name] chapter:
+the :doc:`yaml-schema-files` chapter:
 
- Test: columns: integertest: type: integer(4) unsigned: true
+.. code-block:: yaml
+
+    Test:
+      columns:
+        integertest: type: integer(4) unsigned: true
 
 ^^^^^
 Float
@@ -279,13 +329,24 @@ do not require high accuracy. The scale and the precision limits of the
 values that may be stored in a database depends on the DBMS that it is
 used.
 
- class Test extends Doctrine\_Record { public function
-setTableDefinition() { $this->hasColumn('floattest', 'float'); } }
+::
+
+    class Test extends Doctrine_Record
+    {
+        public function setTableDefinition()
+        {
+            $this->hasColumn('floattest', 'float');
+        }
+    }
 
 Here is the same example in YAML format. You can read more about YAML in
-the [doc yaml-schema-files :name] chapter:
+the :doc:`yaml-schema-files` chapter:
 
- Test: columns: floattest: float
+.. code-block:: yaml
+
+    Test:
+      columns:
+        floattest: float
 
 ^^^^^^^
 Decimal
@@ -295,26 +356,47 @@ The decimal data type may store fixed precision decimal numbers. This
 data type is suitable for representing numbers that require high
 precision and accuracy.
 
- class Test extends Doctrine\_Record { public function
-setTableDefinition() { $this->hasColumn('decimaltest', 'decimal'); } }
+::
+
+    class Test extends Doctrine_Record
+    {
+        public function setTableDefinition()
+        {
+            $this->hasColumn('decimaltest', 'decimal');
+        }
+    }
+
 
 Here is the same example in YAML format. You can read more about YAML in
-the [doc yaml-schema-files :name] chapter:
+the :doc:`yaml-schema-files` chapter:
 
- Test: columns: decimaltest: decimal
+.. code-block:: yaml
+
+    Test:
+      columns:
+        decimaltest: decimal
 
 You can specify the length of the decimal just like you would set the
 ``length`` of any other column and you can specify the ``scale`` as an
-option in the third argument:
+option in the third argument::
 
- class Test extends Doctrine\_Record { public function
-setTableDefinition() { $this->hasColumn('decimaltest', 'decimal', 18,
-array( 'scale' => 2 ) ); } }
+    class Test extends Doctrine_Record
+    {
+        public function setTableDefinition() {
+            $this->hasColumn('decimaltest', 'decimal', 18,
+                array('scale' => 2)
+            );
+        }
+    }
 
 Here is the same example in YAML format. You can read more about YAML in
-the [doc yaml-schema-files :name] chapter:
+the :doc:`yaml-schema-files` chapter:
 
- Test: columns: decimaltest: type: decimal(18) scale: 2
+.. code-block:: yaml
+
+    Test:
+      columns:
+        decimaltest: type: decimal(18) scale: 2
 
 ^^^^^^
 String
@@ -336,29 +418,52 @@ meaning with the values of the strings to be converted to this type.
 By default Doctrine will use variable length character types. If fixed
 length types should be used can be controlled via the fixed modifier.
 
- class Test extends Doctrine\_Record { public function
-setTableDefinition() { $this->hasColumn('stringtest', 'string', 200,
-array( 'fixed' => true ) ); } }
+::
+
+    class Test extends Doctrine_Record
+    {
+        public function setTableDefinition()
+        {
+            $this->hasColumn('stringtest', 'string', 200, array(
+                'fixed' => true
+            ));
+        }
+    }
+
+
+
 
 Here is the same example in YAML format. You can read more about YAML in
-the [doc yaml-schema-files :name] chapter:
+the :doc:`yaml-schema-files` chapter:
 
- Test: columns: stringtest: type: string(200) fixed: true
+.. code-block:: yaml
+
+    Test:
+      columns:
+        stringtest: type: string(200) fixed: true
 
 ^^^^^
 Array
 ^^^^^
 
-This is the same as the 'array' type in PHP.
+This is the same as the 'array' type in PHP::
 
- class Test extends Doctrine\_Record { public function
-setTableDefinition() { $this->hasColumn('arraytest', 'array', 10000); }
-}
+    class Test extends Doctrine_Record
+    {
+        public function setTableDefinition()
+        {
+            $this->hasColumn('arraytest', 'array', 10000);
+        }
+    }
 
 Here is the same example in YAML format. You can read more about YAML in
-the [doc yaml-schema-files :name] chapter:
+the :doc:`yaml-schema-files` chapter:
 
- Test: columns: arraytest: array(10000)
+.. code-block:: yaml
+
+    Test:
+      columns:
+        arraytest: array(10000)
 
 ^^^^^^
 Object
@@ -368,19 +473,30 @@ Doctrine supports objects as column types. Basically you can set an
 object to a field and Doctrine handles automatically the serialization /
 unserialization of that object.
 
- class Test extends Doctrine\_Record { public function
-setTableDefinition() { $this->hasColumn('objecttest', 'object'); } }
+::
+
+    class Test extends Doctrine_Record
+    {
+        public function setTableDefinition()
+        {
+            $this->hasColumn('objecttest', 'object');
+        }
+    }
+
 
 Here is the same example in YAML format. You can read more about YAML in
-the [doc yaml-schema-files :name] chapter:
+the :doc:`yaml-schema-files` chapter:
 
- Test: columns: objecttest: object
+.. code-block:: yaml
 
- .. note::
+    Test:
+      columns:
+        objecttest: object
 
-    The array and object types simply serialize the data when
-    persisting to the database and unserialize the data when pulling
-    from the database.
+.. note::
+
+    The array and object types simply serialize the data when persisting to the
+    database and unserialize the data when pulling from the database.
 
 ^^^^
 Blob
@@ -394,13 +510,24 @@ Blob fields are usually not meant to be used as parameters of query
 search clause (``WHERE``) unless the underlying DBMS supports a feature
 usually known as "full text search".
 
- class Test extends Doctrine\_Record { public function
-setTableDefinition() { $this->hasColumn('blobtest', 'blob'); } }
+::
+
+    class Test extends Doctrine_Record
+    {
+        public function setTableDefinition()
+        {
+            $this->hasColumn('blobtest', 'blob');
+        }
+    }
 
 Here is the same example in YAML format. You can read more about YAML in
-the [doc yaml-schema-files :name] chapter:
+the :doc:`yaml-schema-files` chapter:
 
- Test: columns: blobtest: blob
+.. code-block:: yaml
+
+    Test:
+      columns:
+        blobtest: blob
 
 ^^^^
 Clob
@@ -417,13 +544,24 @@ Clob fields are usually not meant to be used as parameters of query
 search clause (``WHERE``) unless the underlying DBMS supports a feature
 usually known as "full text search".
 
- class Test extends Doctrine\_Record { public function
-setTableDefinition() { $this->hasColumn('clobtest', 'clob'); } }
+::
+
+    class Test extends Doctrine_Record
+    {
+        public function setTableDefinition()
+        {
+            $this->hasColumn('clobtest', 'clob');
+        }
+    }
 
 Here is the same example in YAML format. You can read more about YAML in
-the [doc yaml-schema-files :name] chapter:
+the :doc:`yaml-schema-files` chapter:
 
- Test: columns: clobtest: clob
+.. code-block:: yaml
+
+    Test:
+      columns:
+        clobtest: clob
 
 ^^^^^^^^^
 Timestamp
@@ -436,14 +574,25 @@ single string joined by a space. Therefore, the format template is
 ``YYYY-MM-DD HH:MI:SS``. The represented values obey the same rules and
 ranges described for the date and time data types.
 
- class Test extends Doctrine\_Record { public function
-setTableDefinition() { $this->hasColumn('timestamptest', 'timestamp'); }
-}
+::
+
+    class Test extends Doctrine_Record
+    {
+        public function setTableDefinition()
+        {
+            $this->hasColumn('timestamptest', 'timestamp');
+        }
+    }
+
 
 Here is the same example in YAML format. You can read more about YAML in
-the [doc yaml-schema-files :name] chapter:
+the :doc:`yaml-schema-files` chapter:
 
- Test: columns: timestamptest: timestamp
+.. code-block:: yaml
+
+    Test:
+      columns:
+        timestamptest: timestamp
 
 ^^^^
 Time
@@ -465,13 +614,25 @@ others the DBMS driver may have to represent them as integers or text
 values. In any case, it is always possible to make comparisons between
 time values as well sort query results by fields of this type.
 
- class Test extends Doctrine\_Record { public function
-setTableDefinition() { $this->hasColumn('timetest', 'time'); } }
+::
+
+    class Test extends Doctrine_Record
+    {
+        public function setTableDefinition()
+        {
+            $this->hasColumn('timetest', 'time');
+        }
+    }
+
 
 Here is the same example in YAML format. You can read more about YAML in
-the [doc yaml-schema-files :name] chapter:
+the :doc:`yaml-schema-files` chapter:
 
- Test: columns: timetest: time
+.. code-block:: yaml
+
+    Test:
+      columns:
+        timetest: time
 
 ^^^^
 Date
@@ -492,13 +653,24 @@ driver may have to represent them as integers or text values. In any
 case, it is always possible to make comparisons between date values as
 well sort query results by fields of this type.
 
- class Test extends Doctrine\_Record { public function
-setTableDefinition() { $this->hasColumn('datetest', 'date'); } }
+::
+
+    class Test extends Doctrine_Record
+    {
+        public function setTableDefinition()
+        {
+            $this->hasColumn('datetest', 'date');
+        }
+    }
 
 Here is the same example in YAML format. You can read more about YAML in
-the [doc yaml-schema-files :name] chapter:
+the :doc:`yaml-schema-files` chapter:
 
- Test: columns: datetest: date
+.. code-block:: yaml
+
+    Test:
+      columns:
+        datetest: date
 
 ^^^^
 Enum
@@ -506,25 +678,35 @@ Enum
 
 Doctrine has a unified enum type. The possible values for the column can
 be specified on the column definition with
-``Doctrine_Record::hasColumn()``
+:php:meth:`Doctrine_Record::hasColumn`
 
 .. note::
 
     If you wish to use native enum types for your DBMS if it
-    supports it then you must set the following attribute:
+    supports it then you must set the following attribute::
 
- $conn->setAttribute(Doctrine\_Core::ATTR\_USE\_NATIVE\_ENUM, true);
+        $conn->setAttribute(Doctrine_Core::ATTR_USE_NATIVE_ENUM, true);
 
-Here is an example of how to specify the enum values:
+Here is an example of how to specify the enum values::
 
- class Test extends Doctrine\_Record { public function
-setTableDefinition() { $this->hasColumn('enumtest', 'enum', null,
-array('values' => array('php', 'java', 'python')) ); } }
+    class Test extends Doctrine_Record
+    {
+        public function setTableDefinition()
+        {
+            $this->hasColumn('enumtest', 'enum', null,
+                array('values' => array('php', 'java', 'python'))
+            );
+        }
+    }
 
 Here is the same example in YAML format. You can read more about YAML in
-the [doc yaml-schema-files :name] chapter:
+the :doc:`yaml-schema-files` chapter:
 
- Test: columns: enumtest: type: enum values: [php, java, python]
+.. code-block:: yaml
+
+    Test:
+      columns:
+        enumtest: type: enum values: [php, java, python]
 
 ^^^^
 Gzip
@@ -535,131 +717,168 @@ compressed when persisted and uncompressed when fetched. This datatype
 can be useful when storing data with a large compressibility ratio, such
 as bitmap images.
 
- class Test extends Doctrine\_Record { public function
-setTableDefinition() { $this->hasColumn('gziptest', 'gzip'); } }
+::
+
+    class Test extends Doctrine_Record
+    {
+        public function setTableDefinition()
+        {
+            $this->hasColumn('gziptest', 'gzip');
+        }
+    }
 
 Here is the same example in YAML format. You can read more about YAML in
-the [doc yaml-schema-files :name] chapter:
+the :doc:`yaml-schema-files` chapter:
 
- Test: columns: gziptest: gzip
+.. code-block:: yaml
+
+    Test:
+      columns:
+        gziptest: gzip
 
 .. note::
 
-    The family of php functions for
-    [http://www.php.net/gzcompress compressing] are used internally for
-    compressing and uncompressing the contents of the gzip column type.
+    The family of php functions for `compressing
+    <http://www.php.net/gzcompress>`_ are used internally for compressing and
+    uncompressing the contents of the gzip column type.
+
+.. _data-type-examples:
 
 --------
 Examples
 --------
 
-Consider the following definition:
+Consider the following definition::
 
- class Example extends Doctrine\_Record { public function
-setTableDefinition() { $this->hasColumn('id', 'string', 32, array(
-'type' => 'string', 'fixed' => 1, 'primary' => true, 'length' => '32' )
-);
+    class Example extends Doctrine_Record
+    {
+        public function setTableDefinition()
+        {
+            $this->hasColumn('id', 'string', 32, array(
+                'type' => 'string',
+                'fixed' => 1,
+                'primary' => true,
+                'length' => '32' )
+            );
 
-::
-
-        $this->hasColumn('someint', 'integer', 10, array(
+            $this->hasColumn('someint', 'integer', 10, array(
                 'type' => 'integer',
                 'unsigned' => true,
                 'length' => '10'
-            )
-        );
+            ));
 
-        $this->hasColumn('sometime', 'time', 25, array(
+            $this->hasColumn('sometime', 'time', 25, array(
                 'type' => 'time',
                 'default' => '12:34:05',
                 'notnull' => true,
                 'length' => '25'
-            )
-        );
+            ));
 
-        $this->hasColumn('sometext', 'string', 12, array(
+            $this->hasColumn('sometext', 'string', 12, array(
                 'type' => 'string',
                 'length' => '12'
-            )
-        );
+            ));
 
-        $this->hasColumn('somedate', 'date', 25, array(
+            $this->hasColumn('somedate', 'date', 25, array(
                 'type' => 'date',
                 'length' => '25'
-            )
-        );
+            ));
 
-        $this->hasColumn('sometimestamp', 'timestamp', 25, array(
+            $this->hasColumn('sometimestamp', 'timestamp', 25, array(
                 'type' => 'timestamp',
                 'length' => '25'
-            )
-        );
+            ));
 
-        $this->hasColumn('someboolean', 'boolean', 25, array(
+            $this->hasColumn('someboolean', 'boolean', 25, array(
                 'type' => 'boolean',
                 'length' => '25'
-            )
-        );
+            ));
 
-        $this->hasColumn('somedecimal', 'decimal', 18, array(
+            $this->hasColumn('somedecimal', 'decimal', 18, array(
                 'type' => 'decimal',
                 'length' => '18'
-            )
-        );
+            ));
 
-        $this->hasColumn('somefloat', 'float', 2147483647, array(
+            $this->hasColumn('somefloat', 'float', 2147483647, array(
                 'type' => 'float',
                 'length' => '2147483647'
-            )
-        );
+            ));
 
-        $this->hasColumn('someclob', 'clob', 2147483647, array(
+            $this->hasColumn('someclob', 'clob', 2147483647, array(
                 'type' => 'clob',
                 'length' => '2147483647'
-            )
-        );
+            ));
 
-        $this->hasColumn('someblob', 'blob', 2147483647, array(
+            $this->hasColumn('someblob', 'blob', 2147483647, array(
                 'type' => 'blob',
                 'length' => '2147483647'
-            )
-        );
+            ));
+        }
     }
 
-}
-
 Here is the same example in YAML format. You can read more about YAML in
-the [doc yaml-schema-files :name] chapter:
+the :doc:`yaml-schema-files` chapter:
 
- Example: tableName: example columns: id: type: string(32) fixed: true
-primary: true someint: type: integer(10) unsigned: true sometime: type:
-time(25) default: '12:34:05' notnull: true sometext: string(12)
-somedate: date(25) sometimestamp: timestamp(25) someboolean: boolean(25)
-somedecimal: decimal(18) somefloat: float(2147483647) someclob:
-clob(2147483647) someblob: blob(2147483647)
+.. code-block:: yaml
+
+    Example:
+      tableName: example
+      columns:
+        id:
+          type:    string(32)
+          fixed:   true
+          primary: true
+        someint:
+          type:     integer(10)
+          unsigned: true
+        sometime:
+          type:    time(25)
+          default: '12:34:05'
+          notnull: true
+        sometext:      string(12)
+        somedate:      date(25)
+        sometimestamp: timestamp(25)
+        someboolean:   boolean(25)
+        somedecimal:   decimal(18)
+        somefloat:     float(2147483647)
+        someclob:      clob(2147483647)
+        someblob:      blob(2147483647)
 
 The above example will create the following database table in Pgsql:
 
-\|\|~ Column \|\|~ Type \|\| \|\| ``id`` \|\| ``character(32)`` \|\|
-\|\| ``someint`` \|\| ``integer`` \|\| \|\| ``sometime`` \|\| ``time``
-without time zone \|\| \|\| ``sometext`` \|\| ``character`` or
-``varying(12)`` \|\| \|\| ``somedate`` \|\| ``date`` \|\| \|\|
-``sometimestamp`` \|\| ``timestamp`` without time zone \|\| \|\|
-``someboolean`` \|\| ``boolean`` \|\| \|\| ``somedecimal`` \|\|
-``numeric(18,2)`` \|\| \|\| ``somefloat`` \|\| ``double`` precision \|\|
-\|\| ``someclob`` \|\| ``text`` \|\| \|\| ``someblob`` \|\| ``bytea``
-\|\|
+=================  ===================================
+Column             Type
+=================  ===================================
+``id``             ``character(32)``
+``someint``        ``integer``
+``sometime``       ``time`` without time zone
+``sometext``       ``character`` or ``varying(12)``
+``somedate``       ``date``
+``sometimestamp``  ``timestamp`` without time zone
+``someboolean``    ``boolean``
+``somedecimal``    ``numeric(18,2)``
+``somefloat``      ``double`` precision
+``someclob``       ``text``
+``someblob``       ``bytea``
+=================  ===================================
 
 The schema will create the following database table in Mysql:
 
-\|\|~ Field \|\|~ Type \|\| \|\| ``id`` \|\| ``char(32)`` \|\| \|\|
-``someint`` \|\| ``integer`` \|\| \|\| ``sometime`` \|\| ``time`` \|\|
-\|\| ``sometext`` \|\| ``varchar(12)`` \|\| \|\| ``somedate`` \|\|
-``date`` \|\| \|\| ``sometimestamp`` \|\| ``timestamp`` \|\| \|\|
-``someboolean`` \|\| ``tinyint(1)`` \|\| \|\| ``somedecimal`` \|\|
-``decimal(18,2)`` \|\| \|\| ``somefloat`` \|\| ``double`` \|\| \|\|
-``someclob`` \|\| ``longtext`` \|\| \|\| ``someblob`` \|\| ``longblob``
-\|\|
+=================  ===============
+Field              Type
+=================  ===============
+``id``             ``char(32)``
+``someint``        ``integer``
+``sometime``       ``time``
+``sometext``       ``varchar(12)``
+``somedate``       ``date``
+``sometimestamp``  ``timestamp``
+``someboolean``    ``tinyint(1)``
+``somedecimal``    ``decimal(18,2)``
+``somefloat``      ``double``
+``someclob``       ``longtext``
+``someblob``       ``longblob``
+=================  ===============
 
 =============
 Relationships
@@ -670,41 +889,48 @@ Introduction
 ------------
 
 In Doctrine all record relations are being set with
-``Doctrine\_Record::hasMany``, ``Doctrine_Record::hasOne`` methods.
+:php:meth:`Doctrine_Record::hasMany`, :php:meth:`Doctrine_Record::hasOne` methods.
 Doctrine supports almost all kinds of database relations from simple
 one-to-one foreign key relations to join table self-referencing
 relations.
 
-Unlike the column definitions the ``Doctrine_Record::hasMany`` and
-``Doctrine_Record::hasOne`` methods are placed within a method called
+Unlike the column definitions the :php:meth:`Doctrine_Record::hasMany` and
+:php:meth:`Doctrine_Record::hasOne` methods are placed within a method called
 setUp(). Both methods take two arguments: the first argument is a string
 containing the name of the class and optional alias, the second argument
 is an array consisting of relation options. The option array contains
 the following keys:
 
-\|\|~ Name \|\|~ Optional \|\|~ Description \|\| \|\| ``local`` \|\| No
-\|\| The local field of the relation. Local field is the linked field in
-the defining class. \|\| \|\| ``foreign`` \|\| No \|\| The foreign field
-of the relation. Foreign field is the linked field in the linked class.
-\|\| \|\| ``refClass`` \|\| Yes \|\| The name of the association class.
-This is only needed for many-to-many associations. \|\| \|\|
-``owningSide`` \|\| Yes \|\| Set to boolean true to indicate the owning
-side of the relation. The owning side is the side that owns the foreign
-key. There can only be one owning side in an association between two
-classes. Note that this option is required if Doctrine can't guess the
-owning side or it's guess is wrong. An example where this is the case is
-when both 'local' and 'foreign' are part of the identifier (primary
-key). It never hurts to specify the owning side in this way. \|\| \|\|
-``onDelete`` \|\| Yes \|\| The ``onDelete`` integrity action that is
-applied on the foreign key constraint when the tables are created by
-Doctrine. \|\| \|\| ``onUpdate`` \|\| Yes \|\| The ``onUpdate``
-integrity action that is applied on the foreign key constraint when the
-tables are created by Doctrine. \|\| \|\| ``cascade`` \|\| Yes \|\|
-Specify application level cascading operations. Currently only delete is
-supported \|\|
+==============  ========  ====================================================
+Name            Optional  Description
+==============  ========  ====================================================
+``local``       No        The local field of the relation. Local field is the
+                          linked field inthe defining class.
+``foreign``     No        The foreign fieldof the relation. Foreign field is
+                          the linked field in the linked class.
+``refClass``    Yes       The name of the association class.This is only
+                          needed for many-to-many associations.
+``owningSide``  Yes       Set to boolean true to indicate the owningside of
+                          the relation. The owning side is the side that owns
+                          the foreignkey. There can only be one owning side in
+                          an association between twoclasses. Note that this
+                          option is required if Doctrine can't guess theowning
+                          side or it's guess is wrong. An example where this is
+                          the case iswhen both 'local' and 'foreign' are part
+                          of the identifier (primarykey).  It never hurts to
+                          specify the owning side in this way.
+``onDelete``    Yes       The ``onDelete`` integrity action that is applied on
+                          the foreign key constraint when the tables are
+                          created byDoctrine.
+``onUpdate``    Yes       The ``onUpdate`` integrity action that is applied on
+                          the foreign key constraint when thetables are
+                          created by Doctrine.
+``cascade``     Yes       Specify application level cascading operations.
+                          Currently only delete issupported
+==============  ========  ====================================================
 
 So lets take our first example, say we have two classes ``Forum_Board``
-and ``Forum\_Thread``. Here ``Forum_Board`` has many
+and ``Forum_Thread``. Here ``Forum_Board`` has many
 ``Forum_Threads``, hence their relation is one-to-many. We don't want
 to write ``Forum_`` when accessing relations, so we use relation
 aliases and use the alias Threads.
@@ -714,172 +940,210 @@ columns: name, description and since we didn't specify any primary key,
 Doctrine auto-creates an id column for it.
 
 We define the relation to the ``Forum_Thread`` class by using the
-``hasMany()`` method. Here the local field is the primary key of the
+:php:meth:`hasMany` method. Here the local field is the primary key of the
 board class whereas the foreign field is the ``board_id`` field of the
 ``Forum_Thread`` class.
 
- // models/Forum\_Board.php
-
-class Forum\_Board extends Doctrine\_Record { public function
-setTableDefinition() { $this->hasColumn('name', 'string', 100);
-$this->hasColumn('description', 'string', 5000); }
-
 ::
 
-    public function setUp()
+    // models/Forum_Board.php
+    class Forum_Board extends Doctrine_Record
     {
-        $this->hasMany('Forum_Thread as Threads', array(
+        public function setTableDefinition()
+        {
+            $this->hasColumn('name', 'string', 100);
+            $this->hasColumn('description', 'string', 5000);
+        }
+
+        public function setUp()
+        {
+            $this->hasMany('Forum_Thread as Threads', array(
                 'local' => 'id',
                 'foreign' => 'board_id'
-            )
-        );
+            ));
+        }
     }
-
-}
 
 .. note::
 
-    Notice the as keyword being used above. This means that the
-    ``Forum_Board`` has a many relationship defined to
-    ``Forum_Thread`` but is aliased as ``Threads``.
+    Notice the as keyword being used above. This means that the ``Forum_Board``
+    has a many relationship defined to ``Forum_Thread`` but is aliased as
+    ``Threads``.
 
-Here is the same example in YAML format. You can read more about YAML in
-the [doc yaml-schema-files :name] chapter:
+Here is the same example in YAML format. You can read more about YAML in the
+:doc:`yaml-schema-files` chapter:
 
- # schema.yml
+.. code-block:: yaml
 
-Forum\_Board: columns: name: string(100) description: string(5000)
+    # schema.yml
+    Forum_Board:
+      columns:
+        name:        string(100)
+        description: string(5000)
 
 Then lets have a peek at the ``Forum_Thread`` class. The columns here
 are irrelevant, but pay attention to how we define the relation. Since
-each Thread can have only one Board we are using the ``hasOne()``
+each Thread can have only one Board we are using the :php:meth:`hasOne`
 method. Also notice how we once again use aliases and how the local
 column here is ``board_id`` while the foreign column is the ``id``
 column.
 
- // models/Forum\_Thread.php
-
-class Forum\_Thread extends Doctrine\_Record { public function
-setTableDefinition() { $this->hasColumn('user\_id', 'integer');
-$this->hasColumn('board\_id', 'integer'); $this->hasColumn('title',
-'string', 200); $this->hasColumn('updated', 'integer', 10);
-$this->hasColumn('closed', 'integer', 1); }
-
 ::
 
-    public function setUp() 
+    // models/Forum_Thread.php
+    class Forum_Thread extends Doctrine_Record
     {
-        $this->hasOne('Forum_Board as Board', array(
+        public function setTableDefinition()
+        {
+            $this->hasColumn('user_id', 'integer');
+            $this->hasColumn('board_id', 'integer');
+            $this->hasColumn('title', 'string', 200);
+            $this->hasColumn('updated', 'integer', 10);
+            $this->hasColumn('closed', 'integer', 1);
+        }
+
+        public function setUp()
+        {
+            $this->hasOne('Forum_Board as Board', array(
                 'local' => 'board_id',
                 'foreign' => 'id'
-            )
-        );
+            ));
 
-        $this->hasOne('User', array(
+            $this->hasOne('User', array(
                 'local' => 'user_id',
                 'foreign' => 'id'
-            )
-        );
+            ));
+        }
     }
 
-}
 
-Here is the same example in YAML format. You can read more about YAML in
-the [doc yaml-schema-files :name] chapter:
+Here is the same example in YAML format. You can read more about YAML in the
+:doc:`yaml-schema-files` chapter:
 
- # schema.yml
+.. code-block:: yaml
 
-Forum\_Thread: columns: user\_id: integer board\_id: integer title:
-string(200) updated: integer(10) closed: integer(1) relations: User:
-local: user\_id foreign: id foreignAlias: Threads Board: class:
-Forum\_Board local: board\_id foreign: id foreignAlias: Threads
+     # schema.yml
+    Forum_Thread:
+      columns:
+        user_id:  integer
+        board_id: integer
+        title:    string(200)
+        updated:  integer(10)
+        closed:   integer(1)
+      relations:
+        User:
+          local: user_id
+          foreign: id
+          foreignAlias: Threads
+        Board:
+          class: Forum_Board
+          local: board_id
+          foreign: id
+          foreignAlias: Threads
 
-Now we can start using these classes. The same accessors that you've
-already used for properties are all available for relations.
+Now we can start using these classes. The same accessors that you've already
+used for properties are all available for relations.
 
-First lets create a new board:
+First lets create a new board::
 
- // test.php
+    // test.php
+    $board = new Forum_Board();
+    $board->name = 'Some board';
 
-// ... $board = new Forum\_Board(); $board->name = 'Some board';
+Now lets create a new thread under the board::
 
-Now lets create a new thread under the board:
-
- // test.php
-
-// ... $board->Threads[0]->title = 'new thread 1';
-$board->Threads[1]->title = 'new thread 2';
+    // ...
+    $board->Threads[0]->title = 'new thread 1';
+    $board->Threads[1]->title = 'new thread 2';
 
 Each ``Thread`` needs to be associated to a user so lets create a new
-``User`` and associate it to each ``Thread``:
+``User`` and associate it to each ``Thread``::
 
- $user = new User(); $user->username = 'jwage'; $board->Threads[0]->User
-= $user; $board->Threads[1]->User = $user;
+    // ...
+    $user = new User();
+    $user->username = 'jwage';
+    $board->Threads[0]->User= $user;
+    $board->Threads[1]->User = $user;
 
 Now we can save all the changes with one call. It will save the new
-board as well as its threads:
+board as well as its threads::
 
- // test.php
-
-// ... $board->save();
+    // ...
+    $board->save();
 
 Lets do a little inspecting and see the data structure that is created
-when you use the code from above. Add some code to ``test.php`` to
-output an array of the object graph we've just populated:
+when you use the code from above. Add some code to :file:`test.php` to
+output an array of the object graph we've just populated::
 
- print\_r($board->toArray(true));
+    print_r($board->toArray(true));
 
- .. tip::
+.. tip::
 
-    The ``Doctrine_Record::toArray()`` takes all the data of a
-    ``Doctrine_Record`` instance and converts it to an array so you can
-    easily inspect the data of a record. It accepts an argument named
-    ``$deep`` telling it whether or not to include relationships. In
-    this example we have specified {[true]} because we want to include
-    the ``Threads`` data.
+    The :php:meth:`Doctrine_Record::toArray` takes all the data of a
+    :php:class:`Doctrine_Record` instance and converts it to an array so you
+    can easily inspect the data of a record. It accepts an argument named
+    ``$deep`` telling it whether or not to include relationships. In this
+    example we have specified ``true`` because we want to include the
+    ``Threads`` data.
 
-Now when you execute ``test.php`` with PHP from your terminal you should
-see the following:
+Now when you execute :file:`test.php` with PHP from your terminal you should see
+the following
 
- $ php test.php Array ( [id] => 2 [name] => Some board [description] =>
-[Threads] => Array ( [0] => Array ( [id] => 3 [user\_id] => 1
-[board\_id] => 2 [title] => new thread 1 [updated] => [closed] => [User]
-=> Array ( [id] => 1 [is\_active] => 1 [is\_super\_admin] => 0
-[first\_name] => [last\_name] => [username] => jwage [password] =>
-[type] => [created\_at] => 2009-01-20 16:41:57 [updated\_at] =>
-2009-01-20 16:41:57 )
+.. code-block:: text
 
-::
-
-                )
-
-            [1] => Array
-                (
-                    [id] => 4
-                    [user_id] => 1
-                    [board_id] => 2
-                    [title] => new thread 2
-                    [updated] => 
-                    [closed] => 
-                    [User] => Array
-                        (
-                            [id] => 1
-                            [is_active] => 1
-                            [is_super_admin] => 0
-                            [first_name] => 
-                            [last_name] => 
-                            [username] => jwage
-                            [password] => 
-                            [type] => 
-                            [created_at] => 2009-01-20 16:41:57
-                            [updated_at] => 2009-01-20 16:41:57
-                        )
-
-                )
-
-        )
-
-)
+    $ php test.php
+    Array (
+        [id] => 2
+        [name] => Some board
+        [description] =>
+        [Threads] => Array
+            (
+                [0] => Array
+                    (
+                        [id] => 3
+                        [user_id] => 1
+                        [board_id] => 2
+                        [title] => new thread 1
+                        [updated] =>
+                        [closed] =>
+                        [User] => Array
+                            (
+                                [id] => 1
+                                [is_active] => 1
+                                [is_super_admin] => 0
+                                [first_name] =>
+                                [last_name] =>
+                                [username] => jwage
+                                [password] =>
+                                [type] =>
+                                [created_at] => 2009-01-20 16:41:57
+                                [updated_at] => 2009-01-20 16:41:57
+                            )
+                    )
+                [1] => Array
+                    (
+                        [id] => 4
+                        [user_id] => 1
+                        [board_id] => 2
+                        [title] => new thread 2
+                        [updated] =>
+                        [closed] =>
+                        [User] => Array
+                            (
+                                [id] => 1
+                                [is_active] => 1
+                                [is_super_admin] => 0
+                                [first_name] =>
+                                [last_name] =>
+                                [username] => jwage
+                                [password] =>
+                                [type] =>
+                                [created_at] => 2009-01-20 16:41:57
+                                [updated_at] => 2009-01-20 16:41:57
+                            )
+                    )
+            )
+    )
 
 .. note::
 
@@ -900,7 +1164,7 @@ following example we have two classes, ``User`` and ``Email`` with their
 relation being one-to-one.
 
 First lets take a look at the ``Email`` class. Since we are binding a
-one-to-one relationship we are using the ``hasOne()`` method. Notice how
+one-to-one relationship we are using the :php:meth:`hasOne` method. Notice how
 we define the foreign key column (``user_id``) in the ``Email`` class.
 This is due to a fact that ``Email`` is owned by the ``User`` class and
 not the other way around. In fact you should always follow this
@@ -909,78 +1173,93 @@ convention - always place the foreign key in the owned class.
 The recommended naming convention for foreign key columns is:
 ``[tableName]_[primaryKey]``. As here the foreign table is 'user' and
 its primary key is 'id' we have named the foreign key column as
-'user\_id'.
-
- // models/Email.php
-
-class Email extends Doctrine\_Record { public function
-setTableDefinition() { $this->hasColumn('user\_id', 'integer');
-$this->hasColumn('address', 'string', 150); }
+'user_id'.
 
 ::
 
-    public function setUp()
+    // models/Email.php
+    class Email extends Doctrine_Record
     {
-        $this->hasOne('User', array(
+        public function setTableDefinition()
+        {
+            $this->hasColumn('user_id', 'integer');
+            $this->hasColumn('address', 'string', 150);
+        }
+
+        public function setUp()
+        {
+            $this->hasOne('User', array(
                 'local' => 'user_id',
                 'foreign' => 'id'
-            )
-        );
+            ));
+        }
     }
 
-}
-
 Here is the same example in YAML format. You can read more about YAML in
-the [doc yaml-schema-files :name] chapter:
+the :doc:`yaml-schema-files` chapter:
 
- # schema.yml
+.. code-block:: yaml
 
-Email: columns: user\_id: integer address: string(150) relations: User:
-local: user\_id foreign: id foreignType: one
+    # schema.yml
+    Email:
+      columns:
+          user_id: integer
+          address: string(150)
+      relations:
+          User:
+          local: user_id
+          foreign: id
+          foreignType: one
 
 .. tip::
 
-    When using YAML schema files it is not required to specify
-    the relationship on the opposite end(``User``) because the
-    relationship is automatically flipped and added for you. The
-    relationship will be named the name of the class. So in this case
-    the relationship on the ``User`` side will be called ``Email`` and
-    will be ``many``. If you wish to customize this you can use the
-    ``foreignAlias`` and ``foreignType`` options.
+    When using YAML schema files it is not required to specify the relationship
+    on the opposite end(``User``) because the relationship is automatically
+    flipped and added for you. The relationship will be named the name of the
+    class. So in this case the relationship on the ``User`` side will be called
+    ``Email`` and will be ``many``. If you wish to customize this you can use
+    the ``foreignAlias`` and ``foreignType`` options.
 
-The ``Email`` class is very similar to the ``User`` class. Notice how
-the local and foreign columns are switched in the ``hasOne()``
-definition compared to the definition of the ``Email`` class.
-
- // models/User.php
-
-class User extends BaseUser { public function setUp() { parent::setUp();
+The ``Email`` class is very similar to the ``User`` class. Notice how the local
+and foreign columns are switched in the :php:meth:`hasOne` definition compared
+to the definition of the ``Email`` class.
 
 ::
 
-        $this->hasOne('Email', array(
+    // models/User.php
+    class User extends BaseUser
+    {
+        public function setUp()
+        {
+            parent::setUp();
+            $this->hasOne('Email', array(
                 'local' => 'id',
                 'foreign' => 'user_id'
-            )
-        );
+            ));
+        }
     }
-
-}
 
 .. note::
 
-    Notice how we override the ``setUp()`` method and call
-    ``parent::setUp()``. This is because the ``BaseUser`` class which is
+    Notice how we override the :php:meth:`setUp` method and call
+    :php:meth:`parent::setUp`. This is because the ``BaseUser`` class which is
     generated from YAML or from an existing database contains the main
-    ``setUp()`` method and we override it in the ``User`` class to add
+    :php:meth:`setUp` method and we override it in the ``User`` class to add
     an additional relationship.
 
 Here is the same example in YAML format. You can read more about YAML in
-the [doc yaml-schema-files :name] chapter:
+the :doc:`yaml-schema-files` chapter:
 
- # schema.yml
+.. code-block:: yaml
 
-User: # ... relations: # ... Email: local: id foreign: user\_id
+    # schema.yml
+    User:
+        # ...
+        relations:
+            # ...
+            Email:
+                local: id
+                foreign: user_id
 
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 One to Many and Many to One
@@ -996,52 +1275,68 @@ have many phonenumbers). Here once again the ``Phonenumber`` is clearly
 owned by the ``User`` so we place the foreign key in the ``Phonenumber``
 class.
 
- // models/User.php
-
-class User extends BaseUser { public function setUp() { parent::setUp();
-
 ::
 
-        // ...
+    // models/User.php
+    class User extends BaseUser
+    {
+        public function setUp()
+        {
+            parent::setUp();
 
-        $this->hasMany('Phonenumber as Phonenumbers', array(
+            // ...
+
+            $this->hasMany('Phonenumber as Phonenumbers', array(
                 'local' => 'id',
                 'foreign' => 'user_id'
-            )
-        );
+            ));
+        }
     }
-
-}
-
-// models/Phonenumber.php
-
-class Phonenumber extends Doctrine\_Record { public function
-setTableDefinition() { $this->hasColumn('user\_id', 'integer');
-$this->hasColumn('phonenumber', 'string', 50); }
 
 ::
 
-    public function setUp()
+    // models/Phonenumber.php
+    class Phonenumber extends Doctrine_Record
     {
-        $this->hasOne('User', array(
+        public function setTableDefinition()
+        {
+            $this->hasColumn('user_id', 'integer');
+            $this->hasColumn('phonenumber', 'string', 50);
+        }
+
+        public function setUp()
+        {
+            $this->hasOne('User', array(
                 'local' => 'user_id',
                 'foreign' => 'id'
-            )
-        );
+            ));
+        }
     }
 
-}
-
 Here is the same example in YAML format. You can read more about YAML in
-the [doc yaml-schema-files :name] chapter:
+the :doc:`yaml-schema-files` chapter:
 
- # schema.yml
+.. code-block:: yaml
 
-User: # ... relations: # ... Phonenumbers: type: many class: Phonenumber
-local: id foreign: user\_id
+    # schema.yml
+    User:
+      # ...
+      relations:
+        # ...
+        Phonenumbers:
+          type: many
+          class: Phonenumber
+          local: id
+          foreign: user_id
 
-Phonenumber: columns: user\_id: integer phonenumber: string(50)
-relations: User: local: user\_id foreign: id
+    Phonenumber:
+      columns:
+        user_id: integer
+        phonenumber: string(50)
+      relations:
+        User:
+          local: user_id
+          foreign: id
 
 ^^^^^^^^^^^^^^
 Tree Structure
@@ -1051,45 +1346,53 @@ A tree structure is a self-referencing foreign key relation. The
 following definition is also called Adjacency List implementation in
 terms of hierarchical data concepts.
 
- // models/Task.php
-
-class Task extends Doctrine\_Record { public function
-setTableDefinition() { $this->hasColumn('name', 'string', 100);
-$this->hasColumn('parent\_id', 'integer'); }
-
 ::
 
-    public function setUp() 
+    // models/Task.php
+    class Task extends Doctrine_Record
     {
-        $this->hasOne('Task as Parent', array(
+        public function setTableDefinition()
+        {
+            $this->hasColumn('name', 'string', 100);
+            $this->hasColumn('parent_id', 'integer');
+        }
+
+        public function setUp()
+        {
+            $this->hasOne('Task as Parent', array(
                 'local' => 'parent_id',
                 'foreign' => 'id'
-            )
-        );
-
-        $this->hasMany('Task as Subtasks', array(
+            ));
+            $this->hasMany('Task as Subtasks', array(
                 'local' => 'id',
                 'foreign' => 'parent_id'
-            )
-        );
+            ));
+        }
     }
 
-}
-
 Here is the same example in YAML format. You can read more about YAML in
-the [doc yaml-schema-files :name] chapter:
+the :doc:`yaml-schema-files` chapter:
 
- # schema.yml
+.. code-block:: yaml
 
-Task: columns: name: string(100) parent\_id: integer relations: Parent:
-class: Task local: parent\_id foreign: id foreignAlias: Subtasks
+    # schema.yml
+    Task:
+      columns:
+        name: string(100)
+        parent_id: integer
+      relations:
+        Parent:
+          class: Task
+          local: parent_id
+          foreign: id
+          foreignAlias: Subtasks
 
 .. note::
 
-    The above implementation is purely an example and is not
-    the most efficient way to store and retrieve hierarchical data.
-    Check the ``NestedSet`` behavior included in Doctrine for the
-    recommended way to deal with hierarchical data.
+    The above implementation is purely an example and is not the most efficient
+    way to store and retrieve hierarchical data.  Check the ``NestedSet``
+    behavior included in Doctrine for the recommended way to deal with
+    hierarchical data.
 
 -----------------------
 Join Table Associations
@@ -1099,255 +1402,303 @@ Join Table Associations
 Many to Many
 ^^^^^^^^^^^^
 
-If you are coming from relational database background it may be familiar
-to you how many-to-many associations are handled: an additional
-association table is needed.
+If you are coming from relational database background it may be familiar to you
+how many-to-many associations are handled: an additional association table is
+needed.
 
-In many-to-many relations the relation between the two components is
-always an aggregate relation and the association table is owned by both
-ends. For example in the case of users and groups: when a user is being
-deleted, the groups he/she belongs to are not being deleted. However,
-the associations between this user and the groups he/she belongs to are
-instead being deleted. This removes the relation between the user and
-the groups he/she belonged to, but does not remove the user nor the
-groups.
+In many-to-many relations the relation between the two components is always an
+aggregate relation and the association table is owned by both ends. For example
+in the case of users and groups: when a user is being deleted, the groups
+he/she belongs to are not being deleted. However, the associations between this
+user and the groups he/she belongs to are instead being deleted. This removes
+the relation between the user and the groups he/she belonged to, but does not
+remove the user nor the groups.
 
-Sometimes you may not want that association table rows are being deleted
-when user / group is being deleted. You can override this behavior by
-setting the relations to association component (in this case
-``Groupuser``) explicitly.
+Sometimes you may not want that association table rows are being deleted when
+user / group is being deleted. You can override this behavior by setting the
+relations to association component (in this case ``Groupuser``) explicitly.
 
-In the following example we have Groups and Users of which relation is
-defined as many-to-many. In this case we also need to define an
-additional class called ``Groupuser``.
-
- class User extends BaseUser { public function setUp() {
-parent::setUp();
+In the following example we have Groups and Users of which relation is defined
+as many-to-many. In this case we also need to define an additional class called
+``Groupuser``.
 
 ::
 
-        // ...
+    class User extends BaseUser
+    {
+        public function setUp()
+        {
+            parent::setUp();
 
-        $this->hasMany('Group as Groups', array(
+            // ...
+
+            $this->hasMany('Group as Groups', array(
                 'local' => 'user_id',
                 'foreign' => 'group_id',
                 'refClass' => 'UserGroup'
-            )
-        );
+            ));
+        }
     }
 
-}
-
 Here is the same example in YAML format. You can read more about YAML in
-the [doc yaml-schema-files :name] chapter:
+the :doc:`yaml-schema-files` chapter:
 
- User: # ... relations: # ... Groups: class: Group local: user\_id
-foreign: group\_id refClass: UserGroup
+.. code-block:: yaml
+
+    User:
+        # ...
+        relations:
+            # ...
+            Groups:
+                class: Group
+                local: user_id
+                foreign: group_id
+                refClass: UserGroup
 
 .. note::
 
-    The above ``refClass`` option is required when setting up
-    many-to-many relationships.
-
- // models/Group.php
-
-class Group extends Doctrine\_Record { public function
-setTableDefinition() { $this->setTableName('groups');
-$this->hasColumn('name', 'string', 30); }
+    The above ``refClass`` option is required when setting up many-to-many
+    relationships.
 
 ::
 
-    public function setUp()
+    // models/Group.php
+    class Group extends Doctrine_Record
     {
-        $this->hasMany('User as Users', array(
+        public function setTableDefinition()
+        {
+            $this->setTableName('groups');
+            $this->hasColumn('name', 'string', 30);
+        }
+
+        public function setUp()
+        {
+            $this->hasMany('User as Users', array(
                 'local' => 'group_id',
                 'foreign' => 'user_id',
                 'refClass' => 'UserGroup'
-            )
-        );
+            ));
+        }
     }
 
-}
-
 Here is the same example in YAML format. You can read more about YAML in
-the [doc yaml-schema-files :name] chapter:
+the :doc:`yaml-schema-files` chapter:
 
- # schema.yml
+.. code-block:: yaml
 
-Group: tableName: groups columns: name: string(30) relations: Users:
-class: User local: group\_id foreign: user\_id refClass: UserGroup
+    # schema.yml
+    Group:
+      tableName: groups
+      columns:
+        name: string(30)
+      relations:
+        Users:
+          class: User
+          local: group_id
+          foreign: user_id
+          refClass: UserGroup
 
 .. note::
 
-    Please note that ``group`` is a reserved keyword so that is
-    why we renamed the table to ``groups`` using the ``setTableName``
-    method. The other option is to turn on identifier quoting using the
-    ``Doctrine\_Core::ATTR\_QUOTE_IDENTIFIER`` attribute so that the
+    Please note that ``group`` is a reserved keyword so that is why we renamed
+    the table to ``groups`` using the ``setTableName`` method. The other option
+    is to turn on identifier quoting using the
+    :php:const:`Doctrine_Core::ATTR_QUOTE_IDENTIFIER` attribute so that the
     reserved word is escaped with quotes.
 
+    ::
 
-$manager->setAttribute(Doctrine\_Core::Doctrine\_Core::ATTR\_QUOTE\_IDENTIFIER,
-true);
-
- // models/UserGroup.php
-
-class UserGroup extends Doctrine\_Record { public function
-setTableDefinition() { $this->hasColumn('user\_id', 'integer', null,
-array( 'primary' => true ) );
+        $manager->setAttribute(Doctrine_Core::Doctrine_Core::ATTR_QUOTE_IDENTIFIER,
+        true);
 
 ::
 
-        $this->hasColumn('group_id', 'integer', null, array(
+    // models/UserGroup.php
+    class UserGroup extends Doctrine_Record
+    {
+        public function setTableDefinition()
+        {
+            $this->hasColumn('user_id', 'integer', null, array(
                 'primary' => true
-            )
-        );
+            ));
+            $this->hasColumn('group_id', 'integer', null, array(
+                'primary' => true
+            ));
+        }
     }
 
-}
+Here is the same example in YAML format. You can read more about YAML in the
+:doc:`yaml-schema-files` chapter:
 
-Here is the same example in YAML format. You can read more about YAML in
-the [doc yaml-schema-files :name] chapter:
+.. code-block:: yaml
 
- # schema.yml
+    # schema.yml
+    UserGroup:
+      columns:
+        user_id:
+          type: integer
+          primary: true
+        group_id:
+          type: integer
+          primary: true
 
-UserGroup: columns: user\_id: type: integer primary: true group\_id:
-type: integer primary: true
+Notice how the relationship is bi-directional. Both ``User`` has many ``Group``
+and ``Group`` has many ``User``. This is required by Doctrine in order for
+many-to-many relationships to fully work.
 
-Notice how the relationship is bi-directional. Both ``User`` has many
-``Group`` and ``Group`` has many ``User``. This is required by Doctrine
-in order for many-to-many relationships to fully work.
+Now lets play around with the new models and create a user and assign it some
+groups. First create a new ``User`` instance::
 
-Now lets play around with the new models and create a user and assign it
-some groups. First create a new ``User`` instance:
+    // test.php
+    $user = new User();
 
- // test.php
+Now add two new groups to the ``User``::
 
-// ... $user = new User();
+    // ...
+    $user->Groups[0]->name = 'First Group';
+    $user->Groups[1]->name = 'Second Group';
 
-Now add two new groups to the ``User``:
+Now you can save the groups to the database::
 
- // test.php
-
-// ... $user->Groups[0]->name = 'First Group';
-
-$user->Groups[1]->name = 'Second Group';
-
-Now you can save the groups to the database:
-
- // test.php
-
-// ... $user->save();
+    // ...
+    $user->save();
 
 Now you can delete the associations between user and groups it belongs
-to:
+to::
 
- // test.php
+    // ...
+    $user->UserGroup->delete();
 
-// ... $user->UserGroup->delete();
+    $groups = new Doctrine_Collection(Doctrine_Core::getTable('Group'));
 
-$groups = new Doctrine\_Collection(Doctrine\_Core::getTable('Group'));
+    $groups[0]->name = 'Third Group';
+    $groups[1]->name = 'Fourth Group';
 
-$groups[0]->name = 'Third Group';
+    $user->Groups[2] = $groups[0]; // $user will now have 3 groups
 
-$groups[1]->name = 'Fourth Group';
+    $user->Groups = $groups; // $user will now have two groups 'Third Group' and 'Fourth Group'
 
-$user->Groups[2] = $groups[0]; // $user will now have 3 groups
-
-$user->Groups = $groups; // $user will now have two groups 'Third Group'
-and 'Fourth Group'
-
-$user->save();
+    $user->save();
 
 Now if we inspect the ``$user`` object data with the
-``Doctrine_Record::toArray()``:
+:php:meth:`Doctrine_Record::toArray`::
 
- // test.php
+    // ...
+    print_r($user->toArray(true));
 
-// ... print\_r($user->toArray(true));
+The above example would produce the following output
 
-The above example would produce the following output:
+.. code-block:: text
 
- $ php test.php Array ( [id] => 1 [is\_active] => 1 [is\_super\_admin]
-=> 0 [first\_name] => [last\_name] => [username] => default username
-[password] => [type] => [created\_at] => 2009-01-20 16:48:57
-[updated\_at] => 2009-01-20 16:48:57 [Groups] => Array ( [0] => Array (
-[id] => 3 [name] => Third Group )
-
-::
-
-            [1] => Array
-                (
-                    [id] => 4
-                    [name] => Fourth Group
-                )
-
-        )
-
-    [UserGroup] => Array
+    $ php test.php
+    Array
         (
+            [id] => 1
+            [is_active] => 1
+            [is_super_admin] => 0
+            [first_name] =>
+            [last_name] =>
+            [username] => default username
+            [password] =>
+            [type] =>
+            [created_at] => 2009-01-20 16:48:57
+            [updated_at] => 2009-01-20 16:48:57
+            [Groups] => Array
+                (
+                    [0] => Array
+                        (
+                            [id] => 3
+                            [name] => Third Group
+                        )
+                [1] => Array
+                    (
+                        [id] => 4
+                        [name] => Fourth Group
+                    )
+                )
+            [UserGroup] => Array
+                (
+                )
         )
-
-)
 
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Self Referencing (Nest Relations)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-+++++ Non-Equal Nest Relations
-
- // models/User.php
-
-class User extends BaseUser { public function setUp() { parent::setUp();
+""""""""""""""""""""""""
+Non-Equal Nest Relations
+""""""""""""""""""""""""
 
 ::
 
-        // ...
+    // models/User.php
+    class User extends BaseUser
+    {
+        public function setUp()
+        {
+            parent::setUp();
 
-        $this->hasMany('User as Parents', array(
+            // ...
+
+            $this->hasMany('User as Parents', array(
                 'local'    => 'child_id',
                 'foreign'  => 'parent_id',
                 'refClass' => 'UserReference'
-            )
-        );
+            ));
 
-        $this->hasMany('User as Children', array(
+            $this->hasMany('User as Children', array(
                 'local'    => 'parent_id',
                 'foreign'  => 'child_id',
                 'refClass' => 'UserReference'
-            )
-        );
+            ));
+        }
     }
-
-}
-
-// models/UserReference.php
-
-class UserReference extends Doctrine\_Record { public function
-setTableDefinition() { $this->hasColumn('parent\_id', 'integer', null,
-array( 'primary' => true ) );
 
 ::
 
-        $this->hasColumn('child_id', 'integer', null, array(
+    // models/UserReference.php
+    class UserReference extends Doctrine_Record
+    {
+        public function setTableDefinition()
+        {
+            $this->hasColumn('parent_id', 'integer', null, array(
                 'primary' => true
-            )
-        );
+            ));
+            $this->hasColumn('child_id', 'integer', null, array(
+                'primary' => true
+            ));
+        }
     }
 
-}
+Here is the same example in YAML format. You can read more about YAML in the
+:doc:`yaml-schema-files` chapter:
 
-Here is the same example in YAML format. You can read more about YAML in
-the [doc yaml-schema-files :name] chapter:
+.. code-block:: yaml
 
- # schema.yml
+    # schema.yml
+    User:
+      # ...
+      relations:
+        # ...
+        Parents:
+          class: User
+          local: child_id
+          foreign: parent_id
+          refClass: UserReference
+          foreignAlias: Children
 
-User: # ... relations: # ... Parents: class: User local: child\_id
-foreign: parent\_id refClass: UserReference foreignAlias: Children
+    UserReference:
+      columns:
+        parent_id:
+          type: integer
+          primary: true
+        child_id:
+          type: integer
+          primary: true
 
-UserReference: columns: parent\_id: type: integer primary: true
-child\_id: type: integer primary: true
-
-+++++ Equal Nest Relations
+""""""""""""""""""""
+Equal Nest Relations
+""""""""""""""""""""
 
 Equal nest relations are perfectly suitable for expressing relations
 where a class references to itself and the columns within the reference
@@ -1357,101 +1708,137 @@ This means that when fetching related records it doesn't matter which
 column in the reference class has the primary key value of the main
 class.
 
-The previous clause maybe hard to understand so lets take an example. We
+The previous clause may be hard to understand so lets take an example. We
 define a class called User which can have many friends. Notice here how
 we use the 'equal' option.
 
- // models/User.php
-
-class User extends BaseUser { public function setUp() { parent::setUp();
-
 ::
 
-        // ...
+    // models/User.php
+    class User extends BaseUser
+    {
 
-        $this->hasMany('User as Friends', array(
+        public function setUp()
+        {
+            parent::setUp();
+
+            // ...
+
+            $this->hasMany('User as Friends', array(
                 'local'    => 'user1',
                 'foreign'  => 'user2',
                 'refClass' => 'FriendReference',
                 'equal'    => true,
-            )
-        );
+            ));
+        }
     }
-
-}
-
-// models/FriendReference.php
-
-class FriendReference extends Doctrine\_Record { public function
-setTableDefinition() { $this->hasColumn('user1', 'integer', null, array(
-'primary' => true ) );
 
 ::
 
-        $this->hasColumn('user2', 'integer', null, array(
+    // models/FriendReference.php
+    class FriendReference extends Doctrine_Record
+    {
+        public function setTableDefinition()
+        {
+            $this->hasColumn('user1', 'integer', null, array(
                 'primary' => true
-            )
-        );
+            ));
+            $this->hasColumn('user2', 'integer', null, array(
+                'primary' => true
+            ));
+        }
     }
 
-}
-
 Here is the same example in YAML format. You can read more about YAML in
-the [doc yaml-schema-files :name] chapter:
+the :doc:`yaml-schema-files` chapter:
 
- # schema.yml
+.. code-block:: yaml
 
-User: # ... relations: # ... Friends: class: User local: user1 foreign:
-user2 refClass: FriendReference equal: true
+    # schema.yml
+    User:
+      # ...
+      relations:
+        # ...
+        Friends:
+          class: User
+          local: user1
+          foreign: user2
+          refClass: FriendReference
+          equal: true
 
-FriendReference: columns: user1: type: integer primary: true user2:
-type: integer primary: true
+    FriendReference:
+      columns:
+        user1:
+          type: integer
+          primary: true
+        user2:
+          type: integer
+          primary: true
 
-Now lets define 4 users: Jack Daniels, John Brandy, Mikko Koskenkorva
-and Stefan Beer with Jack Daniels and John Brandy being buddies and
-Mikko Koskenkorva being the friend of all of them.
+Now lets define 4 users: Jack Daniels, John Brandy, Mikko Koskenkorva and
+Stefan Beer with Jack Daniels and John Brandy being buddies and Mikko
+Koskenkorva being the friend of all of them.
 
- // test.php
+::
 
-// ... $daniels = new User(); $daniels->username = 'Jack Daniels';
+    // test.php
+    $daniels = new User();
+    $daniels->username = 'Jack Daniels';
 
-$brandy = new User(); $brandy->username = 'John Brandy';
+    $brandy = new User();
+    $brandy->username = 'John Brandy';
 
-$koskenkorva = new User(); $koskenkorva->username = 'Mikko Koskenkorva';
+    $koskenkorva = new User();
+    $koskenkorva->username = 'Mikko Koskenkorva';
 
-$beer = new User(); $beer->username = 'Stefan Beer';
+    $beer = new User();
+    $beer->username = 'Stefan Beer';
 
-$daniels->Friends[0] = $brandy;
+    $daniels->Friends[0] = $brandy;
 
-$koskenkorva->Friends[0] = $daniels; $koskenkorva->Friends[1] = $brandy;
-$koskenkorva->Friends[2] = $beer;
+    $koskenkorva->Friends[0] = $daniels;
+    $koskenkorva->Friends[1] = $brandy;
+    $koskenkorva->Friends[2] = $beer;
 
-$conn->flush();
+    $conn->flush();
 
 .. note::
 
-    Calling ``Doctrine_Connection::flush()`` will trigger an
+    Calling :php:meth:`Doctrine_Connection::flush` will trigger an
     operation that saves all unsaved objects and wraps it in a single
     transaction.
 
 Now if we access for example the friends of Stefan Beer it would return
-one user 'Mikko Koskenkorva':
+one user 'Mikko Koskenkorva'::
 
- // test.php
+    // ...
+    $beer->free();
+    unset($beer);
+    $user = Doctrine_Core::getTable('User')->findOneByUsername('Stefan Beer');
 
-// ... :code:`beer->free(); unset(`\ beer); $user =
-Doctrine\_Core::getTable('User')->findOneByUsername('Stefan Beer');
+    print_r($user->Friends->toArray());
 
-print\_r($user->Friends->toArray());
+Now when you execute :file:`test.php` you will see the following:
 
-Now when you execute ``test.php`` you will see the following:
+.. code-block:: text
 
- $ php test.php Array ( [0] => Array ( [id] => 4 [is\_active] => 1
-[is\_super\_admin] => 0 [first\_name] => [last\_name] => [username] =>
-Mikko Koskenkorva [password] => [type] => [created\_at] => 2009-01-20
-16:53:13 [updated\_at] => 2009-01-20 16:53:13 )
-
-)
+    $ php test.php
+    Array
+        (
+            [0] => Array
+                (
+                    [id] => 4
+                    [is_active] => 1
+                    [is_super_admin] => 0
+                    [first_name] =>
+                    [last_name] =>
+                    [username] => Mikko Koskenkorva
+                    [password] =>
+                    [type] =>
+                    [created_at] => 2009-01-20 16:53:13
+                    [updated_at] => 2009-01-20 16:53:13
+                )
+        )
 
 -----------------------
 Foreign Key Constraints
@@ -1466,69 +1853,86 @@ group of columns) must match the values appearing in some row of another
 table. In other words foreign key constraints maintain the referential
 integrity between two related tables.
 
-Say you have the product table with the following definition:
+Say you have the product table with the following definition::
 
- // models/Product.php
-
-class Product extends Doctrine\_Record { public function
-setTableDefinition() { $this->hasColumn('name', 'string');
-$this->hasColumn('price', 'decimal', 18);
-$this->hasColumn('discounted\_price', 'decimal', 18); }
-
-::
-
-    public function setUp()
+    // models/Product.php
+    class Product extends Doctrine_Record
     {
-        $this->hasMany('Order as Orders', array(
+        public function setTableDefinition()
+        {
+            $this->hasColumn('name', 'string');
+            $this->hasColumn('price', 'decimal', 18);
+            $this->hasColumn('discounted_price', 'decimal', 18);
+        }
+
+        public function setUp()
+        {
+            $this->hasMany('Order as Orders', array(
                 'local' => 'id',
                 'foreign' => 'product_id'
-            )
-        );
+            ));
+        }
     }
 
-}
-
 Here is the same example in YAML format. You can read more about YAML in
-the [doc yaml-schema-files :name] chapter:
+the :doc:`yaml-schema-files` chapter:
 
- # schema.yml
+.. code-block:: yaml
 
-Product: columns: name: type: string price: type: decimal(18)
-discounted\_price: type: decimal(18) relations: Orders: class: Order
-local: id foreign: product\_id
+    # schema.yml
+    Product:
+      columns:
+        name:
+          type: string
+        price:
+          type: decimal(18)
+        discounted_price:
+          type: decimal(18)
+        relations:
+          Orders:
+            class: Order
+            local: id
+            foreign: product_id
 
 Let's also assume you have a table storing orders of those products. We
 want to ensure that the order table only contains orders of products
 that actually exist. So we define a foreign key constraint in the orders
-table that references the products table:
+table that references the products table::
 
- // models/Order.php
-
-class Order extends Doctrine\_Record { public function
-setTableDefinition() { $this->setTableName('orders');
-$this->hasColumn('product\_id', 'integer'); $this->hasColumn('quantity',
-'integer'); }
-
-::
-
-    public function setUp()
+    // models/Order.php
+    class Order extends Doctrine_Record
     {
-        $this->hasOne('Product', array(
+        public function setTableDefinition()
+        {
+            $this->setTableName('orders');
+            $this->hasColumn('product_id', 'integer');
+            $this->hasColumn('quantity', 'integer');
+        }
+
+        public function setUp()
+        {
+            $this->hasOne('Product', array(
                 'local' => 'product_id',
                 'foreign' => 'id'
-            )
-        );
+            ));
+        }
     }
 
-}
-
 Here is the same example in YAML format. You can read more about YAML in
-the [doc yaml-schema-files :name] chapter:
+the :doc:`yaml-schema-files` chapter:
 
- # schema.yml
+.. code-block:: yaml
 
-Order: tableName: orders columns: product\_id: integer quantity: integer
-relations: Product: local: product\_id foreign: id
+    # schema.yml
+    Order:
+      tableName: orders
+      columns:
+        product_id: integer
+        quantity: integer
+        relations:
+          Product:
+            local: product_id
+            foreign: id
 
 .. note::
 
@@ -1538,9 +1942,14 @@ relations: Product: local: product\_id foreign: id
 
 When exported the class ``Order`` would execute the following SQL:
 
- CREATE TABLE orders ( id integer PRIMARY KEY auto\_increment,
-product\_id integer REFERENCES products (id), quantity integer, INDEX
-product\_id\_idx (product\_id) )
+.. code-block:: mysql
+
+    CREATE TABLE orders (
+        id INTEGER PRIMARY KEY AUTO_INCREMENT,
+        product_id INTEGER REFERENCES products (id),
+        quantity INTEGER,
+        INDEX product_id_idx (product_id)
+    )
 
 Now it is impossible to create ``orders`` with a ``product_id`` that
 does not appear in the ``product`` table.
@@ -1559,37 +1968,44 @@ key name for you. Sometimes though, this name may not be something you
 want so you can customize the name to use with the ``foreignKeyName``
 option to your relationship setup.
 
- // models/Order.php
-
-class Order extends Doctrine\_Record { // ...
-
 ::
 
-    public function setUp()
+    // models/Order.php
+    class Order extends Doctrine_Record
     {
-        $this->hasOne('Product', array(
+        // ...
+
+        public function setUp()
+        {
+            $this->hasOne('Product', array(
                 'local' => 'product_id',
                 'foreign' => 'id',
                 'foreignKeyName' => 'product_id_fk'
-            )
-        );
+            ));
+        }
     }
 
-}
-
 Here is the same example in YAML format. You can read more about YAML in
-the [doc yaml-schema-files :name] chapter:
+the :doc:`yaml-schema-files` chapter:
 
- # schema.yml
+.. code-block:: yaml
 
-Order: # ... relations: Product: local: product\_id foreign: id
-foreignKeyName: product\_id\_fk
+    # schema.yml
+    Order:
+        # ...
+        relations:
+            Product:
+                local: product_id
+                foreign: id
+                foreignKeyName: product_id_fk
 
 ^^^^^^^^^^^^^^^^^
 Integrity Actions
 ^^^^^^^^^^^^^^^^^
 
-**CASCADE**
+"""""""
+CASCADE
+"""""""
 
 Delete or update the row from the parent table and automatically delete
 or update the matching rows in the child table. Both ``ON DELETE
@@ -1597,7 +2013,9 @@ CASCADE`` and ``ON UPDATE CASCADE`` are supported. Between two tables,
 you should not define several ``ON UPDATE CASCADE`` clauses that act on
 the same column in the parent table or in the child table.
 
-**SET NULL**
+""""""""
+SET NULL
+""""""""
 
 Delete or update the row from the parent table and set the foreign key
 column or columns in the child table to ``NULL``. This is valid only if
@@ -1605,19 +2023,25 @@ the foreign key columns do not have the ``NOT NULL`` qualifier
 specified. Both ``ON DELETE SET NULL`` and ``ON UPDATE SET NULL``
 clauses are supported.
 
-**NO ACTION**
+"""""""""
+NO ACTION
+"""""""""
 
 In standard SQL, ``NO ACTION`` means no action in the sense that an
 attempt to delete or update a primary key value is not allowed to
 proceed if there is a related foreign key value in the referenced table.
 
-**RESTRICT**
+""""""""
+RESTRICT
+""""""""
 
 Rejects the delete or update operation for the parent table. ``NO
 ACTION`` and ``RESTRICT`` are the same as omitting the ``ON DELETE`` or
 ``ON UPDATE`` clause.
 
-**SET DEFAULT**
+"""""""""""
+SET DEFAULT
+"""""""""""
 
 In the following example we define two classes, ``User`` and
 ``Phonenumber`` with their relation being one-to-many. We also add a
@@ -1628,36 +2052,44 @@ will also be deleted.
 .. note::
 
     The integrity constraints listed above are case sensitive
-    and must be in upper case when being defined in your schema. Below
-    is an example where the database delete cascading is used.
+    and must be in upper case when being defined in your schema.
 
- class Phonenumber extends Doctrine\_Record { // ...
+Below is an example where the database delete cascading is used.
 
 ::
 
-    public function setUp()
+    class Phonenumber extends Doctrine_Record
     {
-        parent::setUp();
-
         // ...
 
-        $this->hasOne('User', array(
+        public function setUp()
+        {
+            parent::setUp();
+
+            // ...
+
+            $this->hasOne('User', array(
                 'local' => 'user_id',
                 'foreign' => 'id',
                 'onDelete' => 'CASCADE'
-            )
-        );
+            ));
+        }
     }
 
-}
-
 Here is the same example in YAML format. You can read more about YAML in
-the [doc yaml-schema-files :name] chapter:
+the :doc:`yaml-schema-files` chapter:
 
- # schema.yml
+.. code-block:: yaml
 
-Phonenumber: # ... relations: # ... User: local: user\_id foreign: id
-onDelete: CASCADE
+    # schema.yml
+    Phonenumber:
+        # ...
+        relations:
+            # ...
+            User:
+                local: user_id
+                foreign: id
+                onDelete: CASCADE
 
 .. note::
 
@@ -1700,72 +2132,93 @@ adding a simple index to field called name:
     actually add to your test Doctrine environment. They are only meant
     to demonstrate the API for adding indexes.
 
- class IndexTest extends Doctrine\_Record { public function
-setTableDefinition() { $this->hasColumn('name', 'string');
-
 ::
 
-        $this->index('myindex', array(
+    class IndexTest extends Doctrine_Record
+    {
+        public function setTableDefinition()
+        {
+            $this->hasColumn('name', 'string');
+            $this->index('myindex', array(
                 'fields' => array('name')
-            )
-        );
+            ));
+        }
     }
 
-}
-
 Here is the same example in YAML format. You can read more about YAML in
-the [doc yaml-schema-files :name] chapter:
+the :doc:`yaml-schema-files` chapter:
 
- IndexTest: columns: name: string indexes: myindex: fields: [name]
+.. code-block:: yaml
 
-An example of adding a multi-column index to field called ``name``:
+    IndexTest:
+      columns:
+        name: string
+      indexes:
+        myindex:
+          fields: [name]
 
- class MultiColumnIndexTest extends Doctrine\_Record { public function
-setTableDefinition() { $this->hasColumn('name', 'string');
-$this->hasColumn('code', 'string');
+An example of adding a multi-column index to field called ``name``::
 
-::
+    class MultiColumnIndexTest extends Doctrine_Record
+    {
+        public function setTableDefinition()
+        {
+            $this->hasColumn('name', 'string');
+            $this->hasColumn('code', 'string');
 
-        $this->index('myindex', array(
+            $this->index('myindex', array(
                 'fields' => array('name', 'code')
-            )
-        );
+            ));
+        }
     }
 
-}
+Here is the same example in YAML format. You can read more about YAML in the
+:doc:`yaml-schema-files` chapter:
 
-Here is the same example in YAML format. You can read more about YAML in
-the [doc yaml-schema-files :name] chapter:
+.. code-block:: yaml
 
- MultiColumnIndexTest: columns: name: string code: string indexes:
-myindex: fields: [name, code]
+    MultiColumnIndexTest:
+      columns:
+        name: string
+        code: string
+      indexes:
+        myindex:
+          fields: [name, code]
 
-An example of adding multiple indexes on same table:
+An example of adding multiple indexes on same table::
 
- class MultipleIndexTest extends Doctrine\_Record { public function
-setTableDefinition() { $this->hasColumn('name', 'string');
-$this->hasColumn('code', 'string'); $this->hasColumn('age', 'integer');
+    class MultipleIndexTest extends Doctrine_Record
+    {
+        public function setTableDefinition()
+        {
+            $this->hasColumn('name', 'string');
+            $this->hasColumn('code', 'string'); $this->hasColumn('age', 'integer');
 
-::
-
-        $this->index('myindex', array(
+            $this->index('myindex', array(
                 'fields' => array('name', 'code')
-            )
-        );
+            ));
 
-        $this->index('ageindex', array(
+            $this->index('ageindex', array(
                 'fields' => array('age')
-            )
-        );
+            ));
+        }
     }
 
-}
-
 Here is the same example in YAML format. You can read more about YAML in
-the [doc yaml-schema-files :name] chapter:
+the :doc:`yaml-schema-files` chapter:
 
- MultipleIndexTest: columns: name: string code: string age: integer
-indexes: myindex: fields: [name, code] ageindex: fields: [age]
+.. code-block:: yaml
+
+    MultipleIndexTest:
+      columns:
+        name: string
+        code: string
+        age: integer
+      indexes:
+        myindex:
+          fields: [name, code]
+        ageindex:
+          fields: [age]
 
 -------------
 Index options
@@ -1774,40 +2227,57 @@ Index options
 Doctrine offers many index options, some of them being database
 specific. Here is a full list of available options:
 
-\|\|~ Name \|\|~ Description \|\| \|\| ``sorting`` \|\| A string value
-that can be either 'ASC' or 'DESC'. \|\| \|\| ``length`` \|\| Index
-length (only some drivers support this). \|\| \|\| ``primary`` \|\|
-Whether or not the index is a primary index. \|\| \|\| ``type`` \|\| A
-string value that can be unique, 'fulltext', 'gist' or 'gin'. \|\|
+===========  ===============================================================
+Name         Description
+===========  ===============================================================
+``sorting``  A string valuethat can be either 'ASC' or 'DESC'.
+``length``   Index length (only some drivers support this).
+``primary``  Whether or not the index is a primary index.
+``type``     A string value that can be unique, 'fulltext', 'gist' or 'gin'.
+===========  ===============================================================
 
 Here is an example of how to create a unique index on the name column.
 
- class MultipleIndexTest extends Doctrine\_Record { public function
-setTableDefinition() { $this->hasColumn('name', 'string');
-$this->hasColumn('code', 'string'); $this->hasColumn('age', 'integer');
-
 ::
 
-        $this->index('myindex', array(
+    class MultipleIndexTest extends Doctrine_Record
+    {
+        public function setTableDefinition()
+        {
+            $this->hasColumn('name', 'string');
+            $this->hasColumn('code', 'string');
+            $this->hasColumn('age', 'integer');
+
+            $this->index('myindex', array(
                 'fields' => array(
                     'name' => array(
                         'sorting' => 'ASC',
                         'length'  => 10),
-                        'code'
-                    ),
+                    'code'
+                ),
                 'type' => 'unique',
-            )
-        );
+            ));
+        }
     }
 
-}
+Here is the same example in YAML format. You can read more about YAML in the
+:doc:`yaml-schema-files` chapter:
 
-Here is the same example in YAML format. You can read more about YAML in
-the [doc yaml-schema-files :name] chapter:
+.. code-block:: yaml
 
- MultipleIndexTest: columns: name: string code: string age: integer
-indexes: myindex: fields: name: sorting: ASC length: 10 code: - type:
-unique
+    MultipleIndexTest:
+      columns:
+        name: string
+        code: string
+        age: integer
+      indexes:
+        myindex:
+          fields:
+            name:
+              sorting: ASC
+              length: 10
+            code:
+          type: unique
 
 ---------------
 Special indexes
@@ -1817,32 +2287,41 @@ Doctrine supports many special indexes. These include Mysql FULLTEXT and
 Pgsql GiST indexes. In the following example we define a Mysql FULLTEXT
 index for the field 'content'.
 
- // models/Article.php
-
-class Article extends Doctrine\_Record { public function
-setTableDefinition() { $this->hasColumn('name', 'string', 255);
-$this->hasColumn('content', 'string');
-
 ::
 
-        $this->option('type', 'MyISAM');
+    // models/Article.php
+    class Article extends Doctrine_Record
+    {
+        public function setTableDefinition()
+        {
+            $this->hasColumn('name', 'string', 255);
+            $this->hasColumn('content', 'string');
 
-        $this->index('content', array(
+            $this->option('type', 'MyISAM');
+
+            $this->index('content', array(
                 'fields' => array('content'),
                 'type'   => 'fulltext'
-            )
-        );
+            ));
+        }
     }
 
-}
-
 Here is the same example in YAML format. You can read more about YAML in
-the [doc yaml-schema-files :name] chapter:
+the :doc:`yaml-schema-files` chapter:
 
- # schema.yml
+.. code-block:: yaml
 
-Article: options: type: MyISAM columns: name: string(255) content:
-string indexes: content: fields: [content] type: fulltext
+    # schema.yml
+    Article:
+      options:
+        type: MyISAM
+      columns:
+        name: string(255)
+        content: string
+      indexes:
+        content:
+          fields: [content]
+          type: fulltext
 
 .. note::
 
@@ -1854,37 +2333,48 @@ string indexes: content: fields: [content] type: fulltext
 Checks
 ======
 
-You can create any kind of ``CHECK`` constraints by using the
-``check()`` method of the ``Doctrine_Record``. In the last example we
-add constraint to ensure that price is always higher than the discounted
-price.
-
- // models/Product.php
-
-class Product extends Doctrine\_Record { public function
-setTableDefinition() { // ...
+You can create any kind of ``CHECK`` constraints by using the :php:meth:`check`
+method of the :php:class:`Doctrine_Record`. In the last example we add
+constraint to ensure that price is always higher than the discounted price.
 
 ::
 
-        $this->check('price > discounted_price');
+    // models/Product.php
+    class Product extends Doctrine_Record
+    {
+        public function setTableDefinition()
+        {
+            // ...
+            $this->check('price > discounted_price');
+        }
+
+        // ...
     }
 
-    // ...
-
-}
-
 Here is the same example in YAML format. You can read more about YAML in
-the [doc yaml-schema-files :name] chapter:
+the :doc:`yaml-schema-files` chapter:
 
- # schema.yml
+.. code-block:: yaml
 
-Product: # ... checks: price\_check: price > discounted\_price
+    # schema.yml
+    Product:
+      # ...
+      checks:
+        price_check: price > discounted_price
 
 Generates (in pgsql):
 
- CREATE TABLE product ( id INTEGER, price NUMERIC, discounted\_price
-NUMERIC, PRIMARY KEY(id), CHECK (price >= 0), CHECK (price <= 1000000),
-CHECK (price > discounted\_price))
+.. code-block:: postgres
+
+    CREATE TABLE product (
+        id INTEGER,
+        price NUMERIC,
+        discounted_price NUMERIC,
+        PRIMARY KEY(id),
+        CHECK (price >= 0),
+        CHECK (price <= 1000000),
+        CHECK (price > discounted_price)
+    )
 
 .. note::
 
@@ -1897,7 +2387,7 @@ ensure that when a record is being saved its price is always greater
 than zero.
 
 If some of the prices of the saved products within a transaction is
-below zero, Doctrine throws ``Doctrine\_Validator_Exception`` and
+below zero, Doctrine throws ``Doctrine_Validator_Exception`` and
 automatically rolls back the transaction.
 
 =============
@@ -1910,7 +2400,7 @@ the ``Doctrine_Record::option`` function.
 For example if you are using MySQL and want to use INNODB tables it can
 be done as follows:
 
- class MyInnoDbRecord extends Doctrine\_Record { public function
+ class MyInnoDbRecord extends Doctrine_Record { public function
 setTableDefinition() { $this->hasColumn('name', 'string');
 
 ::
@@ -1921,13 +2411,13 @@ setTableDefinition() { $this->hasColumn('name', 'string');
 }
 
 Here is the same example in YAML format. You can read more about YAML in
-the [doc yaml-schema-files :name] chapter:
+the :doc:`yaml-schema-files` chapter:
 
  MyInnoDbRecord: columns: name: string options: type: INNODB
 
 In the following example we set the collate and character set options:
 
- class MyCustomOptionRecord extends Doctrine\_Record { public function
+ class MyCustomOptionRecord extends Doctrine_Record { public function
 setTableDefinition() { $this->hasColumn('name', 'string');
 
 ::
@@ -1939,17 +2429,17 @@ setTableDefinition() { $this->hasColumn('name', 'string');
 }
 
 Here is the same example in YAML format. You can read more about YAML in
-the [doc yaml-schema-files :name] chapter:
+the :doc:`yaml-schema-files` chapter:
 
  MyCustomOptionRecord: columns: name: string options: collate:
-utf8\_unicode\_ci charset: utf8
+utf8_unicode_ci charset: utf8
 
 It is worth noting that for certain databases (Firebird, MySql and
 PostgreSQL) setting the charset option might not be enough for Doctrine
 to return data properly. For those databases, users are advised to also
 use the ``setCharset`` function of the database connection:
 
- $conn = Doctrine\_Manager::connection(); $conn->setCharset('utf8');
+ $conn = Doctrine_Manager::connection(); $conn->setCharset('utf8');
 
 ==============
 Record Filters
@@ -1960,10 +2450,10 @@ models. A record filter is invoked whenever you access a property on a
 model that is invalid. So it allows you to essentially add properties
 dynamically to a model through the use of one of these filters.
 
-To attach a filter you just need to add it in the ``setUp()`` method of
+To attach a filter you just need to add it in the :php:meth:`setUp` method of
 your model definition:
 
- class User extends Doctrine\_Record { public function
+ class User extends Doctrine_Record { public function
 setTableDefinition() { $this->hasColumn('username', 'string', 255);
 $this->hasColumn('password', 'string', 255); }
 
@@ -1980,10 +2470,10 @@ $this->hasColumn('password', 'string', 255); }
 
 }
 
-class Profile extends Doctrine\_Record { public function
-setTableDefinition() { $this->hasColumn('user\_id', 'integer');
-$this->hasColumn('first\_name', 'string', 255);
-$this->hasColumn('last\_name', 'string', 255); }
+class Profile extends Doctrine_Record { public function
+setTableDefinition() { $this->hasColumn('user_id', 'integer');
+$this->hasColumn('first_name', 'string', 255);
+$this->hasColumn('last_name', 'string', 255); }
 
 ::
 
@@ -2001,26 +2491,26 @@ Now with the above example we can easily access the properties of the
 ``Profile`` relationship when using an instance of ``User``. Here is an
 example:
 
- $user = Doctrine\_Core::getTable('User') ->createQuery('u')
+ $user = Doctrine_Core::getTable('User') ->createQuery('u')
 ->innerJoin('u.Profile p') ->where('p.username = ?', 'jwage')
 ->fetchOne();
 
-echo $user->first\_name . ' ' . $user->last\_name;
+echo $user->first_name . ' ' . $user->last_name;
 
-When we ask for the ``first\_name`` and ``last_name`` properties they
+When we ask for the ``first_name`` and ``last_name`` properties they
 do not exist on the ``$user`` instance so they are forwarded to the
 ``Profile`` relationship. It is the same as if you were to do the
 following:
 
- echo $user->Profile->first\_name . ' ' . $user->Profile->last\_name;
+ echo $user->Profile->first_name . ' ' . $user->Profile->last_name;
 
 You can write your own record filters pretty easily too. All that is
 required is you create a class which extends
-``Doctrine\_Record_Filter`` and implements the ``filterSet()`` and
-``filterGet()`` methods. Here is an example:
+``Doctrine_Record_Filter`` and implements the :php:meth:`filterSet` and
+:php:meth:`filterGet` methods. Here is an example:
 
- class MyRecordFilter extends Doctrine\_Record\_Filter { public function
-filterSet(Doctrine\_Record $record, $name, $value) { // try and set the
+ class MyRecordFilter extends Doctrine_Record_Filter { public function
+filterSet(Doctrine_Record $record, $name, $value) { // try and set the
 property
 
 ::
@@ -2039,7 +2529,7 @@ property
 
 Now you can add the filter to your models:
 
- class MyModel extends Doctrine\_Record { // ...
+ class MyModel extends Doctrine_Record { // ...
 
 ::
 
@@ -2055,8 +2545,8 @@ Now you can add the filter to your models:
 .. note::
 
     Remember to be sure to throw an instance of the
-    ``Doctrine\_Record_UnknownPropertyException`` exception class if
-    ``filterSet()`` or ``filterGet()`` fail to find the property.
+    ``Doctrine_Record_UnknownPropertyException`` exception class if
+    :php:meth:`filterSet` or :php:meth:`filterGet` fail to find the property.
 
 ======================
 Transitive Persistence
@@ -2078,7 +2568,7 @@ application-level cascading of operations.
 Save Cascades
 ^^^^^^^^^^^^^
 
-You may already have noticed that ``save()`` operations are already
+You may already have noticed that :php:meth:`save` operations are already
 cascaded to associated objects by default.
 
 ^^^^^^^^^^^^^^^
@@ -2086,7 +2576,7 @@ Delete Cascades
 ^^^^^^^^^^^^^^^
 
 Doctrine provides a second application-level cascade style: delete.
-Unlike the ``save()`` cascade, the delete cascade needs to be turned on
+Unlike the :php:meth:`save` cascade, the delete cascade needs to be turned on
 explicitly as can be seen in the following code snippet:
 
  // models/User.php
@@ -2112,12 +2602,14 @@ class User extends BaseUser { // ...
 }
 
 Here is the same example in YAML format. You can read more about YAML in
-the [doc yaml-schema-files :name] chapter:
+the :doc:`yaml-schema-files` chapter:
+
+.. code-block:: yaml
 
  # schema.yml
 
 User: # ... relations: # ... Addresses: class: Address local: id
-foreign: user\_id cascade: [delete]
+foreign: user_id cascade: [delete]
 
 The ``cascade`` option is used to specify the operations that are
 cascaded to the related objects on the application-level.
@@ -2130,19 +2622,19 @@ cascaded to the related objects on the application-level.
 
 In the example above, Doctrine would cascade the deletion of a ``User``
 to it's associated ``Addresses``. The following describes the generic
-procedure when you delete a record through ``$record->delete()``:
+procedure when you delete a record through :php:meth:`$record->delete`:
 
-**1.** Doctrine looks at the relations to see if there are any deletion
+#. Doctrine looks at the relations to see if there are any deletion
 cascades it needs to apply. If there are no deletion cascades, go to 3).
 
-**2.** For each relation that has a delete cascade specified, Doctrine
+#. For each relation that has a delete cascade specified, Doctrine
 verifies that the objects that are the target of the cascade are loaded.
 That usually means that Doctrine fetches the related objects from the
 database if they're not yet loaded.(Exception: many-valued associations
 are always re-fetched from the database, to make sure all objects are
 loaded). For each associated object, proceed with step 1).
 
-**3.** Doctrine orders all deletions and executes them in the most
+#. Doctrine orders all deletions and executes them in the most
 efficient way, maintaining referential integrity.
 
 From this description one thing should be instantly clear:
@@ -2152,11 +2644,11 @@ that the participating objects need to be available.
 
 This has some important implications:
 
--  Application-level delete cascades don't perform well on many-valued
+*  Application-level delete cascades don't perform well on many-valued
    associations when there are a lot of objects in the related
    collection (that is because they need to be fetched from the
    database, the actual deletion is pretty efficient).
--  Application-level delete cascades do not skip the object lifecycle as
+*  Application-level delete cascades do not skip the object lifecycle as
    database-level cascades do (see next chapter). Therefore all
    registered event listeners and other callback methods are properly
    executed in an application-level cascade.
@@ -2171,9 +2663,9 @@ database level. The best example is the delete cascade.
 Database-level delete cascades are generally preferrable over
 application-level delete cascades except:
 
--  Your database does not support database-level cascades (i.e. when
+*  Your database does not support database-level cascades (i.e. when
    using MySql with MYISAM tables).
--  You have listeners that listen on the object lifecycle and you want
+*  You have listeners that listen on the object lifecycle and you want
    them to get invoked.
 
 Database-level delete cascades are applied on the foreign key
@@ -2183,11 +2675,11 @@ definition of a database-level cascade would look as follows:
 
  // models/Address.php
 
-class Address extends Doctrine\_Record { public function
-setTableDefinition() { $this->hasColumn('user\_id', 'integer');
+class Address extends Doctrine_Record { public function
+setTableDefinition() { $this->hasColumn('user_id', 'integer');
 $this->hasColumn('address', 'string', 255); $this->hasColumn('country',
 'string', 255); $this->hasColumn('city', 'string', 255);
-$this->hasColumn('state', 'string', 2); $this->hasColumn('postal\_code',
+$this->hasColumn('state', 'string', 2); $this->hasColumn('postal_code',
 'string', 25); }
 
 ::
@@ -2205,13 +2697,15 @@ $this->hasColumn('state', 'string', 2); $this->hasColumn('postal\_code',
 }
 
 Here is the same example in YAML format. You can read more about YAML in
-the [doc yaml-schema-files :name] chapter:
+the :doc:`yaml-schema-files` chapter:
+
+.. code-block:: yaml
 
  # schema.yml
 
-Address: columns: user\_id: integer address: string(255) country:
-string(255) city: string(255) state: string(2) postal\_code: string(25)
-relations: User: local: user\_id foreign: id onDelete: CASCADE
+Address: columns: user_id: integer address: string(255) country:
+string(255) city: string(255) state: string(2) postal_code: string(25)
+relations: User: local: user_id foreign: id onDelete: CASCADE
 
 The ``onDelete`` option is translated to proper DDL/DML statements when
 Doctrine creates your tables.
@@ -2231,9 +2725,9 @@ creates your tables.
 Conclusion
 ==========
 
-Now that we know everything about how to define our Doctrine models, I
-think we are ready to move on to learning about how to [doc
-working-with-models work with models] in your application.
+Now that we know everything about how to define our Doctrine models, I think we
+are ready to move on to learning about how to :doc:`work with models
+<working-with-models>` in your application.
 
 This is a very large topic as well so take a break, grab a mountain dew
-and hurry back for the [doc working-with-models next chapter].
+and hurry back for the :doc:`next chapter <working-with-models>`.
