@@ -2398,48 +2398,60 @@ Doctrine offers various table options. All table options can be set via
 the ``Doctrine_Record::option`` function.
 
 For example if you are using MySQL and want to use INNODB tables it can
-be done as follows:
+be done as follows::
 
- class MyInnoDbRecord extends Doctrine_Record { public function
-setTableDefinition() { $this->hasColumn('name', 'string');
-
-::
-
-        $this->option('type', 'INNODB');
+    class MyInnoDbRecord extends Doctrine_Record
+    {
+        public function setTableDefinition()
+        {
+            $this->hasColumn('name', 'string');
+            $this->option('type', 'INNODB');
+        }
     }
-
-}
 
 Here is the same example in YAML format. You can read more about YAML in
 the :doc:`yaml-schema-files` chapter:
 
- MyInnoDbRecord: columns: name: string options: type: INNODB
+.. code-block:: yaml
 
-In the following example we set the collate and character set options:
+    MyInnoDbRecord:
+      columns:
+        name: string
+      options:
+        type: INNODB
 
- class MyCustomOptionRecord extends Doctrine_Record { public function
-setTableDefinition() { $this->hasColumn('name', 'string');
+In the following example we set the collate and character set options::
 
-::
+    class MyCustomOptionRecord extends Doctrine_Record
+    {
+        public function setTableDefinition()
+        {
+            $this->hasColumn('name', 'string');
 
-        $this->option('collate', 'utf8_unicode_ci');
-        $this->option('charset', 'utf8');
+            $this->option('collate', 'utf8_unicode_ci');
+            $this->option('charset', 'utf8');
+        }
     }
-
-}
 
 Here is the same example in YAML format. You can read more about YAML in
 the :doc:`yaml-schema-files` chapter:
 
- MyCustomOptionRecord: columns: name: string options: collate:
-utf8_unicode_ci charset: utf8
+.. code-block:: yaml
+
+    MyCustomOptionRecord:
+      columns:
+        name: string
+      options:
+        collate: utf8_unicode_ci
+        charset: utf8
 
 It is worth noting that for certain databases (Firebird, MySql and
 PostgreSQL) setting the charset option might not be enough for Doctrine
 to return data properly. For those databases, users are advised to also
-use the ``setCharset`` function of the database connection:
+use the ``setCharset`` function of the database connection::
 
- $conn = Doctrine_Manager::connection(); $conn->setCharset('utf8');
+    $conn = Doctrine_Manager::connection();
+    $conn->setCharset('utf8');
 
 ==============
 Record Filters
@@ -2451,96 +2463,103 @@ model that is invalid. So it allows you to essentially add properties
 dynamically to a model through the use of one of these filters.
 
 To attach a filter you just need to add it in the :php:meth:`setUp` method of
-your model definition:
+your model definition::
 
- class User extends Doctrine_Record { public function
-setTableDefinition() { $this->hasColumn('username', 'string', 255);
-$this->hasColumn('password', 'string', 255); }
-
-::
-
-    public function setUp()
+    class User extends Doctrine_Record
     {
-        $this->hasOne('Profile', array(
-            'local' => 'id',
-            'foreign' => 'user_id'
-        ));
-        $this->unshiftFilter(new Doctrine_Record_Filter_Compound(array('Profile')));
+        public function setTableDefinition()
+        {
+            $this->hasColumn('username', 'string', 255);
+            $this->hasColumn('password', 'string', 255);
+        }
+
+        public function setUp()
+        {
+            $this->hasOne('Profile', array(
+                'local' => 'id',
+                'foreign' => 'user_id'
+            ));
+            $this->unshiftFilter(new Doctrine_Record_Filter_Compound(array('Profile')));
+        }
     }
 
-}
-
-class Profile extends Doctrine_Record { public function
-setTableDefinition() { $this->hasColumn('user_id', 'integer');
-$this->hasColumn('first_name', 'string', 255);
-$this->hasColumn('last_name', 'string', 255); }
-
-::
-
-    public function setUp()
+    class Profile extends Doctrine_Record
     {
-        $this->hasOne('User', array(
-            'local' => 'user_id',
-            'foreign' => 'id'
-        ));
-    }
+        public function setTableDefinition()
+        {
+            $this->hasColumn('user_id', 'integer');
+            $this->hasColumn('first_name', 'string', 255);
+            $this->hasColumn('last_name', 'string', 255);
+        }
 
-}
+        public function setUp()
+        {
+            $this->hasOne('User', array(
+                'local' => 'user_id',
+                'foreign' => 'id'
+            ));
+        }
+    }
 
 Now with the above example we can easily access the properties of the
 ``Profile`` relationship when using an instance of ``User``. Here is an
-example:
+example::
 
- $user = Doctrine_Core::getTable('User') ->createQuery('u')
-->innerJoin('u.Profile p') ->where('p.username = ?', 'jwage')
-->fetchOne();
+    $user = Doctrine_Core::getTable('User')
+                ->createQuery('u')
+                ->innerJoin('u.Profile p')
+                ->where('p.username = ?', 'jwage')
+                ->fetchOne();
 
-echo $user->first_name . ' ' . $user->last_name;
+    echo $user->first_name . ' ' . $user->last_name;
 
 When we ask for the ``first_name`` and ``last_name`` properties they
 do not exist on the ``$user`` instance so they are forwarded to the
 ``Profile`` relationship. It is the same as if you were to do the
-following:
+following::
 
- echo $user->Profile->first_name . ' ' . $user->Profile->last_name;
+    echo $user->Profile->first_name . ' ' . $user->Profile->last_name;
 
 You can write your own record filters pretty easily too. All that is
 required is you create a class which extends
 ``Doctrine_Record_Filter`` and implements the :php:meth:`filterSet` and
-:php:meth:`filterGet` methods. Here is an example:
+:php:meth:`filterGet` methods. Here is an example::
 
- class MyRecordFilter extends Doctrine_Record_Filter { public function
-filterSet(Doctrine_Record $record, $name, $value) { // try and set the
-property
-
-::
-
-        throw new Doctrine_Record_UnknownPropertyException(sprintf('Unknown record property / related component "%s" on "%s"', $name, get_class($record)));
-    }
-
-    public function filterGet(Doctrine_Record, $name)
+    class MyRecordFilter extends Doctrine_Record_Filter
     {
-        // try and get the property
+        public function filterSet(Doctrine_Record $record, $name, $value)
+        {
+            // try and set the property
+            throw new Doctrine_Record_UnknownPropertyException(sprintf(
+                'Unknown record property / related component "%s" on "%s"',
+                $name,
+                get_class($record)
+            ));
+        }
 
-        throw new Doctrine_Record_UnknownPropertyException(sprintf('Unknown record property / related component "%s" on "%s"', $name, get_class($record)));
+        public function filterGet(Doctrine_Record, $name)
+        {
+            // try and get the property
+            throw new Doctrine_Record_UnknownPropertyException(sprintf(
+                'Unknown record property / related component "%s" on "%s"',
+                $name,
+                get_class($record)
+            ));
+        }
     }
 
-}
+Now you can add the filter to your models::
 
-Now you can add the filter to your models:
-
- class MyModel extends Doctrine_Record { // ...
-
-::
-
-    public function setUp()
+    class MyModel extends Doctrine_Record
     {
         // ...
 
-        $this->unshiftFilter(new MyRecordFilter());
+        public function setUp()
+        {
+            // ...
+            $this->unshiftFilter(new MyRecordFilter());
+        }
     }
-
-}
 
 .. note::
 
@@ -2577,48 +2596,49 @@ Delete Cascades
 
 Doctrine provides a second application-level cascade style: delete.
 Unlike the :php:meth:`save` cascade, the delete cascade needs to be turned on
-explicitly as can be seen in the following code snippet:
+explicitly as can be seen in the following code snippet::
 
- // models/User.php
-
-class User extends BaseUser { // ...
-
-::
-
-    public function setUp()
+    // models/User.php
+    class User extends BaseUser
     {
-        parent::setup();
-
         // ...
+        public function setUp()
+        {
+            parent::setup();
 
-        $this->hasMany('Address as Addresses', array(
+            // ...
+
+            $this->hasMany('Address as Addresses', array(
                 'local' => 'id',
                 'foreign' => 'user_id',
                 'cascade' => array('delete')
-            )
-        );
+            ));
+        }
     }
 
-}
-
 Here is the same example in YAML format. You can read more about YAML in
-the :doc:`yaml-schema-files` chapter:
+the :doc:`yaml-schema-files` chapter
 
 .. code-block:: yaml
 
- # schema.yml
-
-User: # ... relations: # ... Addresses: class: Address local: id
-foreign: user_id cascade: [delete]
+    # schema.yml
+    User:
+        # ...
+        relations:
+            # ...
+            Addresses:
+                class: Address
+                local: id
+                foreign: user_id
+                cascade: [delete]
 
 The ``cascade`` option is used to specify the operations that are
 cascaded to the related objects on the application-level.
 
 .. note::
 
-    Please note that the only currently supported value is
-    ``delete``, more options will be added in future releases of
-    Doctrine.
+    Please note that the only currently supported value is ``delete``, more
+    options will be added in future releases of Doctrine.
 
 In the example above, Doctrine would cascade the deletion of a ``User``
 to it's associated ``Addresses``. The following describes the generic
@@ -2671,41 +2691,49 @@ application-level delete cascades except:
 Database-level delete cascades are applied on the foreign key
 constraint. Therefore they're specified on that side of the relation
 that owns the foreign key. Picking up the example from above, the
-definition of a database-level cascade would look as follows:
+definition of a database-level cascade would look as follows::
 
- // models/Address.php
-
-class Address extends Doctrine_Record { public function
-setTableDefinition() { $this->hasColumn('user_id', 'integer');
-$this->hasColumn('address', 'string', 255); $this->hasColumn('country',
-'string', 255); $this->hasColumn('city', 'string', 255);
-$this->hasColumn('state', 'string', 2); $this->hasColumn('postal_code',
-'string', 25); }
-
-::
-
-    public function setUp()
+    // models/Address.php
+    class Address extends Doctrine_Record
     {
-        $this->hasOne('User', array(
+        public function setTableDefinition() {
+            $this->hasColumn('user_id', 'integer');
+            $this->hasColumn('address', 'string', 255);
+            $this->hasColumn('country', 'string', 255);
+            $this->hasColumn('city', 'string', 255);
+            $this->hasColumn('state', 'string', 2);
+            $this->hasColumn('postal_code', 'string', 25);
+        }
+
+        public function setUp()
+        {
+            $this->hasOne('User', array(
                 'local' => 'user_id',
                 'foreign' => 'id',
                 'onDelete' => 'CASCADE'
-            )
-        );
+            ));
+        }
     }
-
-}
 
 Here is the same example in YAML format. You can read more about YAML in
 the :doc:`yaml-schema-files` chapter:
 
 .. code-block:: yaml
 
- # schema.yml
-
-Address: columns: user_id: integer address: string(255) country:
-string(255) city: string(255) state: string(2) postal_code: string(25)
-relations: User: local: user_id foreign: id onDelete: CASCADE
+    # schema.yml
+    Address:
+      columns:
+        user_id: integer
+        address: string(255)
+        country: string(255)
+        city: string(255)
+        state: string(2)
+        postal_code: string(25)
+      relations:
+        User:
+          local: user_id
+          foreign: id
+          onDelete: CASCADE
 
 The ``onDelete`` option is translated to proper DDL/DML statements when
 Doctrine creates your tables.
