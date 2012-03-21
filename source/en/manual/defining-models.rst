@@ -317,7 +317,9 @@ the :doc:`yaml-schema-files` chapter:
 
     Test:
       columns:
-        integertest: type: integer(4) unsigned: true
+        integertest:
+          type: integer(4)
+          unsigned: true
 
 ^^^^^
 Float
@@ -396,7 +398,9 @@ the :doc:`yaml-schema-files` chapter:
 
     Test:
       columns:
-        decimaltest: type: decimal(18) scale: 2
+        decimaltest:
+          type: decimal(18)
+          scale: 2
 
 ^^^^^^
 String
@@ -440,7 +444,9 @@ the :doc:`yaml-schema-files` chapter:
 
     Test:
       columns:
-        stringtest: type: string(200) fixed: true
+        stringtest:
+          type: string(200)
+          fixed: true
 
 ^^^^^
 Array
@@ -706,7 +712,9 @@ the :doc:`yaml-schema-files` chapter:
 
     Test:
       columns:
-        enumtest: type: enum values: [php, java, python]
+        enumtest:
+          type: enum
+          values: [php, java, python]
 
 ^^^^
 Gzip
