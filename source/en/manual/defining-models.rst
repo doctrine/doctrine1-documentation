@@ -2653,17 +2653,15 @@ to it's associated ``Addresses``. The following describes the generic
 procedure when you delete a record through :php:meth:`$record->delete`:
 
 #. Doctrine looks at the relations to see if there are any deletion
-cascades it needs to apply. If there are no deletion cascades, go to 3).
-
+   cascades it needs to apply. If there are no deletion cascades, go to 3).
 #. For each relation that has a delete cascade specified, Doctrine
-verifies that the objects that are the target of the cascade are loaded.
-That usually means that Doctrine fetches the related objects from the
-database if they're not yet loaded.(Exception: many-valued associations
-are always re-fetched from the database, to make sure all objects are
-loaded). For each associated object, proceed with step 1).
-
+   verifies that the objects that are the target of the cascade are loaded.
+   That usually means that Doctrine fetches the related objects from the
+   database if they're not yet loaded.(Exception: many-valued associations
+   are always re-fetched from the database, to make sure all objects are
+   loaded). For each associated object, proceed with step 1).
 #. Doctrine orders all deletions and executes them in the most
-efficient way, maintaining referential integrity.
+   efficient way, maintaining referential integrity.
 
 From this description one thing should be instantly clear:
 Application-level cascades happen on the object-level, meaning
