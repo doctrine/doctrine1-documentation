@@ -4,12 +4,38 @@
 Introduction
 ************
 
+==================
+About this Version
+==================
+
+This is the Doctrine |version| ORM Manual, covering up to version
+|release|.
+
+This manual is currently being "transliterated" to use reStructuredText. This
+will allow it to be built with Sphinx, hosted by readthedocs and hopefully
+integrated into the new official Doctrine documentation server. Chapters up to
+and including :doc:`working-with-models` should display properly, but the rest
+of the manual still hasn't been fully rewritten. This can make code examples
+and tables hard to read.
+
 .. caution::
 
     The text in this book contains lots of PHP code
     examples. All starting and ending PHP tags have been removed to
     reduce the length of the book. Be sure to include the PHP tags when
     you copy and paste the examples.
+
+=================
+How to Contribute
+=================
+
+If you'd like to help convert the manual to reST (particularly if you can read
+Japanese), you can fork and send pull requests via
+http://github.com/dominics/doctrine1-documentation. It might be a good idea to
+open an issue if you're going to work on a page, so that work isn't duplicated.
+
+Eventually, this version will hopefully end up back in
+http://github.com/doctrine/doctrine1-documentation
 
 =================
 What is Doctrine?
