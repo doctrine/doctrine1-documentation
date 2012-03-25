@@ -354,17 +354,21 @@ The above call to :php:meth:`getSql` would output the following SQL query:
 
 .. code-block:: sql
 
-SELECT
-u.id AS u__id, u.username AS u__username FROM user u ORDER BY u.username
+    SELECT
+        u.id AS u__id,
+        u.username AS u__username
+    FROM user u
+    ORDER BY u.username
 
 The ``LIMIT`` and ``OFFSET`` clauses can be used for efficiently
-limiting the number of records to a given ``row_count``
+limiting the number of records to a given ``row_count``::
 
-// test.php
-$q = Doctrine_Query::create() ->select('u.username')
-->from('User u') ->limit(20);
+    $q = Doctrine_Query::create()
+            ->select('u.username')
+            ->from('User u')
+            ->limit(20);
 
-echo $q->getSqlQuery();
+    echo $q->getSqlQuery();
 
 The above call to :php:meth:`getSql` would output the following SQL query:
 
@@ -390,8 +394,14 @@ The above call to :php:meth:`getSql` would output the following SQL query:
 
 .. code-block:: sql
 
- SELECT u.id AS u__id, COUNT(f.id) AS f__0 FROM user u LEFT JOIN
-forum__thread f ON u.id = f.user_id WHERE u.id = ? GROUP BY u.id
+    SELECT
+        u.id AS u__id,
+        COUNT(f.id) AS f__0
+    FROM user u
+        LEFT JOIN forum__thread f
+            ON u.id = f.user_id
+    WHERE u.id = ?
+    GROUP BY u.id
 
 Now execute the query and inspect the results::
 
@@ -407,7 +417,15 @@ UPDATE queries
 
 ``UPDATE`` statement syntax:
 
- UPDATE SET = , = WHERE ORDER BY LIMIT
+.. code-block:: sql
+
+    UPDATE <component_name>
+    SET
+        <col_name1> = <expr1>,
+        <col_name2> = <expr2>
+    WHERE <where_condition>
+    ORDER BY <order_by>
+    LIMIT <record_count>
 
 *  The ``UPDATE`` statement updates columns of existing records in
    ``component_name`` with new values and returns the number of
@@ -426,31 +444,40 @@ UPDATE queries
    found ``record_count`` rows that satisfy the ``WHERE`` clause,
    whether or not they actually were changed.
 
-// test.php
-$q = Doctrine_Query::create() ->update('Account')
-->set('amount', 'amount + 200') ->where('id > 200');
+::
 
-// If you just want to set the amount to a value $q->set('amount', '?',
-500);
+    $q = Doctrine_Query::create()
+            ->update('Account')
+            ->set('amount', 'amount + 200')
+            ->where('id > 200');
 
-echo $q->getSqlQuery();
+    // If you just want to set the amount to a value
+    //   $q->set('amount', '?', 500);
+
+    echo $q->getSqlQuery();
 
 The above call to :php:meth:`getSql` would output the following SQL query:
 
- UPDATE account SET amount = amount + 200 WHERE id > 200
+.. code-block:: sql
 
-Now to perform the update is simple. Just execute the query:
+    UPDATE account SET amount = amount + 200 WHERE id > 200
 
-// test.php
-$rows = $q->execute();
+Now to perform the update is simple. Just execute the query::
 
-echo $rows;
+    $rows = $q->execute();
+
+    echo $rows;
 
 ==============
 DELETE Queries
 ==============
 
- DELETE FROM WHERE ORDER BY LIMIT
+.. code-block:: sql
+
+    DELETE FROM <component_name>
+    WHERE <where_condition>
+    ORDER BY <order_by>
+    LIMIT <record_count>
 
 *  The ``DELETE`` statement deletes records from ``component_name`` and
    returns the number of records deleted.
@@ -463,22 +490,25 @@ DELETE Queries
    deleted. The statement will stop as soon as it has deleted
    ``record_count`` records.
 
-// test.php
-$q = Doctrine_Query::create() ->delete('Account a')
-->where('a.id > 3');
+::
 
-echo $q->getSqlQuery();
+    $q = Doctrine_Query::create()
+            ->delete('Account a')
+            ->where('a.id > 3');
+
+    echo $q->getSqlQuery();
 
 The above call to :php:meth:`getSql` would output the following SQL query:
 
- DELETE FROM account WHERE id > 3
+.. code-block:: sql
 
-Now executing the ``DELETE`` query is just as you would think:
+    DELETE FROM account WHERE id > 3
 
-// test.php
-$rows = $q->execute();
+Now executing the ``DELETE`` query is just as you would think::
 
-echo $rows;
+    $rows = $q->execute();
+
+    echo $rows;
 
 .. note::
 
@@ -491,31 +521,33 @@ FROM clause
 
 Syntax:
 
- FROM [[LEFT \| INNER] JOIN ] ...
+.. code-block:: sql
+
+    FROM <component_reference>
+        [[LEFT | INNER] JOIN <component_reference>] ...
 
 The ``FROM`` clause indicates the component or components from which to
-retrieve records. If you name more than one component, you are
-performing a join. For each table specified, you can optionally specify
-an alias.
+retrieve records. If you name more than one component, you are performing a
+join. For each table specified, you can optionally specify an alias.
 
-Consider the following DQL query:
+Consider the following DQL query::
 
-// test.php
-$q = Doctrine_Query::create() ->select('u.id') ->from('User u');
+    $q = Doctrine_Query::create()
+            ->select('u.id')
+            ->from('User u');
 
-echo $q->getSqlQuery();
+    echo $q->getSqlQuery();
 
 The above call to :php:meth:`getSql` would output the following SQL query:
 
 .. code-block:: sql
 
- SELECT u.id AS u__id FROM user u
+    SELECT u.id AS u__id FROM user u
 
-Here ``User`` is the name of the class (component) and ``u`` is the
-alias. You should always use short aliases, since most of the time those
-make the query much shorther and also because when using for example
-caching the cached form of the query takes less space when short aliases
-are being used.
+Here ``User`` is the name of the class (component) and ``u`` is the alias. You
+should always use short aliases, since most of the time those make the query
+much shorther and also because when using for example caching the cached form
+of the query takes less space when short aliases are being used.
 
 ===========
 JOIN syntax
@@ -523,25 +555,30 @@ JOIN syntax
 
 DQL JOIN Syntax:
 
- [[LEFT \| INNER] JOIN ] [ON \| WITH] [INDEXBY] , [[LEFT \| INNER] JOIN
-] [ON \| WITH] [INDEXBY] , ... [[LEFT \| INNER] JOIN ] [ON \| WITH]
-[INDEXBY]
+.. code-block:: sql
 
-DQL supports two kinds of joins INNER JOINs and LEFT JOINs. For each
-joined component, you can optionally specify an alias.
+    [[LEFT | INNER] JOIN <component_reference1>] [ON | WITH] <join_condition1> [INDEXBY] <map_condition1>,
+    [[LEFT | INNER] JOIN <component_reference2>] [ON | WITH] <join_condition2> [INDEXBY] <map_condition2>,
+    ...
+    [[LEFT | INNER] JOIN <component_referenceN>] [ON | WITH] <join_conditionN> [INDEXBY] <map_conditionN>
 
-The default join type is ``LEFT JOIN``. This join can be indicated by
-the use of either ``LEFT JOIN`` clause or simply '``,``', hence the
-following queries are equal:
+DQL supports two kinds of joins INNER JOINs and LEFT JOINs. For each joined
+component, you can optionally specify an alias.
 
-// test.php
-$q = Doctrine_Query::create() ->select('u.id, p.id')
-->from('User u') ->leftJoin('u.Phonenumbers p');
+The default join type is ``LEFT JOIN``. This join can be indicated by the use
+of either ``LEFT JOIN`` clause or simply '``,``', hence the following queries
+are equal::
 
-$q = Doctrine_Query::create() ->select('u.id, p.id') ->from('User u,
-u.Phonenumbers p');
+    $q = Doctrine_Query::create()
+            ->select('u.id, p.id')
+            ->from('User u')
+            ->leftJoin('u.Phonenumbers p');
 
-echo $q->getSqlQuery();
+    $q = Doctrine_Query::create()
+            ->select('u.id, p.id')
+            ->from('User u, u.Phonenumbers p');
+
+    echo $q->getSqlQuery();
 
 .. tip::
 
@@ -552,8 +589,12 @@ The above call to :php:meth:`getSql` would output the following SQL query:
 
 .. code-block:: sql
 
- SELECT u.id AS u__id, p.id AS p__id FROM user u LEFT JOIN phonenumber p
-ON u.id = p.user_id
+    SELECT
+    u.id AS u__id,
+        p.id AS p__id
+    FROM user u
+        LEFT JOIN phonenumber p
+    ON u.id = p.user_id
 
 .. note::
 
@@ -561,53 +602,59 @@ ON u.id = p.user_id
     you. This is because Doctrine knows how ``User`` and ``Phonenumber``
     are related so it is able to add it for you.
 
-``INNER JOIN`` produces an intersection between two specified components
-(that is, each and every record in the first component is joined to each
-and every record in the second component). So basically ``INNER JOIN``
-can be used when you want to efficiently fetch for example all users
-which have one or more phonenumbers.
+``INNER JOIN`` produces an intersection between two specified components (that
+is, each and every record in the first component is joined to each and every
+record in the second component). So basically ``INNER JOIN`` can be used when
+you want to efficiently fetch for example all users which have one or more
+phonenumbers.
 
-By default DQL auto-adds the primary key join condition:
+By default DQL auto-adds the primary key join condition::
 
-// test.php
-$q = Doctrine_Query::create() ->select('u.id, p.id')
-->from('User u') ->leftJoin('u.Phonenumbers p');
+    $q = Doctrine_Query::create()
+            ->select('u.id, p.id')
+            ->from('User u')
+            ->leftJoin('u.Phonenumbers p');
 
-echo $q->getSqlQuery();
+    echo $q->getSqlQuery();
 
 The above call to :php:meth:`getSql` would output the following SQL query:
 
 .. code-block:: sql
 
- SELECT u.id AS u__id, p.id AS p__id FROM User u LEFT JOIN Phonenumbers
-p ON u.id = p.user_id
+    SELECT
+        u.id AS u__id,
+        p.id AS p__id
+    FROM User u
+        LEFT JOIN Phonenumbers p ON u.id = p.user_id
 
 ----------
 ON keyword
 ----------
 
-If you want to override this behavior and add your own custom join
-condition you can do it with the ``ON`` keyword. Consider the following
-DQL query:
+If you want to override this behavior and add your own custom join condition
+you can do it with the ``ON`` keyword. Consider the following DQL query::
 
-// test.php
-$q = Doctrine_Query::create() ->select('u.id, p.id')
-->from('User u') ->leftJoin('u.Phonenumbers p ON u.id = 2');
+    $q = Doctrine_Query::create()
+            ->select('u.id, p.id')
+            ->from('User u')
+            ->leftJoin('u.Phonenumbers p ON u.id = 2');
 
-echo $q->getSqlQuery();
+    echo $q->getSqlQuery();
 
 The above call to :php:meth:`getSql` would output the following SQL query:
 
 .. code-block:: sql
 
- SELECT u.id AS u__id, p.id AS p__id FROM User u LEFT JOIN Phonenumbers
-p ON u.id = 2
+    SELECT
+        u.id AS u__id,
+        p.id AS p__id
+    FROM User u
+        LEFT JOIN Phonenumbers p ON u.id = 2
 
 .. note::
 
-    Notice how the ``ON`` condition that would be normally
-    automatically added is not present and the user specified condition
-    is used instead.
+    Notice how the ``ON`` condition that would be normally automatically added
+    is not present and the user specified condition is used instead.
 
 ------------
 WITH keyword
@@ -617,18 +664,25 @@ Most of the time you don't need to override the primary join condition,
 rather you may want to add some custom conditions. This can be achieved
 with the ``WITH`` keyword.
 
-// test.php
-$q = Doctrine_Query::create() ->select('u.id, p.id')
-->from('User u') ->leftJoin('u.Phonenumbers p WITH u.id = 2');
+::
 
-echo $q->getSqlQuery();
+    $q = Doctrine_Query::create()
+            ->select('u.id, p.id')
+            ->from('User u')
+            ->leftJoin('u.Phonenumbers p WITH u.id = 2');
+
+    echo $q->getSqlQuery();
 
 The above call to :php:meth:`getSql` would output the following SQL query:
 
 .. code-block:: sql
 
- SELECT u.id AS u__id, p.id AS p__id FROM User u LEFT JOIN Phonenumbers
-p ON u.id = p.user_id AND u.id = 2
+    SELECT
+        u.id AS u__id,
+        p.id AS p__id
+    FROM User u
+        LEFT JOIN Phonenumbers p
+            ON u.id = p.user_id AND u.id = 2
 
 .. note::
 
@@ -636,41 +690,48 @@ p ON u.id = p.user_id AND u.id = 2
     Instead the conditions you specify are appended on to the automatic
     condition that is added for you.
 
-The Doctrine_Query API offers two convenience methods for adding JOINS.
-These are called :php:meth:`innerJoin` and :php:meth:`leftJoin`, which usage should
-be quite intuitive as shown below:
+The Doctrine_Query API offers two convenience methods for adding JOINS.  These
+are called :php:meth:`innerJoin` and :php:meth:`leftJoin`, which usage should
+be quite intuitive as shown below::
 
-// test.php
-$q = Doctrine_Query::create() ->select('u.id') ->from('User u')
-->leftJoin('u.Groups g') ->innerJoin('u.Phonenumbers p WITH u.id > 3')
-->leftJoin('u.Email e');
+    $q = Doctrine_Query::create()
+            ->select('u.id')
+            ->from('User u')
+            ->leftJoin('u.Groups g')
+            ->innerJoin('u.Phonenumbers p WITH u.id > 3')
+            ->leftJoin('u.Email e');
 
-echo $q->getSqlQuery();
+    echo $q->getSqlQuery();
 
 The above call to :php:meth:`getSql` would output the following SQL query:
 
 .. code-block:: sql
 
- SELECT u.id AS u__id FROM user u LEFT JOIN user_group u2 ON u.id =
-u2.user_id LEFT JOIN groups g ON g.id = u2.group_id INNER JOIN
-phonenumber p ON u.id = p.user_id AND u.id > 3 LEFT JOIN email e ON
-u.id = e.user_id
+    SELECT
+        u.id AS u__id
+    FROM user u
+        LEFT JOIN user_group u2
+            ON u.id = u2.user_id
+        LEFT JOIN groups g
+            ON g.id = u2.group_id
+        INNER JOIN phonenumber p
+            ON u.id = p.user_id AND u.id > 3
+        LEFT JOIN email e
+            ON u.id = e.user_id
 
 ===============
 INDEXBY keyword
 ===============
 
-The ``INDEXBY`` keyword offers a way of mapping certain columns as
-collection / array keys. By default Doctrine indexes multiple elements
-to numerically indexed arrays / collections. The mapping starts from
-zero. In order to override this behavior you need to use ``INDEXBY``
-keyword as shown above:
+The ``INDEXBY`` keyword offers a way of mapping certain columns as collection /
+array keys. By default Doctrine indexes multiple elements to numerically
+indexed arrays / collections. The mapping starts from zero. In order to
+override this behavior you need to use ``INDEXBY`` keyword as shown above::
 
-// test.php
-$q = Doctrine_Query::create() ->from('User u INDEXBY
-u.username');
+    $q = Doctrine_Query::create()
+        ->from('User u INDEXBY u.username');
 
-$users = $q->execute();
+    $users = $q->execute();
 
 .. note::
 
