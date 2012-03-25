@@ -177,7 +177,6 @@ Be sure to execute :file:`test.php`:
 Now you can test the selecting of the data with these next few sample
 queries::
 
-    // test.php
     $q = Doctrine_Query::create()
             ->select('a.name')
             ->from('Account a');
@@ -282,7 +281,7 @@ from which to retrieve records.
 
     echo $q->getSqlQuery();
 
-The above call to :php:meth:`getSql` would output the following SQL query:
+The above call to :php:meth:`getSqlQuery()` would output the following SQL query:
 
 .. code-block:: sql
 
@@ -310,7 +309,7 @@ statement selects all rows if there is no ``WHERE`` clause.
 
     echo $q->getSqlQuery();
 
-The above call to :php:meth:`getSql` would output the following SQL query:
+The above call to :php:meth:`getSqlQuery()` would output the following SQL query:
 
 .. code-block:: sql
 
@@ -329,7 +328,7 @@ functions::
 
     echo $q->getSqlQuery();
 
-The above call to :php:meth:`getSql` would output the following SQL query:
+The above call to :php:meth:`getSqlQuery()` would output the following SQL query:
 
 .. code-block:: sql
 
@@ -350,7 +349,7 @@ The ``ORDER BY`` clause can be used for sorting the results::
 
     echo $q->getSqlQuery();
 
-The above call to :php:meth:`getSql` would output the following SQL query:
+The above call to :php:meth:`getSqlQuery()` would output the following SQL query:
 
 .. code-block:: sql
 
@@ -370,7 +369,7 @@ limiting the number of records to a given ``row_count``::
 
     echo $q->getSqlQuery();
 
-The above call to :php:meth:`getSql` would output the following SQL query:
+The above call to :php:meth:`getSqlQuery()` would output the following SQL query:
 
 .. code-block:: sql
 
@@ -390,7 +389,7 @@ Aggregate value ``SELECT`` syntax::
 
     echo $q->getSqlQuery();
 
-The above call to :php:meth:`getSql` would output the following SQL query:
+The above call to :php:meth:`getSqlQuery()` would output the following SQL query:
 
 .. code-block:: sql
 
@@ -456,7 +455,7 @@ UPDATE queries
 
     echo $q->getSqlQuery();
 
-The above call to :php:meth:`getSql` would output the following SQL query:
+The above call to :php:meth:`getSqlQuery()` would output the following SQL query:
 
 .. code-block:: sql
 
@@ -498,7 +497,7 @@ DELETE Queries
 
     echo $q->getSqlQuery();
 
-The above call to :php:meth:`getSql` would output the following SQL query:
+The above call to :php:meth:`getSqlQuery()` would output the following SQL query:
 
 .. code-block:: sql
 
@@ -538,7 +537,7 @@ Consider the following DQL query::
 
     echo $q->getSqlQuery();
 
-The above call to :php:meth:`getSql` would output the following SQL query:
+The above call to :php:meth:`getSqlQuery()` would output the following SQL query:
 
 .. code-block:: sql
 
@@ -585,7 +584,7 @@ are equal::
     The recommended form is the first because it is more verbose
     and easier to read and understand what is being done.
 
-The above call to :php:meth:`getSql` would output the following SQL query:
+The above call to :php:meth:`getSqlQuery()` would output the following SQL query:
 
 .. code-block:: sql
 
@@ -617,7 +616,7 @@ By default DQL auto-adds the primary key join condition::
 
     echo $q->getSqlQuery();
 
-The above call to :php:meth:`getSql` would output the following SQL query:
+The above call to :php:meth:`getSqlQuery()` would output the following SQL query:
 
 .. code-block:: sql
 
@@ -641,7 +640,7 @@ you can do it with the ``ON`` keyword. Consider the following DQL query::
 
     echo $q->getSqlQuery();
 
-The above call to :php:meth:`getSql` would output the following SQL query:
+The above call to :php:meth:`getSqlQuery()` would output the following SQL query:
 
 .. code-block:: sql
 
@@ -673,7 +672,7 @@ with the ``WITH`` keyword.
 
     echo $q->getSqlQuery();
 
-The above call to :php:meth:`getSql` would output the following SQL query:
+The above call to :php:meth:`getSqlQuery()` would output the following SQL query:
 
 .. code-block:: sql
 
@@ -703,7 +702,7 @@ be quite intuitive as shown below::
 
     echo $q->getSqlQuery();
 
-The above call to :php:meth:`getSql` would output the following SQL query:
+The above call to :php:meth:`getSqlQuery()` would output the following SQL query:
 
 .. code-block:: sql
 
@@ -787,21 +786,28 @@ You can use the :php:meth:`addWhere`, :php:meth:`andWhere`, :php:meth:`orWhere`,
 where conditions using :php:class:`Doctrine_Query` objects.
 
 Here is an example where we retrieve all active registered users or
-super administrators:
+super administrators::
 
-// test.php
-$q = Doctrine_Query::create() ->select('u.id') ->from('User u')
-->where('u.type = ?', 'registered') ->andWhere('u.is_active = ?', 1)
-->orWhere('u.is_super_admin = ?', 1);
+    $q = Doctrine_Query::create()
+            ->select('u.id')
+            ->from('User u')
+            ->where('u.type = ?', 'registered')
+            ->andWhere('u.is_active = ?', 1)
+            ->orWhere('u.is_super_admin = ?', 1);
 
-echo $q->getSqlQuery();
+    echo $q->getSqlQuery();
 
-The above call to :php:meth:`getSql` would output the following SQL query:
+The above call to :php:meth:`getSqlQuery()` would output the following SQL query:
 
 .. code-block:: sql
 
- SELECT u.id AS u__id FROM user u WHERE u.type = ? AND u.is_active =
-? OR u.is_super_admin = ?
+    SELECT
+        u.id AS u__id
+    FROM user u
+    WHERE
+        u.type = ?
+        AND u.is_active = ?
+        OR u.is_super_admin = ?
 
 =======================
 Conditional expressions
@@ -818,20 +824,25 @@ Strings
 A string literal that includes a single quote is represented by two
 single quotes; for example: ´´literal''s´´.
 
-// test.php
-$q = Doctrine_Query::create()
-        ->select('u.id, u.username')
-        ->from('User u')
-        ->where('u.username = ?', 'Vincent');
+::
 
-echo $q->getSqlQuery();
+    $q = Doctrine_Query::create()
+            ->select('u.id, u.username')
+            ->from('User u')
+            ->where('u.username = ?', 'Vincent');
 
-The above call to :php:meth:`getSql` would output the following SQL query:
+    echo $q->getSqlQuery();
+
+The above call to :php:meth:`getSqlQuery()` would output the following SQL query:
 
 .. code-block:: sql
 
- SELECT u.id AS u__id, u.username AS u__username FROM user u WHERE
-u.username = ?
+    SELECT
+        u.id AS u__id,
+        u.username AS u__username
+    FROM user u
+    WHERE
+        u.username = ?
 
 .. note::
 
@@ -847,15 +858,16 @@ Integers
 
 Integer literals support the use of PHP integer literal syntax.
 
-// test.php
-$q = Doctrine_Query::create()
-        ->select('a.id')
-        ->from('User u')
-        ->where('u.id = 4');
+::
 
-echo $q->getSqlQuery();
+    $q = Doctrine_Query::create()
+            ->select('a.id')
+            ->from('User u')
+            ->where('u.id = 4');
 
-The above call to :php:meth:`getSql` would output the following SQL query:
+    echo $q->getSqlQuery();
+
+The above call to :php:meth:`getSqlQuery()` would output the following SQL query:
 
 .. code-block:: sql
 
@@ -867,15 +879,16 @@ Floats
 
 Float literals support the use of PHP float literal syntax.
 
-// test.php
-$q = Doctrine_Query::create()
-        ->select('a.id')
-        ->from('Account a')
-        ->where('a.amount = 432.123');
+::
 
-echo $q->getSqlQuery();
+    $q = Doctrine_Query::create()
+            ->select('a.id')
+            ->from('Account a')
+            ->where('a.amount = 432.123');
 
-The above call to :php:meth:`getSql` would output the following SQL query:
+    echo $q->getSqlQuery();
+
+The above call to :php:meth:`getSqlQuery()` would output the following SQL query:
 
 .. code-block:: sql
 
@@ -887,19 +900,20 @@ Booleans
 
 The boolean literals are true and false.
 
-// test.php
-$q = Doctrine_Query::create()
-        ->select('a.id')
-        ->from('User u')
-        ->where('u.is_super_admin = true');
+::
 
-echo $q->getSqlQuery();
+    $q = Doctrine_Query::create()
+            ->select('a.id')
+            ->from('User u')
+            ->where('u.is_super_admin = true');
 
-The above call to :php:meth:`getSql` would output the following SQL query:
+    echo $q->getSqlQuery();
+
+The above call to :php:meth:`getSqlQuery()` would output the following SQL query:
 
 .. code-block:: sql
 
- SELECT u.id AS u__id FROM user u WHERE u.is_super_admin = 1
+    SELECT u.id AS u__id FROM user u WHERE u.is_super_admin = 1
 
 '''''
 Enums
@@ -907,22 +921,23 @@ Enums
 
 The enumerated values work in the same way as string literals.
 
-// test.php
-$q = Doctrine_Query::create()
-        ->select('a.id')
-        ->from('User u')
-        ->where("u.type = 'admin'");
+::
 
-echo $q->getSqlQuery();
+    $q = Doctrine_Query::create()
+            ->select('a.id')
+            ->from('User u')
+            ->where("u.type = 'admin'");
 
-The above call to :php:meth:`getSql` would output the following SQL query:
+    echo $q->getSqlQuery();
+
+The above call to :php:meth:`getSqlQuery()` would output the following SQL query:
 
 .. code-block:: sql
 
- SELECT u.id AS u__id FROM user u WHERE u.type = 'admin'
+    SELECT u.id AS u__id FROM user u WHERE u.type = 'admin'
 
-Predefined reserved literals are case insensitive, although its a good
-standard to write them in uppercase.
+Predefined reserved literals are case insensitive, although its a good standard
+to write them in uppercase.
 
 ----------------
 Input parameters
@@ -930,75 +945,91 @@ Input parameters
 
 Here are some examples of using positional parameters:
 
-  Single positional parameter:
+* Single positional parameter::
 
-// test.php
-$q = Doctrine_Query::create()
-        ->select('u.id')
-        ->from('User u')
-        ->where('u.username = ?', array('Arnold'));
+    $q = Doctrine_Query::create()
+            ->select('u.id')
+            ->from('User u')
+            ->where('u.username = ?', array('Arnold'));
 
-echo $q->getSqlQuery();
+    echo $q->getSqlQuery();
 
-.. note::
+  .. note::
 
     When the passed parameter for a positional parameter
     contains only one value you can simply pass a single scalar value
     instead of an array containing one value.
 
-The above call to :php:meth:`getSql` would output the following SQL query:
+  The above call to :php:meth:`getSqlQuery()` would output the following SQL query:
 
-.. code-block:: sql
+  .. code-block:: sql
 
- SELECT u.id AS u__id FROM user u WHERE u.username = ?
+    SELECT
+        u.id AS u__id
+    FROM user u
+    WHERE u.username = ?
 
-  Multiple positional parameters:
+* Multiple positional parameters::
 
-// test.php
-$q = Doctrine_Query::create()
-        ->from('User u')
-        ->where('u.id > ? AND u.username LIKE ?', array(50, 'A%'));
+    $q = Doctrine_Query::create()
+            ->from('User u')
+            ->where('u.id > ? AND u.username LIKE ?', array(50, 'A%'));
 
-echo $q->getSqlQuery();
+    echo $q->getSqlQuery();
 
-The above call to :php:meth:`getSql` would output the following SQL query:
+  The above call to :php:meth:`getSqlQuery()` would output the following SQL query:
 
-.. code-block:: sql
+  .. code-block:: sql
 
- SELECT u.id AS u__id FROM user u WHERE (u.id > ? AND u.username LIKE
-?)
+    SELECT
+        u.id AS u__id
+    FROM user u
+    WHERE (
+        u.id > ?
+        AND u.username LIKE ?
+    )
 
 Here are some examples of using named parameters:
 
-  Single named parameter:
+* Single named parameter::
 
-// test.php
-$q = Doctrine_Query::create() ->select('u.id') ->from('User u')
-->where('u.username = :name', array(':name' => 'Arnold'));
+    $q = Doctrine_Query::create()
+            ->select('u.id')
+            ->from('User u')
+            ->where('u.username = :name', array(':name' => 'Arnold'));
 
-echo $q->getSqlQuery();
+    echo $q->getSqlQuery();
 
-The above call to :php:meth:`getSql` would output the following SQL query:
+  The above call to :php:meth:`getSqlQuery()` would output the following SQL query:
 
-.. code-block:: sql
+  .. code-block:: sql
 
- SELECT u.id AS u__id FROM user u WHERE u.username = :name
+    SELECT
+        u.id AS u__id
+    FROM user u
+    WHERE
+        u.username = :name
 
-  Named parameter with a LIKE statement:
+* Named parameter with a LIKE statement::
 
-// test.php
-$q = Doctrine_Query::create() ->select('u.id') ->from('User u')
-->where('u.id > :id', array(':id' => 50)) ->andWhere('u.username LIKE
-:name', array(':name' => 'A%'));
+    $q = Doctrine_Query::create()
+            ->select('u.id')
+            ->from('User u')
+            ->where('u.id > :id', array(':id' => 50))
+            ->andWhere('u.username LIKE :name', array(':name' => 'A%'));
 
-echo $q->getSqlQuery();
+    echo $q->getSqlQuery();
 
-The above call to :php:meth:`getSql` would output the following SQL query:
+  The above call to :php:meth:`getSqlQuery()` would output the following SQL query:
 
-.. code-block:: sql
+  .. code-block:: sql
 
- SELECT u.id AS u__id FROM user u WHERE u.id > :id AND u.username LIKE
-:name
+    SELECT
+        u.id AS u__id
+    FROM user u
+    WHERE
+        u.id > :id
+        AND u.username LIKE :name
 
 ---------------------------------
 Operators and operator precedence
@@ -1045,44 +1076,54 @@ In expressions
 
 Syntax:
 
- IN (|)
+.. code-block:: sql
 
-An ``IN`` conditional expression returns true if the //operand// is
-found from result of the //subquery// or if its in the specificied comma
-separated //value list//, hence the IN expression is always false if the
+    <operand> IN (<subquery>|<value list>)
+
+An ``IN`` conditional expression returns true if the ``operand`` is
+found from result of the ``subquery`` or if its in the specificied comma
+separated ``value list``, hence the IN expression is always false if the
 result of the subquery is empty.
 
-When //value list// is being used there must be at least one element in
+When ``value list`` is being used there must be at least one element in
 that list.
 
-Here is an example where we use a subquery for the ``IN``:
+Here is an example where we use a subquery for the ``IN``::
 
-// test.php
-$q = Doctrine_Query::create()
-        ->from('User u')
-        ->where('u.id IN (SELECT u.id FROM User u INNER JOIN u.Groups g WHERE g.id = ?)', 1);
+    $q = Doctrine_Query::create()
+            ->from('User u')
+            ->where('u.id IN (SELECT u.id FROM User u INNER JOIN u.Groups g WHERE g.id = ?)', 1);
 
-echo $q->getSqlQuery();
+    echo $q->getSqlQuery();
 
-The above call to :php:meth:`getSql` would output the following SQL query:
+The above call to :php:meth:`getSqlQuery()` would output the following SQL query:
 
 .. code-block:: sql
 
- SELECT u.id AS u__id FROM user u WHERE u.id IN (SELECT u2.id AS u2__id
-FROM user u2 INNER JOIN user_group u3 ON u2.id = u3.user_id INNER JOIN
-groups g ON g.id = u3.group_id WHERE g.id = ?)
+    SELECT
+        u.id AS u__id
+    FROM user u
+    WHERE u.id IN (
+        SELECT
+            u2.id AS u2__id
+        FROM user u2
+        INNER JOIN user_group u3
+            ON u2.id = u3.user_id
+        INNER JOIN groups g
+            ON g.id = u3.group_id
+        WHERE g.id = ?
+    )
 
-Here is an example where we just use a list of integers:
+Here is an example where we just use a list of integers::
 
-// test.php
-$q = Doctrine_Query::create()
-        ->select('u.id')
-        ->from('User u')
-        ->whereIn('u.id', array(1, 3, 4, 5));
+    $q = Doctrine_Query::create()
+            ->select('u.id')
+            ->from('User u')
+            ->whereIn('u.id', array(1, 3, 4, 5));
 
-echo $q->getSqlQuery();
+    echo $q->getSqlQuery();
 
-The above call to :php:meth:`getSql` would output the following SQL query:
+The above call to :php:meth:`getSqlQuery()` would output the following SQL query:
 
 .. code-block:: sql
 
@@ -1094,7 +1135,9 @@ Like Expressions
 
 Syntax:
 
- string_expression [NOT] LIKE pattern_value [ESCAPE escape_character]
+.. code-block:: sql
+
+    string_expression [NOT] LIKE pattern_value [ESCAPE escape_character]
 
 The string_expression must have a string value. The pattern_value is a
 string literal or a string-valued input parameter in which an underscore
@@ -1108,12 +1151,11 @@ in ``pattern_value``.
 
 Examples:
 
-*  address.phone LIKE '12%3' is true for '123' '12993' and false for
-   '1234'
-*  asentence.word LIKE 'l_se' is true for 'lose' and false for 'loose'
-*  aword.underscored LIKE '_%' ESCAPE '' is true for '_foo' and false
-   for 'bar'
-*  address.phone NOT LIKE '12%3' is false for '123' and '12993' and true
+*  address.phone ``LIKE`` '12%3' is true for '123' '12993' and false for '1234'
+*  asentence.word ``LIKE`` 'l_se' is true for 'lose' and false for 'loose'
+*  aword.underscored ``LIKE`` '_%' ESCAPE '' is true for '_foo' and false for
+   'bar'
+*  address.phone ``NOT LIKE`` '12%3' is false for '123' and '12993' and true
    for '1234'
 
 If the value of the string_expression or pattern_value is NULL or
@@ -1121,39 +1163,45 @@ unknown, the value of the LIKE expression is unknown. If the
 escape_characteris specified and is NULL, the value of the LIKE
 expression is unknown.
 
-Find all users whose email ends with '@gmail.com':
+* Find all users whose email ends with '@gmail.com'::
 
-// test.php
-$q = Doctrine_Query::create()
-        ->select('u.id')
-        ->from('User u')
-        ->leftJoin('u.Email e')
-        ->where('e.address LIKE ?', '%@gmail.com');
+    $q = Doctrine_Query::create()
+            ->select('u.id')
+            ->from('User u')
+            ->leftJoin('u.Email e')
+            ->where('e.address LIKE ?', '%@gmail.com');
 
-echo $q->getSqlQuery();
+    echo $q->getSqlQuery();
 
-The above call to :php:meth:`getSql` would output the following SQL query:
+  The above call to :php:meth:`getSqlQuery()` would output the following SQL query:
 
-.. code-block:: sql
+  .. code-block:: sql
 
- SELECT u.id AS u__id FROM user u LEFT JOIN email e ON u.id =
-e.user_id WHERE e.address LIKE ?
+    SELECT
+        u.id AS u__id
+    FROM user u
+        LEFT JOIN email e ON u.id = e.user_id
+    WHERE
+        e.address LIKE ?
 
-Find all users whose name starts with letter 'A':
+* Find all users whose name starts with letter 'A'::
 
-// test.php
-$q = Doctrine_Query::create()
-        ->select('u.id')
-        ->from('User u')
-        ->where('u.username LIKE ?', 'A%');
+    $q = Doctrine_Query::create()
+            ->select('u.id')
+            ->from('User u')
+            ->where('u.username LIKE ?', 'A%');
 
-echo $q->getSqlQuery();
+    echo $q->getSqlQuery();
 
-The above call to :php:meth:`getSql` would output the following SQL query:
+  The above call to :php:meth:`getSqlQuery()` would output the following SQL query:
 
-.. code-block:: sql
+  .. code-block:: sql
 
- SELECT u.id AS u__id FROM user u WHERE u.username LIKE ?
+    SELECT
+        u.id AS u__id
+    FROM user u
+    WHERE
+        u.username LIKE ?
 
 ------------------
 Exists Expressions
@@ -1161,7 +1209,9 @@ Exists Expressions
 
 Syntax:
 
- [NOT ]EXISTS ()
+.. code-block:: sql
+
+    [NOT] EXISTS (<subquery>)
 
 The ``EXISTS`` operator returns ``TRUE`` if the subquery returns one or
 more rows and ``FALSE`` otherwise.
@@ -1174,72 +1224,96 @@ rows and ``FALSE`` otherwise.
     For the next few examples we need to add the ``ReaderLog``
     model.
 
- // models/ReaderLog.php
+    ::
 
-class ReaderLog extends Doctrine_Record { public function
-setTableDefinition() { $this->hasColumn('article_id', 'integer', null,
-array( 'primary' => true ) );
+        // models/ReaderLog.php
+        class ReaderLog extends Doctrine_Record
+        {
+            public function setTableDefinition()
+            {
+                $this->hasColumn('article_id', 'integer', null, array(
+                    'primary' => true
+                ));
+                $this->hasColumn('user_id', 'integer', null, array(
+                    'primary' => true
+                ));
+            }
+        }
 
-::
+    Here is the same example in YAML format. You can read more about YAML in
+    the :doc:`yaml-schema-files` chapter:
 
-        $this->hasColumn('user_id', 'integer', null, array(
-                'primary' => true
-            )
-        );
-    }
+    .. code-block:: yaml
 
-}
+        # schema.yml
+        ReaderLog:
+          columns:
+            article_id:
+              type: integer
+              primary: true
+            user_id:
+              type: integer
+              primary: true
 
-Here is the same example in YAML format. You can read more about YAML in
-the :doc:`yaml-schema-files` chapter:
+    .. note::
 
- # schema.yml
+        After adding the ``ReaderLog`` model don't forget to run the
+        :file:`generate.php` script!
 
-ReaderLog: columns: article_id: type: integer primary: true user_id:
-type: integer primary: true
+        .. code-block:: sh
 
-.. note::
-
-    After adding the ``ReaderLog`` model don't forget to run
-    the :file:`generate.php` script!
-
-.. code-block:: text
-
-    $ php generate.php
+            php generate.php
 
 Now we can run some tests! First, finding all articles which have
-readers:
+readers::
 
-// test.php
-$q = Doctrine_Query::create()
-        ->select('a.id')
-        ->from('Article a')
-        ->where('EXISTS (SELECT r.id FROM ReaderLog r WHERE r.article_id = a.id)');
+    $q = Doctrine_Query::create()
+            ->select('a.id')
+            ->from('Article a')
+            ->where('EXISTS (SELECT r.id FROM ReaderLog r WHERE r.article_id = a.id)');
 
-echo $q->getSqlQuery();
+    echo $q->getSqlQuery();
 
-The above call to :php:meth:`getSql` would output the following SQL query:
-
-.. code-block:: sql
-
- SELECT a.id AS a__id FROM article a WHERE EXISTS (SELECT r.id AS r__id
-FROM reader_log r WHERE r.article_id = a.id)
-
-Finding all articles which don't have readers:
-
-// test.php
-$q = Doctrine_Query::create()
-        ->select('a.id')
-        ->from('Article a')
-        ->where('NOT EXISTS (SELECT r.id FROM ReaderLog r WHERE r.article_id = a.id));
-
-echo $q->getSqlQuery();
-
-The above call to :php:meth:`getSql` would output the following SQL query:
+The above call to :php:meth:`getSqlQuery()` would output the following SQL query:
 
 .. code-block:: sql
 
- SELECT a.id AS a__id FROM article a WHERE NOT EXISTS (SELECT r.id AS r__id FROM reader_log r WHERE r.article_id = a.id)
+    SELECT
+        a.id AS a__id
+    FROM article a
+    WHERE
+        EXISTS (
+            SELECT
+                r.id AS r__id
+            FROM reader_log r
+            WHERE
+                r.article_id = a.id
+        )
+
+Finding all articles which don't have readers::
+
+    $q = Doctrine_Query::create()
+            ->select('a.id')
+            ->from('Article a')
+            ->where('NOT EXISTS (SELECT r.id FROM ReaderLog r WHERE r.article_id = a.id));
+
+    echo $q->getSqlQuery();
+
+The above call to :php:meth:`getSqlQuery()` would output the following SQL query:
+
+.. code-block:: sql
+
+    SELECT
+        a.id AS a__id
+    FROM article a
+    WHERE
+        NOT EXISTS (
+            SELECT
+                r.id AS r__id
+            FROM reader_log r
+            WHERE
+                r.article_id = a.id
+        )
 
 -----------------------
 All and Any Expressions
@@ -1247,9 +1321,11 @@ All and Any Expressions
 
 Syntax:
 
- operand comparison_operator ANY (subquery) operand
-comparison_operator SOME (subquery) operand comparison_operator ALL
-(subquery)
+.. code-block:: sql
+
+    operand comparison_operator ANY (subquery)
+    operand comparison_operator SOME (subquery)
+    operand comparison_operator ALL (subquery)
 
 An ALL conditional expression returns true if the comparison operation
 is true for all values in the result of the subquery or the result of
@@ -1321,16 +1397,16 @@ Some advantages of the subqueries:
    calling the early SQL "Structured Query Language."
 
 Here is an example where we find all users which don't belong to the
-group id 1:
+group id 1::
 
-// test.php
-$q = Doctrine_Query::create() ->select('u.id') ->from('User u')
-->where('u.id NOT IN (SELECT u2.id FROM User u2 INNER JOIN u2.Groups g
-WHERE g.id = ?)', 1);
+    $q = Doctrine_Query::create()
+            ->select('u.id')
+            ->from('User u')
+            ->where('u.id NOT IN (SELECT u2.id FROM User u2 INNER JOIN u2.Groups g WHERE g.id = ?)', 1);
 
-echo $q->getSqlQuery();
+    echo $q->getSqlQuery();
 
-The above call to :php:meth:`getSql` would output the following SQL query:
+The above call to :php:meth:`getSqlQuery()` would output the following SQL query:
 
 .. code-block:: sql
 
@@ -1358,7 +1434,7 @@ groups::
 
     echo $q->getSqlQuery();
 
-The above call to :php:meth:`getSql` would output the following SQL query:
+The above call to :php:meth:`getSqlQuery()` would output the following SQL query:
 
 .. code-block:: sql
 
@@ -1387,43 +1463,56 @@ The ``CONCAT`` function returns a string that is a concatenation of its
 arguments. In the example above we map the concatenation of users
 ``first_name`` and ``last_name`` to a value called ``name``.
 
-// test.php
-$q = Doctrine_Query::create() ->select('CONCAT(u.first_name,
-u.last_name) AS name') ->from('User u');
+::
 
-echo $q->getSqlQuery();
+    $q = Doctrine_Query::create()
+            ->select('CONCAT(u.first_name, u.last_name) AS name')
+            ->from('User u');
 
-The above call to :php:meth:`getSql` would output the following SQL query:
+    echo $q->getSqlQuery();
+
+The above call to :php:meth:`getSqlQuery()` would output the following SQL query:
 
 .. code-block:: sql
 
- SELECT u.id AS u__id, CONCAT(u.first_name, u.last_name) AS u__0 FROM
-user u
+    SELECT
+        u.id AS u__id,
+        CONCAT(u.first_name, u.last_name) AS u__0
+    FROM user u
 
-Now we can execute the query and get the mapped function value:
+Now we can execute the query and get the mapped function value::
 
- $users = $q->execute();
+    $users = $q->execute();
 
-foreach($users as $user) { // here 'name' is not a property of $user, //
-its a mapped function value echo $user->name; }
+    foreach($users as $user) {
+        // here 'name' is not a property of $user,
+        // its a mapped function value echo $user->name;
+    }
 
 The second and third arguments of the ``SUBSTRING`` function denote the
 starting position and length of the substring to be returned. These
 arguments are integers. The first position of a string is denoted by 1.
 The ``SUBSTRING`` function returns a string.
 
-// test.php
-$q = Doctrine_Query::create() ->select('u.username')
-->from('User u') ->where("SUBSTRING(u.username, 0, 1) = 'z'");
+::
 
-echo $q->getSqlQuery();
+    $q = Doctrine_Query::create()
+            ->select('u.username')
+            ->from('User u')
+            ->where("SUBSTRING(u.username, 0, 1) = 'z'");
 
-The above call to :php:meth:`getSql` would output the following SQL query:
+    echo $q->getSqlQuery();
+
+The above call to :php:meth:`getSqlQuery()` would output the following SQL query:
 
 .. code-block:: sql
 
- SELECT u.id AS u__id, u.username AS u__username FROM user u WHERE
-SUBSTRING(u.username FROM 0 FOR 1) = 'z'
+    SELECT
+        u.id AS u__id,
+        u.username AS u__username
+    FROM user u
+    WHERE
+        SUBSTRING(u.username FROM 0 FOR 1) = 'z'
 
 .. note::
 
@@ -1437,34 +1526,48 @@ literal or a character-valued input parameter (i.e., char or
 Character)[30]. If a trim specification is not provided, BOTH is
 assumed. The ``TRIM`` function returns the trimmed string.
 
-// test.php
-$q = Doctrine_Query::create() ->select('u.username')
-->from('User u') ->where('TRIM(u.username) = ?', 'Someone');
+::
 
-echo $q->getSqlQuery();
+    $q = Doctrine_Query::create()
+            ->select('u.username')
+            ->from('User u')
+            ->where('TRIM(u.username) = ?', 'Someone');
 
-The above call to :php:meth:`getSql` would output the following SQL query:
+    echo $q->getSqlQuery();
+
+The above call to :php:meth:`getSqlQuery()` would output the following SQL query:
 
 .. code-block:: sql
 
- SELECT u.id AS u__id, u.username AS u__username FROM user u WHERE
-TRIM(u.username) = ?
+    SELECT
+    u.id AS u__id,
+        u.username AS u__username
+    FROM user u
+    WHERE
+    TRIM(u.username) = ?
 
 The ``LOWER`` and ``UPPER`` functions convert a string to lower and
 upper case, respectively. They return a string.
 
-// test.php
-$q = Doctrine_Query::create() ->select('u.username')
-->from('User u') ->where("LOWER(u.username) = 'jon wage'");
+::
 
-echo $q->getSqlQuery();
+    $q = Doctrine_Query::create()
+            ->select('u.username')
+            ->from('User u')
+            ->where("LOWER(u.username) = 'jon wage'");
 
-The above call to :php:meth:`getSql` would output the following SQL query:
+    echo $q->getSqlQuery();
+
+The above call to :php:meth:`getSqlQuery()` would output the following SQL query:
 
 .. code-block:: sql
 
- SELECT u.id AS u__id, u.username AS u__username FROM user u WHERE
-LOWER(u.username) = 'someone'
+    SELECT
+        u.id AS u__id,
+        u.username AS u__username
+    FROM user u
+    WHERE
+        LOWER(u.username) = 'someone'
 
 The ``LOCATE`` function returns the position of a given string within a
 string, starting the search at a specified position. It returns the
@@ -1484,9 +1587,9 @@ Arithmetic functions
 
 Availible DQL arithmetic functions:
 
- ABS(simple_arithmetic_expression)
-SQRT(simple_arithmetic_expression) MOD(simple_arithmetic_expression,
-simple_arithmetic_expression)
+    ABS(:token:`simple_arithmetic_expression`)
+    SQRT(:token:`simple_arithmetic_expression`)
+    MOD(:token:`simple_arithmetic_expression`, :token:`simple_arithmetic_expression`)
 
 *  The ``ABS`` function returns the absolute value for given number.
 *  The ``SQRT`` function returns the square root for given number.
@@ -1511,37 +1614,68 @@ Comparisons using subqueries
 
 Find all the users which are not in a specific group.
 
-// test.php
-$q = Doctrine_Query::create() ->select('u.id') ->from('User u')
-->where('u.id NOT IN (SELECT u.id FROM User u INNER JOIN u.Groups g
-WHERE g.id = ?)', 1);
+::
 
-echo $q->getSqlQuery();
+    $q = Doctrine_Query::create()
+            ->select('u.id')
+            ->from('User u')
+            ->where('u.id NOT IN (
+                        SELECT u.id
+                        FROM User u
+                        INNER JOIN u.Groups g
+                        WHERE g.id = ?
+                    )', 1);
 
-The above call to :php:meth:`getSql` would output the following SQL query:
+    echo $q->getSqlQuery();
+
+The above call to :php:meth:`getSqlQuery()` would output the following SQL query:
 
 .. code-block:: sql
 
- SELECT u.id AS u__id FROM user u WHERE u.id NOT IN (SELECT u2.id AS
-u2__id FROM user u2 INNER JOIN user_group u3 ON u2.id = u3.user_id
-INNER JOIN groups g ON g.id = u3.group_id WHERE g.id = ?)
+    SELECT
+        u.id AS u__id
+    FROM user u
+    WHERE
+        u.id NOT IN (
+            SELECT u2.id AS
+                u2__id
+            FROM user u2
+                INNER JOIN user_group u3
+                    ON u2.id = u3.user_id
+                INNER JOIN groups g
+                    ON g.id = u3.group_id
+            WHERE g.id = ?
+        )
 
 Retrieve the users phonenumber in a subquery and include it in the
 resultset of user information.
 
-// test.php
-$q = Doctrine_Query::create() ->select('u.id')
-->addSelect('(SELECT p.phonenumber FROM Phonenumber p WHERE p.user_id =
-u.id LIMIT 1) as phonenumber') ->from('User u');
+::
 
-echo $q->getSqlQuery();
+    $q = Doctrine_Query::create()
+            ->select('u.id')
+            ->addSelect('(SELECT p.phonenumber
+                            FROM Phonenumber p
+                            WHERE p.user_id = u.id
+                            LIMIT 1) as phonenumber')
+            ->from('User u');
 
-The above call to :php:meth:`getSql` would output the following SQL query:
+    echo $q->getSqlQuery();
+
+The above call to :php:meth:`getSqlQuery()` would output the following SQL query:
 
 .. code-block:: sql
 
- SELECT u.id AS u__id, (SELECT p.phonenumber AS p__phonenumber FROM
-phonenumber p WHERE p.user_id = u.id LIMIT 1) AS u__0 FROM user u
+    SELECT
+        u.id AS u__id,
+        (
+            SELECT
+                p.phonenumber AS p__phonenumber
+            FROM phonenumber p
+            WHERE p.user_id = u.id
+            LIMIT 1
+        ) AS u__0
+    FROM user u
 
 ========================
 GROUP BY, HAVING clauses
@@ -1549,89 +1683,112 @@ GROUP BY, HAVING clauses
 
 DQL GROUP BY syntax:
 
- GROUP BY groupby_item {, groupby_item}*
+.. code-block:: sql
+
+    GROUP BY groupby_item {, groupby_item}*
 
 DQL HAVING syntax:
 
- HAVING conditional_expression
+.. code-block:: sql
+
+    HAVING conditional_expression
 
 ``GROUP BY`` and ``HAVING`` clauses can be used for dealing with
 aggregate functions. The Following aggregate functions are available on
 DQL: ``COUNT``, ``MAX``, ``MIN``, ``AVG``, ``SUM``
 
-Selecting alphabetically first user by name.
+* Selecting alphabetically first user by name::
 
-// test.php
-$q = Doctrine_Query::create() ->select('MIN(a.amount)')
-->from('Account a');
+    $q = Doctrine_Query::create()
+            ->select('MIN(a.amount)')
+            ->from('Account a');
 
-echo $q->getSqlQuery();
+    echo $q->getSqlQuery();
 
-The above call to :php:meth:`getSql` would output the following SQL query:
+  The above call to :php:meth:`getSqlQuery()` would output the following SQL query:
+
+  .. code-block:: sql
+
+    SELECT MIN(a.amount) AS a__0 FROM account a
+
+* Selecting the sum of all Account amounts::
+
+    $q = Doctrine_Query::create()
+            ->select('SUM(a.amount)')
+            ->from('Account a');
+
+    echo $q->getSqlQuery();
+
+  The above call to :php:meth:`getSqlQuery()` would output the following SQL query:
+
+  .. code-block:: sql
+
+    SELECT SUM(a.amount) AS a__0 FROM account a
+
+* Using an aggregate function in a statement containing no ``GROUP BY``
+  clause, results in grouping on all rows. In the example below we fetch
+  all users and the number of phonenumbers they have.
+
+  ::
+
+    $q = Doctrine_Query::create()
+            ->select('u.username')
+            ->addSelect('COUNT(p.id) as num_phonenumbers')
+            ->from('User u')
+            ->leftJoin('u.Phonenumbers p')
+            ->groupBy('u.id');
+
+    echo $q->getSqlQuery();
+
+  The above call to :php:meth:`getSqlQuery()` would output the following SQL query:
+
+  .. code-block:: sql
+
+    SELECT
+        u.id AS u__id,
+        u.username AS u__username, COUNT(p.id) AS p__0
+    FROM user u
+        LEFT JOIN phonenumber p
+            ON u.id = p.user_id
+    GROUP BY u.id
+
+* The ``HAVING`` clause can be used for narrowing the results using
+  aggregate values. In the following example we fetch all users which have
+  at least 2 phonenumbers::
+
+    $q = Doctrine_Query::create()
+            ->select('u.username')
+            ->addSelect('COUNT(p.id) as num_phonenumbers')
+            ->from('User u')
+            ->leftJoin('u.Phonenumbers p')
+            ->groupBy('u.id')
+            ->having('num_phonenumbers >= 2');
+
+    echo $q->getSqlQuery();
+
+  The above call to :php:meth:`getSqlQuery()` would output the following SQL query:
 
 .. code-block:: sql
 
- SELECT MIN(a.amount) AS a__0 FROM account a
+    SELECT
+        u.id AS u__id,
+        u.username AS u__username, COUNT(p.id) AS p__0
+    FROM user u
+        LEFT JOIN phonenumber p
+            ON u.id = p.user_id
+    GROUP BY u.id
+    HAVING p__0 >= 2
 
-Selecting the sum of all Account amounts.
+You can access the number of phonenumbers with the following code::
 
-// test.php
-$q = Doctrine_Query::create() ->select('SUM(a.amount)')
-->from('Account a');
+    $users = $q->execute();
 
-echo $q->getSqlQuery();
-
-The above call to :php:meth:`getSql` would output the following SQL query:
-
-.. code-block:: sql
-
- SELECT SUM(a.amount) AS a__0 FROM account a
-
-Using an aggregate function in a statement containing no ``GROUP BY``
-clause, results in grouping on all rows. In the example below we fetch
-all users and the number of phonenumbers they have.
-
-// test.php
-$q = Doctrine_Query::create() ->select('u.username')
-->addSelect('COUNT(p.id) as num_phonenumbers') ->from('User u')
-->leftJoin('u.Phonenumbers p') ->groupBy('u.id');
-
-echo $q->getSqlQuery();
-
-The above call to :php:meth:`getSql` would output the following SQL query:
-
-.. code-block:: sql
-
- SELECT u.id AS u__id, u.username AS u__username, COUNT(p.id) AS p__0
-FROM user u LEFT JOIN phonenumber p ON u.id = p.user_id GROUP BY u.id
-
-The ``HAVING`` clause can be used for narrowing the results using
-aggregate values. In the following example we fetch all users which have
-at least 2 phonenumbers
-
-// test.php
-$q = Doctrine_Query::create() ->select('u.username')
-->addSelect('COUNT(p.id) as num_phonenumbers') ->from('User u')
-->leftJoin('u.Phonenumbers p') ->groupBy('u.id')
-->having('num_phonenumbers >= 2');
-
-echo $q->getSqlQuery();
-
-The above call to :php:meth:`getSql` would output the following SQL query:
-
-.. code-block:: sql
-
- SELECT u.id AS u__id, u.username AS u__username, COUNT(p.id) AS p__0
-FROM user u LEFT JOIN phonenumber p ON u.id = p.user_id GROUP BY u.id
-HAVING p__0 >= 2
-
-You can access the number of phonenumbers with the following code:
-
-// test.php
-$users = $q->execute();
-
-foreach($users as $user) { echo $user->name . ' has ' .
-$user->num_phonenumbers . ' phonenumbers'; }
+    foreach($users as $user) {
+        echo $user->name
+            . ' has '
+            . $user->num_phonenumbers
+            . ' phonenumbers';
+    }
 
 ===============
 ORDER BY clause
@@ -1646,42 +1803,65 @@ the ORDER BY clause.
 
 Syntax:
 
- [ORDER BY {ComponentAlias.columnName} [ASC \| DESC], ...]
+.. code-block:: sql
 
-Examples:
+     [
+        ORDER BY {ComponentAlias.columnName}
+        [ASC | DESC], ...
+     ]
 
-// test.php
-$q = Doctrine_Query::create() ->select('u.username')
-->from('User u') ->leftJoin('u.Phonenumbers p') ->orderBy('u.username,
-p.phonenumber');
+Examples::
 
-echo $q->getSqlQuery();
+    $q = Doctrine_Query::create()
+            ->select('u.username')
+            ->from('User u')
+            ->leftJoin('u.Phonenumbers p')
+            ->orderBy('u.username, p.phonenumber');
 
-The above call to :php:meth:`getSql` would output the following SQL query:
+    echo $q->getSqlQuery();
+
+The above call to :php:meth:`getSqlQuery()` would output the following SQL query:
 
 .. code-block:: sql
 
- SELECT u.id AS u__id, u.username AS u__username FROM user u LEFT JOIN
-phonenumber p ON u.id = p.user_id ORDER BY u.username, p.phonenumber
+    SELECT
+        u.id AS u__id,
+        u.username AS u__username
+    FROM user u
+        LEFT JOIN phonenumber p
+            ON u.id = p.user_id
+    ORDER BY
+        u.username,
+        p.phonenumber
 
-In order to sort in reverse order you can add the ``DESC`` (descending)
-keyword to the name of the column in the ``ORDER BY`` clause that you
-are sorting by. The default is ascending order; this can be specified
-explicitly using the ``ASC`` keyword.
+In order to sort in reverse order you can add the ``DESC`` (descending) keyword
+to the name of the column in the ``ORDER BY`` clause that you are sorting by.
+The default is ascending order; this can be specified explicitly using the
+``ASC`` keyword.
 
-// test.php
-$q = Doctrine_Query::create() ->select('u.username')
-->from('User u') ->leftJoin('u.Email e') ->orderBy('e.address DESC, u.id
-ASC');
+::
 
-echo $q->getSqlQuery();
+    $q = Doctrine_Query::create()
+            ->select('u.username')
+            ->from('User u')
+            ->leftJoin('u.Email e')
+            ->orderBy('e.address DESC, u.id ASC');
 
-The above call to :php:meth:`getSql` would output the following SQL query:
+    echo $q->getSqlQuery();
+
+The above call to :php:meth:`getSqlQuery()` would output the following SQL query:
 
 .. code-block:: sql
 
- SELECT u.id AS u__id, u.username AS u__username FROM user u LEFT JOIN
-email e ON u.id = e.user_id ORDER BY e.address DESC, u.id ASC
+    SELECT
+        u.id AS u__id,
+        u.username AS u__username
+    FROM user u
+        LEFT JOIN email e
+        ON u.id = e.user_id
+    ORDER BY
+        e.address DESC,
+        u.id ASC
 
 -----------------------------
 Sorting by an aggregate value
@@ -1690,19 +1870,29 @@ Sorting by an aggregate value
 In the following example we fetch all users and sort those users by the
 number of phonenumbers they have.
 
-// test.php
-$q = Doctrine_Query::create() ->select('u.username, COUNT(p.id)
-count') ->from('User u') ->innerJoin('u.Phonenumbers p')
-->orderby('count');
+::
 
-echo $q->getSqlQuery();
+    $q = Doctrine_Query::create()
+            ->select('u.username, COUNT(p.id) count')
+            ->from('User u')
+            ->innerJoin('u.Phonenumbers p')
+            ->orderby('count');
 
-The above call to :php:meth:`getSql` would output the following SQL query:
+    echo $q->getSqlQuery();
+
+
+The above call to :php:meth:`getSqlQuery()` would output the following SQL query:
 
 .. code-block:: sql
 
- SELECT u.id AS u__id, u.username AS u__username, COUNT(p.id) AS p__0
-FROM user u INNER JOIN phonenumber p ON u.id = p.user_id ORDER BY p__0
+    SELECT
+        u.id AS u__id,
+        u.username AS u__username,
+        COUNT(p.id) AS p__0
+    FROM user u
+        INNER JOIN phonenumber p
+            ON u.id = p.user_id
+    ORDER BY p__0
 
 ------------------
 Using random order
@@ -1711,18 +1901,21 @@ Using random order
 In the following example we use random in the ``ORDER BY`` clause in
 order to fetch random post.
 
-// test.php
-$q = Doctrine_Query::create() ->select('t.id, RANDOM() AS rand')
-->from('Forum_Thread t') ->orderby('rand') ->limit(1);
+::
 
-echo $q->getSqlQuery();
+    $q = Doctrine_Query::create()
+            ->select('t.id, RANDOM() AS rand')
+            ->from('Forum_Thread t')
+            ->orderby('rand')
+            ->limit(1);
 
-The above call to :php:meth:`getSql` would output the following SQL query:
+    echo $q->getSqlQuery();
+
+The above call to :php:meth:`getSqlQuery()` would output the following SQL query:
 
 .. code-block:: sql
 
- SELECT f.id AS f__id, RAND() AS f__0 FROM forum__thread f ORDER BY f__0
-LIMIT 1
+    SELECT f.id AS f__id, RAND() AS f__0 FROM forum__thread f ORDER BY f__0 LIMIT 1
 
 ========================
 LIMIT and OFFSET clauses
@@ -1734,14 +1927,15 @@ take care of ``LIMIT`` database portability it is capable of limiting
 the number of records instead of rows by using complex query analysis
 and subqueries.
 
-Retrieve the first 20 users and all their associated phonenumbers:
+Retrieve the first 20 users and all their associated phonenumbers::
 
-// test.php
-$q = Doctrine_Query::create() ->select('u.username,
-p.phonenumber') ->from('User u') ->leftJoin('u.Phonenumbers p')
-->limit(20);
+    $q = Doctrine_Query::create()
+            ->select('u.username, p.phonenumber')
+            ->from('User u')
+            ->leftJoin('u.Phonenumbers p')
+            ->limit(20);
 
-echo $q->getSqlQuery();
+    echo $q->getSqlQuery();
 
 .. tip::
 
@@ -1750,13 +1944,19 @@ echo $q->getSqlQuery();
     method to produce your desired ``LIMIT`` and ``OFFSET`` in the
     executed SQL query.
 
-The above call to :php:meth:`getSql` would output the following SQL query:
+The above call to :php:meth:`getSqlQuery()` would output the following SQL query:
 
 .. code-block:: sql
 
- SELECT u.id AS u__id, u.username AS u__username, p.id AS p__id,
-p.phonenumber AS p__phonenumber FROM user u LEFT JOIN phonenumber p ON
-u.id = p.user_id LIMIT 20
+    SELECT
+        u.id AS u__id,
+        u.username AS u__username,
+        p.id AS p__id,
+        p.phonenumber AS p__phonenumber
+    FROM user u
+        LEFT JOIN phonenumber p
+            ON u.id = p.user_id
+    LIMIT 20
 
 ------------------
 Driver Portability
@@ -1789,12 +1989,10 @@ LIMIT clause to limit the number of records instead of SQL result set
 rows.
 
 This behavior can be overwritten using the configuration system (at
-global, connection or table level) using:
+global, connection or table level) using::
 
- $table->setAttribute(Doctrine_Core::ATTR_QUERY_LIMIT,
-Doctrine_Core::LIMIT_ROWS);
-$table->setAttribute(Doctrine_Core::ATTR_QUERY_LIMIT,
-Doctrine_Core::LIMIT_RECORDS); // revert
+    $table->setAttribute(Doctrine_Core::ATTR_QUERY_LIMIT, Doctrine_Core::LIMIT_ROWS);
+    $table->setAttribute(Doctrine_Core::ATTR_QUERY_LIMIT, Doctrine_Core::LIMIT_RECORDS); // revert
 
 In the following example we have users and phonenumbers with their
 relation being one-to-many. Now lets say we want fetch the first 20
@@ -1813,20 +2011,36 @@ inheritance even in the subquery and how it's smart enough to use
 different aliases for the tables in the subquery to avoid alias
 collisions.
 
-// test.php
-$q = Doctrine_Query::create() ->select('u.id, u.username, p.*')
-->from('User u') ->leftJoin('u.Phonenumbers p') ->limit(20);
+::
 
-echo $q->getSqlQuery();
+    $q = Doctrine_Query::create()
+            ->select('u.id, u.username, p.*')
+            ->from('User u')
+            ->leftJoin('u.Phonenumbers p')
+            ->limit(20);
 
-The above call to :php:meth:`getSql` would output the following SQL query:
+    echo $q->getSqlQuery();
+
+The above call to :php:meth:`getSqlQuery()` would output the following SQL query:
 
 .. code-block:: sql
 
- SELECT u.id AS u__id, u.username AS u__username, p.id AS p__id,
-p.phonenumber AS p__phonenumber, p.user_id AS p__user_id FROM user u
-LEFT JOIN phonenumber p ON u.id = p.user_id WHERE u.id IN (SELECT
-DISTINCT u2.id FROM user u2 LIMIT 20)
+    SELECT
+        u.id AS u__id,
+        u.username AS u__username,
+        p.id AS p__id,
+        p.phonenumber AS p__phonenumber,
+        p.user_id AS p__user_id
+    FROM user u
+        LEFT JOIN phonenumber p
+            ON u.id = p.user_id
+    WHERE
+        u.id IN (
+            SELECT
+                DISTINCT u2.id
+            FROM user u2
+            LIMIT 20
+        )
 
 .. note::
 
@@ -1837,23 +2051,38 @@ DISTINCT u2.id FROM user u2 LIMIT 20)
 In the next example we are going to fetch first 20 users and all their
 phonenumbers and only those users that actually have phonenumbers with
 single efficient query, hence we use an ``INNER JOIN``. Notice how the
-DQL parser is smart enough to use the ``INNER JOIN`` in the subquery:
+DQL parser is smart enough to use the ``INNER JOIN`` in the subquery::
 
-// test.php
-$q = Doctrine_Query::create() ->select('u.id, u.username, p.*')
-->from('User u') ->innerJoin('u.Phonenumbers p') ->limit(20);
+    $q = Doctrine_Query::create()
+            ->select('u.id, u.username, p.*')
+            ->from('User u')
+            ->innerJoin('u.Phonenumbers p')
+            ->limit(20);
 
-echo $q->getSqlQuery();
+    echo $q->getSqlQuery();
 
-The above call to :php:meth:`getSql` would output the following SQL query:
+The above call to :php:meth:`getSqlQuery()` would output the following SQL query:
 
 .. code-block:: sql
 
- SELECT u.id AS u__id, u.username AS u__username, p.id AS p__id,
-p.phonenumber AS p__phonenumber, p.user_id AS p__user_id FROM user u
-INNER JOIN phonenumber p ON u.id = p.user_id WHERE u.id IN (SELECT
-DISTINCT u2.id FROM user u2 INNER JOIN phonenumber p2 ON u2.id =
-p2.user_id LIMIT 20)
+    SELECT
+        u.id AS u__id,
+        u.username AS u__username,
+        p.id AS p__id,
+        p.phonenumber AS p__phonenumber,
+        p.user_id AS p__user_id
+    FROM user u
+        INNER JOIN phonenumber p
+            ON u.id = p.user_id
+    WHERE
+        u.id IN (
+            SELECT
+            DISTINCT u2.id
+            FROM user u2
+                INNER JOIN phonenumber p2
+                    ON u2.id = p2.user_id
+            LIMIT 20
+        )
 
 =============
 Named Queries
@@ -1878,14 +2107,13 @@ some very nice convenience stuff.
 The queries are added using the :php:meth:`add` method of the registry object.
 It takes two parameters, the query name and the actual DQL query.
 
-// test.php
-$r = Doctrine_Manager::getInstance()->getQueryRegistry();
+::
 
-$r->add('User/all', 'FROM User u');
+    $r = Doctrine_Manager::getInstance()->getQueryRegistry();
+    $r->add('User/all', 'FROM User u');
 
-$userTable = Doctrine_Core::getTable('User');
-
-// find all users $users = $userTable->find('all');
+    $userTable = Doctrine_Core::getTable('User');
+    // find all users $users = $userTable->find('all');
 
 To simplify this support, :php:class:`Doctrine_Table` support some accessors to
 ``Doctrine_Query_Registry``.
@@ -1894,48 +2122,49 @@ To simplify this support, :php:class:`Doctrine_Table` support some accessors to
 Creating a Named Query
 ----------------------
 
-When you build your models with option ``generateTableClasses`` defined
-as true, each record class will also generate a ``*Table`` class,
-extending from :php:class:`Doctrine_Table`.
+When you build your models with option ``generateTableClasses`` defined as
+true, each record class will also generate a ``*Table`` class, extending from
+:php:class:`Doctrine_Table`.
 
 Then, you can implement the method :php:meth:`construct` to include your Named
-Queries:
+Queries::
 
- class UserTable extends Doctrine_Table { public function construct() {
-// Named Query defined using DQL string
-$this->addNamedQuery('get.by.id', 'SELECT u.username FROM User u WHERE
-u.id = ?');
+    class UserTable extends Doctrine_Table
+    {
+        public function construct()
+        {
+            // Named Query defined using DQL string
+            $this->addNamedQuery('get.by.id', 'SELECT u.username FROM User u WHERE u.id = ?');
 
-::
-
-        // Named Query defined using Doctrine_Query object
-        $this->addNamedQuery(
-            'get.by.similar.usernames', Doctrine_Query::create()
-                ->select('u.id, u.username')
-                ->from('User u')
-                ->where('LOWER(u.username) LIKE LOWER(?)')
-        );
+            // Named Query defined using Doctrine_Query object
+            $this->addNamedQuery(
+                'get.by.similar.usernames',
+                Doctrine_Query::create()
+                    ->select('u.id, u.username')
+                    ->from('User u')
+                    ->where('LOWER(u.username) LIKE LOWER(?)')
+            );
+        }
     }
 
-}
 
 ---------------------
 Accessing Named Query
 ---------------------
 
 To reach the ``MyFooTable`` class, which is a subclass of
-:php:class:`Doctrine_Table`, you can do the following:
+:php:class:`Doctrine_Table`, you can do the following::
 
- $userTable = Doctrine_Core::getTable('User');
+    $userTable = Doctrine_Core::getTable('User');
 
 To access the Named Query (will return you a :php:class:`Doctrine_Query`
-instance, always):
+instance, always)::
 
- $q = $userTable->createNamedQuery('get.by.id');
+    $q = $userTable->createNamedQuery('get.by.id');
 
-echo $q->getSqlQuery();
+    echo $q->getSqlQuery();
 
-The above call to :php:meth:`getSql` would output the following SQL query:
+The above call to :php:meth:`getSqlQuery()` would output the following SQL query:
 
 .. code-block:: sql
 
@@ -2188,44 +2417,41 @@ give the value you are looking for. If you specify a relationship alias,
 you can either pass an instance of the relation class to find, or give
 the actual primary key value.
 
-First lets retrieve the ``UserTable`` instance to work with:
+First lets retrieve the ``UserTable`` instance to work with::
 
-// test.php
-$userTable = Doctrine_Core::getTable('User');
+    $userTable = Doctrine_Core::getTable('User');
 
 Now we can easily find a ``User`` record by its primary key by using the
-:php:meth:`find` method:
+:php:meth:`find` method::
 
-// test.php
-$user = $userTable->find(1);
+    $user = $userTable->find(1);
 
 Now if you want to find a single user by their username you can use the
-following magic finder:
+following magic finder::
 
-// test.php
-$user = $userTable->findOneByUsername('jonwage');
+    $user = $userTable->findOneByUsername('jonwage');
 
 You can also easily find records by using the relationships between
 records. Because ``User`` has many ``Phonenumbers`` we can find those
 ``Phonenumbers`` by passing the :php:meth:`findBy**` method a ``User``
-instance:
+instance::
 
-// test.php
-$phonenumberTable = Doctrine_Core::getTable('Phonenumber');
-
-$phonenumbers = $phonenumberTable->findByUser($user);
+    $phonenumberTable = Doctrine_Core::getTable('Phonenumber');
+    $phonenumbers = $phonenumberTable->findByUser($user);
 
 The magic finders will even allow a little more complex finds. You can
 use the ``And`` and ``Or`` keywords in the method name to retrieve
 record by multiple properties.
 
- $user = $userTable->findOneByUsernameAndPassword('jonwage',
-md5('changeme'));
+::
+
+    $user = $userTable->findOneByUsernameAndPassword('jonwage', md5('changeme'));
 
 You can even mix the conditions.
 
- $users = $userTable->findByIsAdminAndIsModeratorOrIsSuperAdmin(true,
-true, true);
+::
+
+    $users = $userTable->findByIsAdminAndIsModeratorOrIsSuperAdmin(true, true, true);
 
 .. caution::
 
@@ -2251,15 +2477,16 @@ The :php:class:`Doctrine_Query` object has a few functions that can be used to
 help debug problems with the query:
 
 Sometimes you may want to see the complete SQL string of your
-:php:class:`Doctrine_Query` object:
+:php:class:`Doctrine_Query` object::
 
-// test.php
-$q = Doctrine_Query::create() ->select('u.id') ->from('User u')
-->orderBy('u.username');
+    $q = Doctrine_Query::create()
+            ->select('u.id')
+            ->from('User u')
+            ->orderBy('u.username');
 
-echo $q->getSqlQuery();
+    echo $q->getSqlQuery();
 
-The above call to :php:meth:`getSql` would output the following SQL query:
+The above call to :php:meth:`getSqlQuery()` would output the following SQL query:
 
 .. code-block:: sql
 
@@ -2273,10 +2500,9 @@ The above call to :php:meth:`getSql` would output the following SQL query:
     to PDO where the replacement is executed. You can retrieve the array
     of parameters with the :php:meth:`Doctrine_Query::getParams` method.
 
-Get the array of parameters for the :php:class:`Doctrine_Query` instance:
+Get the array of parameters for the :php:class:`Doctrine_Query` instance::
 
-// test.php
-print_r($q->getParams());
+    print_r($q->getParams());
 
 ==========
 Conclusion
