@@ -374,7 +374,7 @@ The above call to :php:meth:`getSql` would output the following SQL query:
 
 .. code-block:: sql
 
- SELECT u.id AS u__id, u.username AS u__username FROM user u LIMIT 20
+    SELECT u.id AS u__id, u.username AS u__username FROM user u LIMIT 20
 
 ----------------
 Aggregate values
@@ -729,7 +729,7 @@ indexed arrays / collections. The mapping starts from zero. In order to
 override this behavior you need to use ``INDEXBY`` keyword as shown above::
 
     $q = Doctrine_Query::create()
-        ->from('User u INDEXBY u.username');
+            ->from('User u INDEXBY u.username');
 
     $users = $q->execute();
 
@@ -741,25 +741,27 @@ override this behavior you need to use ``INDEXBY`` keyword as shown above::
     collection.
 
 Now the users in ``$users`` collection are accessible through their
-names:
+names::
 
-// test.php
-echo $user['jack daniels']->id;
+    echo $user['jack daniels']->id;
 
 The ``INDEXBY`` keyword can be applied to any given JOIN. This means
 that any given component can have each own indexing behavior. In the
 following we use distinct indexing for both ``Users`` and ``Groups``.
 
-// test.php
-$q = Doctrine_Query::create() ->from('User u INDEXBY
-u.username') ->innerJoin('u.Groups g INDEXBY g.name');
+::
 
-$users = $q->execute();
+    $q = Doctrine_Query::create()
+            ->from('User u INDEXBY u.username')
+            ->innerJoin('u.Groups g INDEXBY g.name');
+
+    $users = $q->execute();
 
 Now lets print out the drinkers club's creation date.
 
-// test.php
-echo $users['jack daniels']->Groups['drinkers club']->createdAt;
+::
+
+    echo $users['jack daniels']->Groups['drinkers club']->createdAt;
 
 ============
 WHERE clause
@@ -767,11 +769,13 @@ WHERE clause
 
 Syntax:
 
- WHERE
+.. code-block:: sql
+
+   WHERE <where_condition>
 
 *  The ``WHERE`` clause, if given, indicates the condition or conditions
    that the records must satisfy to be selected.
-*  ``where_condition`` is an expression that evaluates to true for each
+*  :token:`where_condition` is an expression that evaluates to true for each
    row to be selected.
 *  The statement selects all rows if there is no ``WHERE`` clause.
 *  When narrowing results with aggregate function values ``HAVING``
@@ -815,8 +819,10 @@ A string literal that includes a single quote is represented by two
 single quotes; for example: ´´literal''s´´.
 
 // test.php
-$q = Doctrine_Query::create() ->select('u.id, u.username')
-->from('User u') ->where('u.username = ?', 'Vincent');
+$q = Doctrine_Query::create()
+        ->select('u.id, u.username')
+        ->from('User u')
+        ->where('u.username = ?', 'Vincent');
 
 echo $q->getSqlQuery();
 
@@ -842,8 +848,10 @@ Integers
 Integer literals support the use of PHP integer literal syntax.
 
 // test.php
-$q = Doctrine_Query::create() ->select('a.id') ->from('User u')
-->where('u.id = 4');
+$q = Doctrine_Query::create()
+        ->select('a.id')
+        ->from('User u')
+        ->where('u.id = 4');
 
 echo $q->getSqlQuery();
 
@@ -860,8 +868,10 @@ Floats
 Float literals support the use of PHP float literal syntax.
 
 // test.php
-$q = Doctrine_Query::create() ->select('a.id') ->from('Account
-a') ->where('a.amount = 432.123');
+$q = Doctrine_Query::create()
+        ->select('a.id')
+        ->from('Account a')
+        ->where('a.amount = 432.123');
 
 echo $q->getSqlQuery();
 
@@ -878,8 +888,10 @@ Booleans
 The boolean literals are true and false.
 
 // test.php
-$q = Doctrine_Query::create() ->select('a.id') ->from('User u')
-->where('u.is_super_admin = true');
+$q = Doctrine_Query::create()
+        ->select('a.id')
+        ->from('User u')
+        ->where('u.is_super_admin = true');
 
 echo $q->getSqlQuery();
 
@@ -896,8 +908,10 @@ Enums
 The enumerated values work in the same way as string literals.
 
 // test.php
-$q = Doctrine_Query::create() ->select('a.id') ->from('User u')
-->where("u.type = 'admin'");
+$q = Doctrine_Query::create()
+        ->select('a.id')
+        ->from('User u')
+        ->where("u.type = 'admin'");
 
 echo $q->getSqlQuery();
 
@@ -919,8 +933,10 @@ Here are some examples of using positional parameters:
   Single positional parameter:
 
 // test.php
-$q = Doctrine_Query::create() ->select('u.id') ->from('User u')
-->where('u.username = ?', array('Arnold'));
+$q = Doctrine_Query::create()
+        ->select('u.id')
+        ->from('User u')
+        ->where('u.username = ?', array('Arnold'));
 
 echo $q->getSqlQuery();
 
@@ -939,8 +955,9 @@ The above call to :php:meth:`getSql` would output the following SQL query:
   Multiple positional parameters:
 
 // test.php
-$q = Doctrine_Query::create() ->from('User u') ->where('u.id > ?
-AND u.username LIKE ?', array(50, 'A%'));
+$q = Doctrine_Query::create()
+        ->from('User u')
+        ->where('u.id > ? AND u.username LIKE ?', array(50, 'A%'));
 
 echo $q->getSqlQuery();
 
@@ -1041,8 +1058,9 @@ that list.
 Here is an example where we use a subquery for the ``IN``:
 
 // test.php
-$q = Doctrine_Query::create() ->from('User u') ->where('u.id IN
-(SELECT u.id FROM User u INNER JOIN u.Groups g WHERE g.id = ?)', 1);
+$q = Doctrine_Query::create()
+        ->from('User u')
+        ->where('u.id IN (SELECT u.id FROM User u INNER JOIN u.Groups g WHERE g.id = ?)', 1);
 
 echo $q->getSqlQuery();
 
@@ -1057,8 +1075,10 @@ groups g ON g.id = u3.group_id WHERE g.id = ?)
 Here is an example where we just use a list of integers:
 
 // test.php
-$q = Doctrine_Query::create() ->select('u.id') ->from('User u')
-->whereIn('u.id', array(1, 3, 4, 5));
+$q = Doctrine_Query::create()
+        ->select('u.id')
+        ->from('User u')
+        ->whereIn('u.id', array(1, 3, 4, 5));
 
 echo $q->getSqlQuery();
 
@@ -1104,8 +1124,11 @@ expression is unknown.
 Find all users whose email ends with '@gmail.com':
 
 // test.php
-$q = Doctrine_Query::create() ->select('u.id') ->from('User u')
-->leftJoin('u.Email e') ->where('e.address LIKE ?', '%@gmail.com');
+$q = Doctrine_Query::create()
+        ->select('u.id')
+        ->from('User u')
+        ->leftJoin('u.Email e')
+        ->where('e.address LIKE ?', '%@gmail.com');
 
 echo $q->getSqlQuery();
 
@@ -1119,8 +1142,10 @@ e.user_id WHERE e.address LIKE ?
 Find all users whose name starts with letter 'A':
 
 // test.php
-$q = Doctrine_Query::create() ->select('u.id') ->from('User u')
-->where('u.username LIKE ?', 'A%');
+$q = Doctrine_Query::create()
+        ->select('u.id')
+        ->from('User u')
+        ->where('u.username LIKE ?', 'A%');
 
 echo $q->getSqlQuery();
 
@@ -1186,9 +1211,10 @@ Now we can run some tests! First, finding all articles which have
 readers:
 
 // test.php
-$q = Doctrine_Query::create() ->select('a.id') ->from('Article
-a') ->where('EXISTS (SELECT r.id FROM ReaderLog r WHERE r.article_id =
-a.id)');
+$q = Doctrine_Query::create()
+        ->select('a.id')
+        ->from('Article a')
+        ->where('EXISTS (SELECT r.id FROM ReaderLog r WHERE r.article_id = a.id)');
 
 echo $q->getSqlQuery();
 
@@ -1202,9 +1228,10 @@ FROM reader_log r WHERE r.article_id = a.id)
 Finding all articles which don't have readers:
 
 // test.php
-$q = Doctrine_Query::create() ->select('a.id') ->from('Article
-a') ->where('NOT EXISTS (SELECT r.id FROM ReaderLog r WHERE
-r.article_id = a.id));
+$q = Doctrine_Query::create()
+        ->select('a.id')
+        ->from('Article a')
+        ->where('NOT EXISTS (SELECT r.id FROM ReaderLog r WHERE r.article_id = a.id));
 
 echo $q->getSqlQuery();
 
@@ -1212,8 +1239,7 @@ The above call to :php:meth:`getSql` would output the following SQL query:
 
 .. code-block:: sql
 
- SELECT a.id AS a__id FROM article a WHERE NOT EXISTS (SELECT r.id AS
-r__id FROM reader_log r WHERE r.article_id = a.id)
+ SELECT a.id AS a__id FROM article a WHERE NOT EXISTS (SELECT r.id AS r__id FROM reader_log r WHERE r.article_id = a.id)
 
 -----------------------
 All and Any Expressions
@@ -1231,8 +1257,11 @@ the subquery is empty. An ALL conditional expression is false if the
 result of the comparison is false for at least one row, and is unknown
 if neither true nor false.
 
- $q = Doctrine_Query::create() ->from('C') ->where('C.col1 < ALL (FROM
-C2(col1))');
+::
+
+     $q = Doctrine_Query::create()
+            ->from('C')
+            ->where('C.col1 < ALL (FROM C2(col1))');
 
 An ANY conditional expression returns true if the comparison operation
 is true for some value in the result of the subquery. An ANY conditional
@@ -1240,13 +1269,19 @@ expression is false if the result of the subquery is empty or if the
 comparison operation is false for every value in the result of the
 subquery, and is unknown if neither true nor false.
 
- $q = Doctrine_Query::create() ->from('C') ->where('C.col1 > ANY (FROM
-C2(col1))');
+::
+
+    $q = Doctrine_Query::create()
+            ->from('C')
+            ->where('C.col1 > ANY (FROM C2(col1))');
 
 The keyword SOME is an alias for ANY.
 
- $q = Doctrine_Query::create() ->from('C') ->where('C.col1 > SOME (FROM
-C2(col1))');
+::
+
+    $q = Doctrine_Query::create()
+            ->from('C')
+            ->where('C.col1 > SOME (FROM C2(col1))');
 
 The comparison operators that can be used with ALL or ANY conditional
 expressions are =, <, <=, >, >=, <>. The result of the subquery must be
@@ -1254,14 +1289,19 @@ same type with the conditional expression.
 
 NOT IN is an alias for <> ALL. Thus, these two statements are equal:
 
- FROM C WHERE C.col1 <> ALL (FROM C2(col1)); FROM C WHERE C.col1 NOT IN
-(FROM C2(col1));
+.. code-block:: sql
 
- $q = Doctrine_Query::create() ->from('C') ->where('C.col1 <> ALL (FROM
-C2(col1))');
+    FROM C WHERE C.col1 <> ALL (FROM C2(col1));
+    FROM C WHERE C.col1 NOT IN (FROM C2(col1));
 
-$q = Doctrine_Query::create() ->from('C') ->where('C.col1 NOT IN (FROM
-C2(col1))');
+::
+
+    $q = Doctrine_Query::create()
+            ->from('C')
+            ->where('C.col1 <> ALL (FROM C2(col1))');
+    $q = Doctrine_Query::create()
+            ->from('C')
+            ->where('C.col1 NOT IN (FROM C2(col1))');
 
 ----------
 Subqueries
@@ -1294,27 +1334,46 @@ The above call to :php:meth:`getSql` would output the following SQL query:
 
 .. code-block:: sql
 
- SELECT u.id AS u__id FROM user u WHERE u.id NOT IN (SELECT u2.id AS
-u2__id FROM user u2 INNER JOIN user_group u3 ON u2.id = u3.user_id
-INNER JOIN groups g ON g.id = u3.group_id WHERE g.id = ?)
+    SELECT
+        u.id AS u__id
+    FROM user u
+    WHERE u.id NOT IN (
+        SELECT u2.id AS
+            u2__id
+        FROM user u2
+            INNER JOIN user_group u3
+                ON u2.id = u3.user_id
+            INNER JOIN groups g
+                ON g.id = u3.group_id
+        WHERE g.id = ?
+    )
 
 Here is an example where we find all users which don't belong to any
-groups
+groups::
 
-// test.php
-$q = Doctrine_Query::create() ->select('u.id') ->from('User u')
-->where('u.id NOT IN (SELECT u2.id FROM User u2 INNER JOIN u2.Groups
-g)');
+    $q = Doctrine_Query::create()
+            ->select('u.id')
+            ->from('User u')
+            ->where('u.id NOT IN (SELECT u2.id FROM User u2 INNER JOIN u2.Groups g)');
 
-echo $q->getSqlQuery();
+    echo $q->getSqlQuery();
 
 The above call to :php:meth:`getSql` would output the following SQL query:
 
 .. code-block:: sql
 
- SELECT u.id AS u__id FROM user u WHERE u.id NOT IN (SELECT u2.id AS
-u2__id FROM user u2 INNER JOIN user_group u3 ON u2.id = u3.user_id
-INNER JOIN groups g ON g.id = u3.group_id)
+    SELECT
+        u.id AS u__id
+    FROM user u
+    WHERE u.id NOT IN (
+        SELECT
+            u2.id AS u2__id
+        FROM user u2
+            INNER JOIN user_group u3
+                ON u2.id = u3.user_id
+            INNER JOIN groups g
+                ON g.id = u3.group_id
+    )
 
 ======================
 Functional Expressions
@@ -1324,7 +1383,7 @@ Functional Expressions
 String functions
 ----------------
 
-The //CONCAT// function returns a string that is a concatenation of its
+The ``CONCAT`` function returns a string that is a concatenation of its
 arguments. In the example above we map the concatenation of users
 ``first_name`` and ``last_name`` to a value called ``name``.
 
@@ -1348,10 +1407,10 @@ Now we can execute the query and get the mapped function value:
 foreach($users as $user) { // here 'name' is not a property of $user, //
 its a mapped function value echo $user->name; }
 
-The second and third arguments of the //SUBSTRING// function denote the
+The second and third arguments of the ``SUBSTRING`` function denote the
 starting position and length of the substring to be returned. These
 arguments are integers. The first position of a string is denoted by 1.
-The //SUBSTRING// function returns a string.
+The ``SUBSTRING`` function returns a string.
 
 // test.php
 $q = Doctrine_Query::create() ->select('u.username')
@@ -1371,12 +1430,12 @@ SUBSTRING(u.username FROM 0 FOR 1) = 'z'
     Notice how the SQL is generated with the proper
     ``SUBSTRING`` syntax for the DBMS you are using!
 
-The //TRIM// function trims the specified character from a string. If
+The ``TRIM`` function trims the specified character from a string. If
 the character to be trimmed is not specified, it is assumed to be space
 (or blank). The optional trim_character is a single-character string
 literal or a character-valued input parameter (i.e., char or
 Character)[30]. If a trim specification is not provided, BOTH is
-assumed. The //TRIM// function returns the trimmed string.
+assumed. The ``TRIM`` function returns the trimmed string.
 
 // test.php
 $q = Doctrine_Query::create() ->select('u.username')
@@ -1391,7 +1450,7 @@ The above call to :php:meth:`getSql` would output the following SQL query:
  SELECT u.id AS u__id, u.username AS u__username FROM user u WHERE
 TRIM(u.username) = ?
 
-The //LOWER// and //UPPER// functions convert a string to lower and
+The ``LOWER`` and ``UPPER`` functions convert a string to lower and
 upper case, respectively. They return a string.
 
 // test.php
@@ -1407,7 +1466,7 @@ The above call to :php:meth:`getSql` would output the following SQL query:
  SELECT u.id AS u__id, u.username AS u__username FROM user u WHERE
 LOWER(u.username) = 'someone'
 
-The //LOCATE// function returns the position of a given string within a
+The ``LOCATE`` function returns the position of a given string within a
 string, starting the search at a specified position. It returns the
 first position at which the string was found as an integer. The first
 argument is the string to be located; the second argument is the string
@@ -1416,7 +1475,7 @@ represents the string position at which the search is started (by
 default, the beginning of the string to be searched). The first position
 in a string is denoted by 1. If the string is not found, 0 is returned.
 
-The //LENGTH// function returns the length of the string in characters
+The ``LENGTH`` function returns the length of the string in characters
 as an integer.
 
 --------------------
@@ -1429,9 +1488,9 @@ Availible DQL arithmetic functions:
 SQRT(simple_arithmetic_expression) MOD(simple_arithmetic_expression,
 simple_arithmetic_expression)
 
-*  The //ABS// function returns the absolute value for given number.
-*  The //SQRT// function returns the square root for given number.
-*  The //MOD// function returns the modulus of first argument using the
+*  The ``ABS`` function returns the absolute value for given number.
+*  The ``SQRT`` function returns the square root for given number.
+*  The ``MOD`` function returns the modulus of first argument using the
    second argument.
 
 ==========
