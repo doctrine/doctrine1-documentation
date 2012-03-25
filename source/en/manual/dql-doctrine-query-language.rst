@@ -1768,7 +1768,7 @@ DQL: ``COUNT``, ``MAX``, ``MIN``, ``AVG``, ``SUM``
 
   The above call to :php:meth:`getSqlQuery()` would output the following SQL query:
 
-.. code-block:: sql
+  .. code-block:: sql
 
     SELECT
         u.id AS u__id,
@@ -1779,7 +1779,7 @@ DQL: ``COUNT``, ``MAX``, ``MIN``, ``AVG``, ``SUM``
     GROUP BY u.id
     HAVING p__0 >= 2
 
-You can access the number of phonenumbers with the following code::
+  You can access the number of phonenumbers with the following code::
 
     $users = $q->execute();
 
