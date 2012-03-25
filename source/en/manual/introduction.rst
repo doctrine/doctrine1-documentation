@@ -165,12 +165,13 @@ features that provide more freedom in the modeling of the domain.  However, as
 long as Doctrine remains mainly an ActiveRecord approach, there will always be
 a pretty large, (forced) similarity of these two models.
 
-.. The current situation is depicted in the following picture.
+The current situation is depicted in the following picture.
 
-.. `Relational Bounds <http://www.doctrine-project.org/relational-bounds.jpg>`_
+.. image:: /_static/images/relational-bounds.jpg
+   :alt: The Relational Model and Object Model are distinct, but mostly overlap.
 
-.. As you see in the picture, the domain model can't drift far away from the
-   bounds of the relational model.
+As you see in the picture, the domain model can't drift far away from the bounds
+of the relational model.
 
 After mentioning these drawbacks, it's time to mention some advantages of the
 ActiveRecord approach. Apart from the (arguably slightly) simpler programming
