@@ -314,7 +314,7 @@ The above call to :php:meth:`getSql` would output the following SQL query:
 
 .. code-block:: sql
 
-SELECT a.id AS a__id, a.name AS a__name FROM account a WHERE a.amount > 2000
+    SELECT a.id AS a__id, a.name AS a__name FROM account a WHERE a.amount > 2000
 
 In the ``WHERE`` clause, you can use any of the functions and operators
 that DQL supports, except for aggregate (summary) functions. The
