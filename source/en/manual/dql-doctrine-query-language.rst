@@ -1295,7 +1295,7 @@ Finding all articles which don't have readers::
     $q = Doctrine_Query::create()
             ->select('a.id')
             ->from('Article a')
-            ->where('NOT EXISTS (SELECT r.id FROM ReaderLog r WHERE r.article_id = a.id));
+            ->where('NOT EXISTS (SELECT r.id FROM ReaderLog r WHERE r.article_id = a.id)');
 
     echo $q->getSqlQuery();
 
