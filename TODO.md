@@ -1,9 +1,12 @@
 <!--- vim: set tw=79 sw=2 ts=2 et : -->
 
+# What's Done
+
+* The English manual up toand including 'Component Overview'
+
 # TODO
 
-* Fixups to the English documentation, with the exception of the manual up to
-  and including 'Introduction to Models'
+* Fixups to the English documentation:
   * Code blocks are in the wrong place, usually starting a line or two after
     they're supposed to, and ending without their last line.
   * Most internal links aren't translated: [doc ref title] -> :doc:`title <ref>`
