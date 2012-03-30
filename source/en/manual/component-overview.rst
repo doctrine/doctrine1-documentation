@@ -1363,13 +1363,13 @@ the :doc:`yaml-schema-files` chapter:
 
 .. code-block:: yaml
 
-# schema.yml
-Email:
-  columns:
-    address:
-      type: string(150)
-      email: true
-      unique: true
+    # schema.yml
+    Email:
+      columns:
+        address:
+          type: string(150)
+          email: true
+          unique: true
 
 ------------------
 Valid or Not Valid
@@ -1383,19 +1383,18 @@ application.
 Implicit Validation
 ^^^^^^^^^^^^^^^^^^^
 
-Whenever a record is going to be saved to the persistent data store
-(i.e. through calling :php:meth:`$record->save`) the full validation procedure
-is executed. If errors occur during that process an exception of the
-type :php:exc:`Doctrine_Validator_Exception` will be thrown. You can catch
-that exception and analyze the errors by using the instance method
+Whenever a record is going to be saved to the persistent data store (i.e.
+through calling :php:meth:`$record->save`) the full validation procedure is
+executed. If errors occur during that process an exception of the type
+:php:exc:`Doctrine_Validator_Exception` will be thrown. You can catch that
+exception and analyze the errors by using the instance method
 :php:meth:`Doctrine_Validator_Exception::getInvalidRecords`. This method
-returns an ordinary array with references to all records that did not
-pass validation. You can then further explore the errors of each record
-by analyzing the error stack of each record. The error stack of a record
-can be obtained with the instance method
-:php:meth:`Doctrine_Record::getErrorStack`. Each error stack is an instance
-of the class ``Doctrine_Validator_ErrorStack``. The error stack
-provides an easy to use interface to inspect the errors.
+returns an ordinary array with references to all records that did not pass
+validation. You can then further explore the errors of each record by analyzing
+the error stack of each record. The error stack of a record can be obtained
+with the instance method :php:meth:`Doctrine_Record::getErrorStack`. Each error
+stack is an instance of the class ``Doctrine_Validator_ErrorStack``. The error
+stack provides an easy to use interface to inspect the errors.
 
 ^^^^^^^^^^^^^^^^^^^
 Explicit Validation
@@ -1413,25 +1412,26 @@ record that didnt pass validation through
 The following code snippet shows an example of handling implicit
 validation which caused a :php:exc:`Doctrine_Validator_Exception`.
 
-// test.php
-$user = new User();
-
-try { $user->username = str_repeat('t', 256); $user->Email->address =
-"drink@@notvalid.."; $user->save(); }
-catch(Doctrine_Validator_Exception $e) { $userErrors =
-$user->getErrorStack(); $emailErrors = $user->Email->getErrorStack();
-
 ::
 
-    foreach($userErrors as $fieldName => $errorCodes) {
-        echo $fieldName . " - " . implode(', ', $errorCodes) . "\n";
-    }
+    // test.php
+    $user = new User();
 
-    foreach($emailErrors as $fieldName => $errorCodes) {
-        echo $fieldName . " - " . implode(', ', $errorCodes) . "\n";
-    }
+    try {
+        $user->username = str_repeat('t', 256);
+        $user->Email->address = "drink@@notvalid..";
+        $user->save();
+    } catch(Doctrine_Validator_Exception $e) {
+        $userErrors = $user->getErrorStack();
+        $emailErrors = $user->Email->getErrorStack();
 
-}
+        foreach($userErrors as $fieldName => $errorCodes) {
+            echo $fieldName . " - " . implode(', ', $errorCodes) . "\n";
+        }
+        foreach($emailErrors as $fieldName => $errorCodes) {
+            echo $fieldName . " - " . implode(', ', $errorCodes) . "\n";
+        }
+    }
 
 .. tip::
 
@@ -1440,18 +1440,18 @@ $user->getErrorStack(); $emailErrors = $user->Email->getErrorStack();
     dealing with.
 
 You can also retrieve the error stack as a nicely formatted string for
-easy use in your applications:
+easy use in your applications::
 
-// test.php
-echo $user->getErrorStackAsString();
+    // test.php
+    echo $user->getErrorStackAsString();
 
 It would output an error string that looks something like the following:
 
- Validation failed in class User
+.. code-block:: text
 
-1 field had validation error:
+    Validation failed in class User
 
-::
+    1 field had validation error:
 
     * 1 validator failed on username (length)
 
@@ -1461,39 +1461,51 @@ Profiler
 
 ``Doctrine_Connection_Profiler`` is an event listener for
 :php:class:`Doctrine_Connection`. It provides flexible query profiling. Besides
-the SQL strings the query profiles include elapsed time to run the
-queries. This allows inspection of the queries that have been performed
-without the need for adding extra debugging code to model classes.
+the SQL strings the query profiles include elapsed time to run the queries.
+This allows inspection of the queries that have been performed without the need
+for adding extra debugging code to model classes.
 
-``Doctrine_Connection_Profiler`` can be enabled by adding it as an
-event listener for Doctrine_Connection.
+``Doctrine_Connection_Profiler`` can be enabled by adding it as an event
+listener for Doctrine_Connection::
 
-// test.php
-$profiler = new Doctrine_Connection_Profiler();
+    $profiler = new Doctrine_Connection_Profiler();
 
-$conn = Doctrine_Manager::connection(); $conn->setListener($profiler);
+    $conn = Doctrine_Manager::connection();
+    $conn->setListener($profiler);
 
 -----------
 Basic Usage
 -----------
 
 Perhaps some of your pages is loading slowly. The following shows how to
-build a complete profiler report from the connection:
+build a complete profiler report from the connection::
 
-// test.php
-$time = 0; foreach ($profiler as $event) { $time +=
-$event->getElapsedSecs(); echo $event->getName() . " " . sprintf("%f",
-$event->getElapsedSecs()) . ""; echo $event->getQuery() . ""; $params =
-$event->getParams(); if( ! empty($params)) { print_r($params);
-} } echo "Total time: " . $time . "";
+    // test.php
+    $time = 0;
+    foreach ($profiler as $event) {
+        $time += $event->getElapsedSecs();
+
+        printf(
+            "%s %f\n%s\n",
+            $event->getName(),
+            $event->getElapsedSecs(),
+            $event->getQuery()
+        );
+
+        $params = $event->getParams();
+        if (!empty($params)) {
+            print_r($params);
+        }
+    }
+    echo "Total time: " . $time . "\n";
+
 
 .. tip::
 
-    Frameworks like `symfony <http://www.symfony-project.com>`_,
-    `Zend <http://framework.zend.com>`_, etc. offer web debug toolbars that
-    use this functionality provided by Doctrine for reporting the number
-    of queries executed on every page as well as the time it takes for
-    each query.
+    Frameworks like `symfony <http://www.symfony-project.com>`_, `Zend
+    <http://framework.zend.com>`_, etc. offer web debug toolbars that use this
+    functionality provided by Doctrine for reporting the number of queries
+    executed on every page as well as the time it takes for each query.
 
 ===============
 Locking Manager
@@ -1501,92 +1513,91 @@ Locking Manager
 
 .. note::
 
-    The term 'Transaction' does not refer to database
-    transactions here but to the general meaning of this term.
+    The term 'Transaction' does not refer to database transactions here but to
+    the general meaning of this term.
 
-Locking is a mechanism to control concurrency. The two most well known
-locking strategies are optimistic and pessimistic locking. The following
-is a short description of these two strategies from which only
-pessimistic locking is currently supported by Doctrine.
+Locking is a mechanism to control concurrency. The two most well known locking
+strategies are optimistic and pessimistic locking. The following is a short
+description of these two strategies from which only pessimistic locking is
+currently supported by Doctrine.
 
 ------------------
 Optimistic Locking
 ------------------
 
-The state/version of the object(s) is noted when the transaction begins.
-When the transaction finishes the noted state/version of the
-participating objects is compared to the current state/version. When the
-states/versions differ the objects have been modified by another
-transaction and the current transaction should fail. This approach is
-called 'optimistic' because it is assumed that it is unlikely that
-several users will participate in transactions on the same objects at
-the same time.
+The state/version of the object(s) is noted when the transaction begins.  When
+the transaction finishes the noted state/version of the participating objects
+is compared to the current state/version. When the states/versions differ the
+objects have been modified by another transaction and the current transaction
+should fail. This approach is called 'optimistic' because it is assumed that it
+is unlikely that several users will participate in transactions on the same
+objects at the same time.
 
 -------------------
 Pessimistic Locking
 -------------------
 
-The objects that need to participate in the transaction are locked at
-the moment the user starts the transaction. No other user can start a
-transaction that operates on these objects while the locks are active.
-This ensures that the user who starts the transaction can be sure that
-no one else modifies the same objects until he has finished his work.
+The objects that need to participate in the transaction are locked at the
+moment the user starts the transaction. No other user can start a transaction
+that operates on these objects while the locks are active.  This ensures that
+the user who starts the transaction can be sure that no one else modifies the
+same objects until he has finished his work.
 
-Doctrine's pessimistic offline locking capabilities can be used to
-control concurrency during actions or procedures that take several HTTP
-request and response cycles and/or a lot of time to complete.
+Doctrine's pessimistic offline locking capabilities can be used to control
+concurrency during actions or procedures that take several HTTP request and
+response cycles and/or a lot of time to complete.
 
 --------
 Examples
 --------
 
-The following code snippet demonstrates the use of Doctrine's
-pessimistic offline locking capabilities.
+The following code snippet demonstrates the use of Doctrine's pessimistic
+offline locking capabilities.
 
-At the page where the lock is requested get a locking manager instance:
+At the page where the lock is requested get a locking manager instance::
 
-// test.php
-$lockingManager = new Doctrine_Locking_Manager_Pessimistic();
+    // test.php
+    $lockingManager = new Doctrine_Locking_Manager_Pessimistic();
 
 .. tip::
 
     Ensure that old locks which timed out are released before we
     try to acquire our lock 300 seconds = 5 minutes timeout. This can be
-    done by using the :php:meth:`releaseAgedLocks` method.
+    done by using the :php:meth:`releaseAgedLocks` method::
 
-// test.php
-$user = Doctrine_Core::getTable('User')->find(1);
+        // test.php
+        $user = Doctrine_Core::getTable('User')->find(1);
 
-try { $lockingManager->releaseAgedLocks(300);
+        try {
+            $lockingManager->releaseAgedLocks(300);
+            $gotLock = $lockingManager->getLock($user, 'jwage');
 
-::
-
-    $gotLock = $lockingManager->getLock($user, 'jwage');
-
-    if ($gotLock)
-    {
-        echo "Got lock!";
-    }
-    else
-    {
-        echo "Sorry, someone else is currently working on this record";
-    }
-
-} catch(Doctrine_Locking_Exception $dle) { echo $dle->getMessage(); //
-handle the error }
+            if ($gotLock){
+                echo "Got lock!";
+            } else {
+                echo "Sorry, someone else is currently working on this record";
+            }
+        } catch(Doctrine_Locking_Exception $dle) {
+            echo $dle->getMessage(); // handle the error
+        }
 
 At the page where the transaction finishes get a locking manager
-instance:
+instance::
 
-// test.php
-$user = Doctrine_Core::getTable('User')->find(1);
+    // test.php
+    $user = Doctrine_Core::getTable('User')->find(1);
 
-$lockingManager = new Doctrine_Locking_Manager_Pessimistic();
+    $lockingManager = new Doctrine_Locking_Manager_Pessimistic();
 
-try { if ($lockingManager->releaseLock($user, 'jwage')) { echo
-"Lock released"; } else { echo "Record was not locked. No locks
-released."; } } catch(Doctrine_Locking_Exception $dle) { echo
-$dle->getMessage(); // handle the error }
+    try {
+        if ($lockingManager->releaseLock($user, 'jwage')) {
+            echo "Lock released";
+        } else {
+            echo "Record was not locked. No locks released.";
+        }
+    } catch(Doctrine_Locking_Exception $dle) {
+        echo $dle->getMessage(); // handle the error
+    }
 
 -----------------
 Technical Details
@@ -1603,9 +1614,9 @@ for installation purposes.
 Views
 =====
 
-Database views can greatly increase the performance of complex queries.
-You can think of them as cached queries. ``Doctrine_View`` provides
-integration between database views and DQL queries.
+Database views can greatly increase the performance of complex queries.  You
+can think of them as cached queries. ``Doctrine_View`` provides integration
+between database views and DQL queries.
 
 -----------
 Using Views
@@ -1618,40 +1629,44 @@ dropping and executing views.
 The ``Doctrine_View`` class integrates with the :php:class:`Doctrine_Query`
 class by saving the SQL that would be executed by :php:class:`Doctrine_Query`.
 
-First lets create a new :php:class:`Doctrine_Query` instance to work with:
+First lets create a new :php:class:`Doctrine_Query` instance to work with::
 
-// test.php
-$q = Doctrine_Query::create() ->from('User u')
-->leftJoin('u.Phonenumber p') ->limit(20);
+    $q = Doctrine_Query::create()
+            ->from('User u')
+            ->leftJoin('u.Phonenumber p')
+            ->limit(20);
 
 Now lets create the ``Doctrine_View`` instance and pass it the
 :php:class:`Doctrine_Query` instance as well as a ``name`` for identifying that
-database view:
+database view::
 
-// test.php
-$view = new Doctrine_View($q,
-'RetrieveUsersAndPhonenumbers');
+    $view = new Doctrine_View($q, 'RetrieveUsersAndPhonenumbers');
 
 Now we can easily create the view by using the
-:php:meth:`Doctrine_View::create` method:
+:php:meth:`Doctrine_View::create` method::
 
-// test.php
-try { $view->create(); } catch (Exception $e) {}
+    try {
+        $view->create();
+    } catch (Exception $e) {
+    }
 
 Alternatively if you want to drop the database view you use the
-:php:meth:`Doctrine_View::drop` method:
+:php:meth:`Doctrine_View::drop` method::
 
-// test.php
-try { $view->drop(); } catch (Exception $e) {}
+    try {
+        $view->drop();
+    } catch (Exception $e) {
+    }
 
 Using views are extremely easy. Just use the
 :php:meth:`Doctrine_View::execute` for executing the view and returning the
-results just as a normal :php:class:`Doctrine_Query` object would:
+results just as a normal :php:class:`Doctrine_Query` object would::
 
-// test.php
-$users = $view->execute();
+    $users = $view->execute();
 
-foreach ($users as $user) { print_r($us->toArray()); }
+    foreach ($users as $user) {
+        print_r($us->toArray());
+    }
 
 ==========
 Conclusion
