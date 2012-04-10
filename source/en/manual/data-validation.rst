@@ -1,3 +1,5 @@
+..  vim: set ts=4 sw=4 tw=79 :
+
 ***************
 Data Validation
 ***************
@@ -8,17 +10,16 @@ Introduction
 
 .. hint::
 
-    Pulled directly from
-    [http://www.postgresql.org/docs/8.2/static/ddl-constraints.html
-    PostgreSQL Documentation]: > Data types are a way to limit the kind
-    of data that can be stored in a table. For many applications,
-    however, the constraint they provide is too coarse. For example, a
-    column containing a product price should probably only accept
-    positive values. But there is no standard data type that accepts
-    only positive numbers. Another issue is that you might want to
-    constrain column data with respect to other columns or rows. For
-    example, in a table containing product information, there should be
-    only one row for each product number.
+    Pulled directly from `PostgreSQL Documentation
+    <http://www.postgresql.org/docs/8.2/static/ddl-constraints.html>`_: Data
+    types are a way to limit the kind of data that can be stored in a table.
+    For many applications, however, the constraint they provide is too coarse.
+    For example, a column containing a product price should probably only
+    accept positive values. But there is no standard data type that accepts
+    only positive numbers. Another issue is that you might want to constrain
+    column data with respect to other columns or rows. For example, in a table
+    containing product information, there should be only one row for each
+    product number.
 
 Doctrine allows you to define *portable* constraints on columns and
 tables. Constraints give you as much control over the data in your
