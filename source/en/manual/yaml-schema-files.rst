@@ -1,4 +1,4 @@
-..  vim: set ts=4 sw=4 tw=79 :
+..  vim: set ts=4 sw=4 tw=79 ff=unix :
 
 *****************
 YAML Schema Files
@@ -495,8 +495,6 @@ them directly in the yml as well.
         password:
           type: string(255)
 
-::
-
 The above syntax will generated a base class that looks something like
 the following:
 
@@ -544,7 +542,7 @@ from your models the options will be set on the create table statement.
 Indexes
 -------
 
-Please see the :doc:`defining-models:indexes :name` section of the
+Please see the :ref:`indexes` section of the
 :doc:`defining-models` for more information about indexes and their
 options.
 
@@ -628,7 +626,7 @@ Simple Inheritance
     another in simple inheritance will be moved to the parent when the
     PHP classes are built.
 
-You can read more about this topic in the :doc:`inheritance:simple :fullname` chapter.
+You can read more about this topic in the :doc:`inheritance` chapter.
 
 ^^^^^^^^^^^^^^^^^^^^
 Concrete Inheritance
@@ -648,7 +646,7 @@ Concrete Inheritance
         columns:
          content: string(300)
 
-You can read more about this topic in the :doc:`inheritance:concrete :fullname` chapter.
+You can read more about this topic in the :doc:`inheritance` chapter.
 
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Column Aggregation Inheritance
@@ -719,7 +717,7 @@ Again lets create another model that extends ``Entity`` named ``Group``:
     ``Group`` ``description`` columns will be automatically moved to the
     parent ``Entity``.
 
-You can read more about this topic in the :doc:`inheritance:column-aggregation :fullname` chapter.
+You can read more about this topic in the :doc:`inheritance` chapter.
 
 --------------
 Column Aliases
@@ -781,7 +779,7 @@ the package files:
       columns:
         username: string(255)
 
-------------------------
+-------------------------
 Global Schema Information
 -------------------------
 
@@ -801,6 +799,7 @@ Name                  Description
 ``package``           Package to put the models in.
 ``inheritance``       Array of inheritance information for models
 ``detect_relations``  Whether or not to try and detect foreign key relations
+====================  ======================================================
 
 Now here is an example schema where we use some of the above global
 parameters:
@@ -883,13 +882,14 @@ Name                      Default                     Description
 ``phpDocSubpackage``                                  The phpDoc subpackage name to generate in the doc blocks.
 ``phpDocName``                                        The phpDoc author name to generate in the doc blocks.
 ``phpDocEmail``                                       The phpDoc e-mail to generate in the doc blocks.
+========================  ==========================  ======================================
 
 ==========
 Conclusion
 ==========
 
 Now that we have learned all about YAML Schema files we are ready to
-move on to a great topic regarding :doc:`data-validation :name`. This is
+move on to a great topic regarding :doc:`data-validation`. This is
 an important topic because if you are not validating user inputted data
 yourself then we want Doctrine to validate data before being persisted
 to the database.

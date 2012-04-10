@@ -2105,6 +2105,8 @@ the :doc:`yaml-schema-files` chapter:
     where the foreign key exists. This is required in order for the
     integrity constraints to be exported to your database properly.
 
+.. _indexes:
+
 =======
 Indexes
 =======
