@@ -1,4 +1,4 @@
-..  vim: set ts=4 sw=4 tw=4 :
+..  vim: set ts=4 sw=4 tw=79 ff=unix :
 
 **********
 Native SQL
@@ -26,7 +26,7 @@ Creating a :php:class:`Doctrine_RawSql` object is easy:
 
 Optionally a connection parameter can be given and it accepts an
 instance of :php:class:`Doctrine_Connection`. You learned how to create
-connections in the [doc connections :name] chapter.
+connections in the :doc:`connections` chapter.
 
 ::
 
@@ -122,7 +122,7 @@ executing a :php:class:`Doctrine_Query` object:
 
 The above example would output the following when executed:
 
-::
+.. code-block:: sh
 
     $ php test.php Doctrine_Collection User Phonenumber
 
@@ -139,5 +139,4 @@ scope of what :php:class:`Doctrine_Query` is capable of then
 In the previous chapters you've seen a lot of mention about ``YAML`` schema
 files and have been given examples of schema files but haven't really
 been trained on how to write your own. The next chapter explains in
-great detail how to maintain your models as ``[doc yaml-schema-files YAML
-Schema Files]``.
+great detail how to maintain your models as :doc:`yaml-schema-files`.
