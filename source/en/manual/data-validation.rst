@@ -1,4 +1,4 @@
-..  vim: set ts=4 sw=4 tw=79 :
+..  vim: set ts=4 sw=4 tw=79 ff=unix :
 
 ***************
 Data Validation
@@ -994,7 +994,7 @@ The unsigned validator checks that the given integer value is unsigned.
 
 ::
 
-    // models/User.php\
+    // models/User.php
     class User extends BaseUser
     {
         // ...
