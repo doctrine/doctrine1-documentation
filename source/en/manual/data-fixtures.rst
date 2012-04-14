@@ -14,12 +14,16 @@ Importing
 Importing data fixtures is just as easy as dumping. You can use the
 ``loadData()`` function:
 
- Doctrine\_Core::loadData('/path/to/data.yml');
+::
+
+    Doctrine_Core::loadData('/path/to/data.yml');
 
 You can either specify an individual yml file like we have done above,
 or you can specify an entire directory:
 
- Doctrine\_Core::loadData('/path/to/directory');
+::
+
+    Doctrine_Core::loadData('/path/to/directory');
 
 If you want to append the imported data to the already existing data
 then you need to use the second argument of the ``loadData()`` function.
@@ -28,7 +32,9 @@ purged before importing.
 
 Here is how you can append instead of purging:
 
- Doctrine\_Core::loadData('/path/to/data.yml', true);
+::
+
+    Doctrine_Core::loadData('/path/to/data.yml', true);
 
 =======
 Dumping
@@ -38,12 +44,16 @@ You can dump data to fixtures file in many different formats to help you
 get started with writing your data fixtures. You can dump your data
 fixtures to one big YAML file like the following:
 
- Doctrine\_Core::dumpData('/path/to/data.yml');
+::
+
+    Doctrine_Core::dumpData('/path/to/data.yml');
 
 Or you can optionally dump all data to individual files. One YAML file
 per model like the following:
 
- Doctrine\_Core::dumpData('/path/to/directory', true);
+::
+
+    Doctrine_Core::dumpData('/path/to/directory', true);
 
 =========
 Implement
@@ -57,15 +67,21 @@ sections.
 First create a directory in your ``doctrine_test`` directory named
 ``fixtures`` and create a file named ``data.yml`` inside:
 
- $ mkdir fixtures $ touch fixtures/data.yml
+.. code-block:: sh
+
+    $ mkdir fixtures
+    $ touch fixtures/data.yml
 
 Now we need to just modify our ``generate.php`` script to include the
 code for loading the data fixtures. Add the following code to the bottom
 of ``generate.php``:
 
- // generate.php
+::
 
-// ... Doctrine\_Core::loadData('fixtures');
+    // generate.php
+
+    // ...
+    Doctrine_Core::loadData('fixtures');
 
 =======
 Writing
@@ -78,154 +94,224 @@ read all fixtures files and parse them, then load all data.
 
 For the next several examples we will use the following models:
 
- // models/Resouce.php
-
-class Resource extends Doctrine\_Record { public function
-setTableDefinition() { $this->hasColumn('name', 'string', 255);
-$this->hasColumn('resource\_type\_id', 'integer'); }
-
 ::
 
-    public function setUp()
+    // models/Resouce.php
+    class Resource extends Doctrine_Record
     {
-        $this->hasOne('ResourceType as Type', array(
-                'local' => 'resource_type_id',
-                'foreign' => 'id'
-            )
-        );
+        public function setTableDefinition()
+        {
+            $this->hasColumn('name', 'string', 255);
+            $this->hasColumn('resource_type_id', 'integer');
+        }
 
-        $this->hasMany('Tag as Tags', array(
-                'local' => 'resource_id',
-                'foreign' => 'tag_id',
-                'refClass' => 'ResourceTag'
-            )
-        );
+        public function setUp()
+        {
+            $this->hasOne('ResourceType as Type', array(
+                    'local' => 'resource_type_id',
+                    'foreign' => 'id'
+                )
+            );
+
+            $this->hasMany('Tag as Tags', array(
+                    'local' => 'resource_id',
+                    'foreign' => 'tag_id',
+                    'refClass' => 'ResourceTag'
+                )
+            );
+        }
     }
 
-}
-
-// models/ResourceType.php
-
-class ResourceType extends Doctrine\_Record { public function
-setTableDefinition() { $this->hasColumn('name', 'string', 255); }
-
-::
-
-    public function setUp()
+    // models/ResourceType.php
+    class ResourceType extends Doctrine_Record
     {
-        $this->hasMany('Resource as Resouces', array(
-                'local' => 'id',
-                'foreign' => 'resource_type_id'
-            )
-        );
+        public function setTableDefinition()
+        {
+            $this->hasColumn('name', 'string', 255);
+        }
+
+        public function setUp()
+        {
+            $this->hasMany('Resource as Resouces', array(
+                    'local' => 'id',
+                    'foreign' => 'resource_type_id'
+                )
+            );
+        }
     }
 
-}
-
-// models/Tag.php
-
-class Tag extends Doctrine\_Record { public function
-setTableDefinition() { $this->hasColumn('name', 'string', 255); }
-
-::
-
-    public function setUp()
+    // models/Tag.php
+    class Tag extends Doctrine_Record
     {
-        $this->hasMany('Resource as Resources', array(
-                'local' => 'tag_id',
-                'foreign' => 'resource_id',
-                'refClass' => 'ResourceTag'
-            )
-        );
+        public function setTableDefinition()
+        {
+            $this->hasColumn('name', 'string', 255);
+        }
+
+        public function setUp()
+        {
+            $this->hasMany('Resource as Resources', array(
+                    'local' => 'tag_id',
+                    'foreign' => 'resource_id',
+                    'refClass' => 'ResourceTag'
+                )
+            );
+        }
     }
 
-}
-
-// models/ResourceTag.php
-
-class ResourceTag extends Doctrine\_Record { public function
-setTableDefinition() { $this->hasColumn('resource\_id', 'integer');
-$this->hasColumn('tag\_id', 'integer'); } }
-
-// models/Category.php
-
-class BaseCategory extends Doctrine\_Record { public function
-setTableDefinition() { $this->hasColumn('name', 'string', 255, array(
-'type' => 'string', 'length' => '255' ) ); }
-
-::
-
-    public function setUp()
+    // models/ResourceTag.php
+    class ResourceTag extends Doctrine_Record
     {
-        $this->actAs('NestedSet');
+        public function setTableDefinition()
+        {
+            $this->hasColumn('resource_id', 'integer');
+            $this->hasColumn('tag\_id', 'integer');
+        }
     }
 
-}
-
-class BaseArticle extends Doctrine\_Record { public function
-setTableDefinition() { $this->hasColumn('title', 'string', 255, array(
-'type' => 'string', 'length' => '255' ) );
-
-::
-
-        $this->hasColumn('body', 'clob', null, array(
-                'type' => 'clob'
-            )
-        );
-    }
-
-    public function setUp()
+    // models/Category.php
+    class BaseCategory extends Doctrine_Record
     {
-        $this->actAs('I18n', array('fields' => array('title', 'body')));
+        public function setTableDefinition()
+        {
+            $this->hasColumn('name', 'string', 255, array(
+                    'type' => 'string', 'length' => '255'
+                )
+            );
+        }
+
+        public function setUp()
+        {
+            $this->actAs('NestedSet');
+        }
     }
 
-}
+    class BaseArticle extends Doctrine_Record
+    {
+        public function setTableDefinition()
+        {
+            $this->hasColumn('title', 'string', 255, array(
+                    'type' => 'string', 'length' => '255'
+                )
+            );
+
+            $this->hasColumn('body', 'clob', null, array(
+                    'type' => 'clob'
+                )
+            );
+        }
+
+        public function setUp()
+        {
+            $this->actAs('I18n', array('fields' => array('title', 'body')));
+        }
+    }
 
 Here is the same example in YAML format. You can read more about YAML in
-the [doc yaml-schema-files :name] chapter:
+the :doc:`yaml-schema-files` chapter:
 
- # schema.yml
+.. code-block:: yaml
 
-Resource: columns: name: string(255) resource\_type\_id: integer
-relations: Type: class: ResourceType foreignAlias: Resources Tags:
-class: Tag refClass: ResourceTag foreignAlias: Resources
+    ---
+    # schema.yml
 
-ResourceType: columns: name: string(255)
+    Resource:
+      columns:
+        name: string(255)
+        resource_type_id: integer
+      relations:
+        Type:
+          class: ResourceType
+          foreignAlias: Resources
+        Tags:
+          class: Tag
+          refClass: ResourceTag
+          foreignAlias: Resources
 
-Tag: columns: name: string(255)
+    ResourceType:
+      columns:
+        name: string(255)
 
-ResourceTag: columns: resource\_id: integer tag\_id: integer
+    Tag:
+      columns:
+        name: string(255)
 
-Category: actAs: [NestedSet] columns: name: string(255)
+    ResourceTag:
+      columns:
+        resource_id: integer
+        tag_id: integer
 
-Article: actAs: I18n: fields: [title, body] columns: title: string(255)
-body: clob
+    Category:
+      actAs: [NestedSet]
+      columns:
+        name: string(255)
+
+    Article:
+      actAs:
+        I18n:
+          fields: [title, body]
+      columns:
+        title: string(255)
+        body: clob
 
 .. note::
 
     All row keys across all YAML data fixtures must be unique.
     For example below tutorial, doctrine, help, cheat are all unique.
 
- # fixtures/data.yml
+.. code-block:: yaml
 
-Resource: Resource\_1: name: Doctrine Video Tutorial Type: Video Tags:
-[tutorial, doctrine, help] Resource\_2: name: Doctrine Cheat Sheet Type:
-Image Tags: [tutorial, cheat, help]
+    ---
+    # fixtures/data.yml
 
-ResourceType: Video: name: Video Image: name: Image
+    Resource:
+      Resource_1:
+        name: Doctrine Video Tutorial
+        Type: Video
+        Tags: [tutorial, doctrine, help]
+      Resource_2:
+        name: Doctrine Cheat Sheet
+        Type: Image
+        Tags: [tutorial, cheat, help]
 
-Tag: tutorial: name: tutorial doctrine: name: doctrine help: name: help
-cheat: name: cheat
+    ResourceType:
+      Video:
+        name: Video
+      Image:
+        name: Image
+
+    Tag:
+      tutorial:
+        name: tutorial
+      doctrine:
+        name: doctrine
+      help:
+        name: help
+      cheat:
+        name: cheat
 
 You could optionally specify the Resources each tag is related to
 instead of specifying the Tags a Resource has.
 
- # fixtures/data.yml
+.. code-block:: yaml
 
-Tag: tutorial: name: tutorial Resources: [Resource\_1, Resource\_2]
-doctrine: name: doctrine Resources: [Resource\_1] help: name: help
-Resources: [Resource\_1, Resource\_2] cheat: name: cheat Resources:
-[Resource\_1]
+    ---
+    # fixtures/data.yml
+
+    # ...
+    Tag:
+      tutorial:
+        name: tutorial
+        Resources: [Resource_1, Resource_2]
+      doctrine:
+        name: doctrine
+        Resources: [Resource_1]
+      help:
+        name: help
+        Resources: [Resource_1, Resource_2]
+      cheat:
+        name: cheat
+        Resources: [Resource_1]
 
 ========================
 Fixtures For Nested Sets
@@ -235,11 +321,22 @@ Writing a fixtures file for a nested set tree is slightly different from
 writing regular fixtures files. The structure of the tree is defined
 like the following:
 
- # fixtures/data.yml
+.. code-block:: yaml
 
-Category: Category\_1: name: Categories # the root node children:
-Category\_2: name: Category 1 Category\_3: name: Category 2 children:
-Category\_4: name: Subcategory of Category 2
+    ---
+    # fixtures/data.yml
+
+    Category:
+      Category_1:
+        name: Categories # the root node
+        children:
+          Category_2:
+            name: Category 1
+          Category_3:
+            name: Category 2
+            children:
+              Category_4:
+                name: Subcategory of Category 2
 
 .. tip::
 
@@ -248,16 +345,32 @@ Category\_4: name: Subcategory of Category 2
     specify ``NestedSet: true`` under the model which is a NestedSet in
     order for the data fixtures to be imported using the NestedSet api.
 
-# fixtures/data.yml
+.. code-block:: yaml
 
-Category: NestedSet: true Category\_1: name: Categories # ...
+    ---
+    # fixtures/data.yml
+
+    # ...
+    Category:
+      NestedSet: true
+      Category_1:
+        name: Categories
+    # ...
 
 Or simply specifying the children keyword will make the data fixtures
 importing using the NestedSet api.
 
- # fixtures/data.yml
+.. code-block:: yaml
 
-Category: Category\_1: name: Categories children: [] # ...
+    ---
+    # fixtures/data.yml
+
+    # ...
+    Category:
+      Category_1:
+        name: Categories
+        children: []
+    # ...
 
 If you don't use one of the above methods then it is up to you to
 manually specify the lft, rgt and level values for your nested set
@@ -271,11 +384,21 @@ The fixtures for the ``I18n`` aren't anything custom since the ``I18n``
 really is just a normal set of relationships that are built on the fly
 dynamically:
 
- # fixtures/data.yml
+.. code-block:: yaml
 
-Article: Article\_1: Translation: en: title: Title of article body: Body
-of article fr: title: French title of article body: French body of
-article
+    ---
+    # fixtures/data.yml
+
+    # ...
+    Article:
+      Article_1:
+        Translation:
+          en:
+            title: Title of article
+            body: Body of article
+          fr:
+            title: French title of article
+            body: French body of article
 
 ==========
 Conclusion
@@ -283,7 +406,7 @@ Conclusion
 
 By now we should be able to write and load our own data fixtures in our
 application. So, now we will move on to learning about the underlying
-[doc database-abstraction-layer :name] in Doctrine. This layer is what
+:doc:`database-abstraction-layer` in Doctrine. This layer is what
 makes all the previously discussed functionality possible. You can use
 this layer standalone apart from the ORM. In the next chapter we'll
 explain how you can use the DBAL by itself.
