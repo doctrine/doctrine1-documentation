@@ -6,6 +6,7 @@ setup(
         name='doctrine1-documentation',
         version='1.2.4',
         requires=[
+            "sphinx",
             "sphinxcontrib.phpdomain"
         ]
      )
