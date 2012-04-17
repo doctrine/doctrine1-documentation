@@ -17,7 +17,7 @@ chapters:
 
     $ rm schema.yml
     $ touch schema.yml
-    $ rm -rf models/\*
+    $ rm -rf models/*
 
 ======
 Simple
