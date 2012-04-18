@@ -614,18 +614,18 @@ The above code would output the following SQL query:
 
 ::
 
-CREATE TABLE blog_post_version (id BIGINT,
-title VARCHAR(255),
-body LONGTEXT,
-version BIGINT,
-PRIMARY KEY(id,
-version)) ENGINE = INNODB
-CREATE TABLE blog_post (id BIGINT AUTO_INCREMENT,
-title VARCHAR(255),
-body LONGTEXT,
-version BIGINT,
-PRIMARY KEY(id)) ENGINE = INNODB
-ALTER TABLE blog_post_version ADD FOREIGN KEY (id) REFERENCES blog_post(id) ON UPDATE CASCADE ON DELETE CASCADE
+    CREATE TABLE blog_post_version (id BIGINT,
+    title VARCHAR(255),
+    body LONGTEXT,
+    version BIGINT,
+    PRIMARY KEY(id,
+    version)) ENGINE = INNODB
+    CREATE TABLE blog_post (id BIGINT AUTO_INCREMENT,
+    title VARCHAR(255),
+    body LONGTEXT,
+    version BIGINT,
+    PRIMARY KEY(id)) ENGINE = INNODB
+    ALTER TABLE blog_post_version ADD FOREIGN KEY (id) REFERENCES blog_post(id) ON UPDATE CASCADE ON DELETE CASCADE
 
 .. note::
 
@@ -797,26 +797,26 @@ The above example would produce the following output:
 Here is a list of all the options you can use with the ``Timestampable``
 behavior on the created side of the behavior:
 
-==============  ====================  ========================
+==============  ====================  ===================================================================================================================================================
 Name            Default               Description
-==============  ====================  ========================
+==============  ====================  ===================================================================================================================================================
 ``name``        ``created_at``        The name of the column.
 ``type``        ``timestamp``         The column type.
 ``options``     ``array()``           Any additional options for the column.
 ``format``      ``Y-m-d H:i:s``       The format of the timestamp if you don't use the timestamp column type. The date is built using PHP's `date() <http://www.php.net/date>`_ function.
 ``disabled``    ``false``             Whether or not to disable the created date.
 ``expression``  ``NOW()``             Expression to use to set the column value.
-===
+==============  ====================  ===================================================================================================================================================
 
 Here is a list of all the options you can use with the ``Timestampable``
 behavior on the updated side of the behavior that are not possible on
 the created side:
 
-============  ========  ===================
+============  ========  =========================================================================
 Name          Default   Description
-============  ========  ===================
+============  ========  =========================================================================
 ``onInsert``  ``true``  Whether or not to set the updated date when the record is first inserted.
-===
+============  ========  =========================================================================
 
 ---------
 Sluggable
@@ -912,9 +912,9 @@ value to be used when building the url friendly slug.
 Here is a list of all the options you can use on the ``Sluggable``
 behavior:
 
-===============  =========================================  ====================
+===============  =========================================  ===============================================
 Name             Default                                    Description
-===============  =========================================  ====================
+===============  =========================================  ===============================================
 ``name``         ``slug``                                   The name of the slug column.
 ``alias``        ``null``                                   The alias of the slug column.
 ``type``         ``string``                                 The type of the slug column.
@@ -927,7 +927,7 @@ Name             Default                                    Description
 ``canUpdate``    ``false``                                  Whether or not the slug can be updated.
 ``builder``      ``array('Doctrine_Inflector', 'urlize')``  The ``Class::method()`` used to build the slug.
 ``indexName``    ``sluggable``                              The name of the index to create.
-===
+===============  =========================================  ===============================================
 
 ----
 I18n
@@ -975,15 +975,15 @@ the :doc:`yaml-schema-files` chapter:
 Below is a list of all the options you can use with the ``I18n``
 behavior:
 
-=============  ======================  =================
+=============  ======================  ============================================
 Name           Default                 Description
-=============  ======================  =================
+=============  ======================  ============================================
 ``className``  ``%CLASS%Translation``  The name pattern to use for generated class.
 ``fields``     ``array()``             The fields to internationalize.
 ``type``       ``string``              The type of ``lang`` column.
 ``length``     ``2``                   The length of the ``lang`` column.
 ``options``    ``array()``             Other options for the ``lang`` column.
-===
+=============  ======================  ============================================
 
 Lets check the SQL that is generated by the above models:
 
@@ -1423,7 +1423,7 @@ Download and import the csv file with the following function:
     // test.php
 
     // ...
-    function parseCsvFile($file, $columnheadings = false, $delimiter = ',', $enclosure = """)
+    function parseCsvFile($file, $columnheadings = false, $delimiter = ',', $enclosure = "\"")
     {
         $row    = 1;
         $rows   = array();

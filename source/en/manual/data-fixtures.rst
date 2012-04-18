@@ -165,7 +165,7 @@ For the next several examples we will use the following models:
         public function setTableDefinition()
         {
             $this->hasColumn('resource_id', 'integer');
-            $this->hasColumn('tag\_id', 'integer');
+            $this->hasColumn('tag_id', 'integer');
         }
     }
 

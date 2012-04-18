@@ -42,31 +42,31 @@ finally dropped, in a database named ``events_db``:
 
 **events**
 
-============  ===============  =========  ==============
+============  ===============  =========  ================
 Name          Type             Primary    Auto Increment
-============  ===============  =========  ==============
+============  ===============  =========  ================
 ``id``        ``integer``      ``true``   ``true``
 ``name``      ``string(255)``  ``false``  ``false``
 ``datetime``  ``timestamp``    ``false``  ``false``
-===
+============  ===============  =========  ================
 
 **people**
 
-========  ===============  =========  ==============
+========  ===============  =========  ================
 Name      Type             Primary    Auto Increment
-========  ===============  =========  ==============
+========  ===============  =========  ================
 ``id``    ``integer``      ``true``   ``true``
 ``name``  ``string(255)``  ``false``  ``false``
-===
+========  ===============  =========  ================
 
 **event_participants**
 
-=============  ===============  ========  ==============
+=============  ===============  ========  ================
 Name           Type             Primary   Auto Increment
-=============  ===============  ========  ==============
+=============  ===============  ========  ================
 ``event_id``   ``integer``      ``true``  ``false``
 ``person_id``  ``string(255)``  ``true``  ``false``
-===
+=============  ===============  ========  ================
 
 ------------------
 Creating Databases
@@ -139,20 +139,20 @@ well as other keys, depending on the value of ``type``. The values for
 the ``type`` key are the same as the possible Doctrine datatypes.
 Depending on the datatype, the other options may vary.
 
-=============  ======  =======  ========  ========  =============
-Datatype       length  default  not null  unsigned  autoincrement
-=============  ======  =======  ========  ========  =============
-``string``     x       x        x
-``boolean``            x        x
-``integer``    x       x        x         x         x
-``decimal``            x        x
-``float``              x        x
-``timestamp``          x        x
-``time``               x        x
-``date``               x        x
-``clob``       x                x
-``blob``       x                x
-===
+=============  =======  =======  =========  ========  =============
+Datatype        length  default  not null   unsigned  autoincrement
+=============  =======  =======  =========  ========  =============
+``string``        x        x         x
+``boolean``                x         x
+``integer``       x        x         x          x           x
+``decimal``                x         x
+``float``                  x         x
+``timestamp``              x         x
+``time``                   x         x
+``date``                   x         x
+``clob``          x                  x
+``blob``          x                  x
+=============  =======  =======  =========  ========  =============
 
 And now we can go ahead and create the ``people`` table:
 
@@ -302,41 +302,41 @@ query:
 The ``alterTable()`` method requires two parameters and has an optional
 third:
 
-============  ===============  ===================
+============  ===============  ====================================================================================================
 Name          Type             Description
-============  ===============  ===================
-//$name//     ``string``       Name of the table that is intended to be changed.
-//$changes//  ``array``        Associative array that contains the details of each type of change that is intended to be performed.
-===
+============  ===============  ====================================================================================================
+**$name**     ``string``       Name of the table that is intended to be changed.
+**$changes**  ``array``        Associative array that contains the details of each type of change that is intended to be performed.
+============  ===============  ====================================================================================================
 
 An optional third parameter (default: ``false``):
 
-==========  ===========  ====================
+==========  ===========  ======================================================================
 Name        Type         Description
-==========  ===========  ====================
-//$check//  ``boolean``  Check if the DBMS can actually perform the operation before executing.
-===
+==========  ===========  ======================================================================
+**$check**  ``boolean``  Check if the DBMS can actually perform the operation before executing.
+==========  ===========  ======================================================================
 
 The types of changes that are currently supported are defined as
 follows:
 
-===========  ============================
+===========  =============================================================================================================================================
 Change       Description
-===========  ============================
-//name//     New name for the table.
-//add//      Associative array with the names of fields to be added as indexes of the array. The value of each entry of the array should be set to another associative array with the properties of
-the fields to be added. The properties of the fields should be the same
-as defined by the Doctrine parser.
-// remove//  Associative array with the names of fields to be removed as indexes of the array. Currently the values assigned to each entry are ignored. An
-empty array should be used for future compatibility.
-//rename//   Associative array with the names of fields to be renamed as indexes of the array. The value of each entry of the array should be set to another associative array with the entry named name with the new
-field name and the entry named Declaration that is expected to contain
-the portion of the field declaration already in DBMS specific SQL code
-as it is used in the ``CREATE TABLE`` statement.
-//change//   Associative array with the names of the fields to be changed as indexes of the array. Keep in mind that if it is intended to change
-either the name of a field and any other properties, the change array
-entries should have the new names of the fields as array indexes.
-===
+===========  =============================================================================================================================================
+**name**     New name for the table.
+**add**      Associative array with the names of fields to be added as indexes of the array. The value of each entry of
+             the array should be set to another associative array with the properties of
+             the fields to be added. The properties of the fields should be the same as defined by the Doctrine parser.
+**remove**   Associative array with the names of fields to be removed as indexes of the array. Currently the values assigned to each entry are ignored. An
+             empty array should be used for future compatibility.
+**rename**   Associative array with the names of fields to be renamed as indexes of the array. The value of each entry of the array should be set to
+             another associative array with the entry named name with the new
+             field name and the entry named Declaration that is expected to contain the portion of the field declaration already in DBMS specific SQL code
+             as it is used in the ``CREATE TABLE`` statement.
+**change**   Associative array with the names of the fields to be changed as indexes of the array. Keep in mind that if it is intended to change
+             either the name of a field and any other properties, the change array
+             entries should have the new names of the fields as array indexes.
+===========  =============================================================================================================================================
 
 The value of each entry of the array should be set to another
 associative array with the properties of the fields to that are meant to
@@ -437,7 +437,7 @@ Deleting database elements
 
 For every ``create*()`` method as shown above, there is a corresponding
 ``drop*()`` method to delete a database, a table, field, index or
-constraint. The ``drop\*()`` methods do not check if the item to be
+constraint. The ``drop*()`` methods do not check if the item to be
 deleted exists, so it's developer's responsibility to check for
 exceptions using a try catch block:
 
@@ -516,12 +516,13 @@ Introduction
 To see what's in the database, you can use the ``list*()`` family of
 functions in the Import module.
 
-====================================  =========================
+====================================  ===========================================================================================
 Name                                  Description
-====================================  =========================
+====================================  ===========================================================================================
 ``listDatabases()``                   List the databases
 ``listFunctions()``                   List the available functions.
-``listSequences($dbName)``            List the available sequences. Takes optional database name as a parameter. If not supplied, the currently selected database is assumed.
+``listSequences($dbName)``            List the available sequences. Takes optional database name as a parameter. If not supplied,
+                                      the currently selected database is assumed.
 ``listTableConstraints($tableName)``  Lists the available tables. takes a table name
 ``listTableColumns($tableName)``      List the columns available in a table.
 ``listTableIndexes($tableName)``      List the indexes defined in a table.
@@ -530,7 +531,7 @@ Name                                  Description
 ``listTableViews($tableName)``        List the views available in a table.
 ``listUsers()``                       List the users for the database.
 ``listViews($dbName)``                List the views available for a database.
-===
+====================================  ===========================================================================================
 
 Below you will find examples on how to use the above listed functions:
 

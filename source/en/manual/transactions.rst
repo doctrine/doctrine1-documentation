@@ -13,29 +13,29 @@ entirely completed or aborted. Ideally, a database system will guarantee
 all of the ACID (Atomicity, Consistency, Isolation, and Durability)
 properties for each transaction.
 
--  //`Atomicity <http://en.wikipedia.org/wiki/Atomicity>`_// refers to the
+-  `Atomicity <http://en.wikipedia.org/wiki/Atomicity>`_ refers to the
    ability of the DBMS to guarantee that either all of the tasks of a
    transaction are performed or none of them are. The transfer of funds
    can be completed or it can fail for a multitude of reasons, but
    atomicity guarantees that one account won't be debited if the other
    is not credited as well.
--  //`Consistency <http://en.wikipedia.org/wiki/Database_consistency>`_//
+-  `Consistency <http://en.wikipedia.org/wiki/Database_consistency>`_
    refers to the database being in a legal state when the transaction
    begins and when it ends. This means that a transaction can't break
    the rules, or //integrity constraints//, of the database. If an
    integrity constraint states that all accounts must have a positive
    balance, then any transaction violating this rule will be aborted.
--  //`Isolation <http://en.wikipedia.org/wiki/Schedule_(computer_science)>// refers to the ability of the application to make
+-  `Isolation <http://en.wikipedia.org/wiki/Schedule_(computer_science)>`_ refers to the ability of the application to make
    operations in a transaction appear isolated from all other
    operations. This means that no operation outside the transaction can
    ever see the data in an intermediate state; a bank manager can see
    the transferred funds on one account or the other, but never on both
    - even if she ran her query while the transfer was still being
    processed. More formally, isolation means the transaction history (or
-   `schedule <http://en.wikipedia.org/wiki/Schedule_(computer_science)>`_) is `serializable <http://en.wikipedia.org/wiki/Serializability>`. For performance reasons, this ability is the most
+   `schedule <http://en.wikipedia.org/wiki/Schedule_(computer_science)>`_) is `serializable <http://en.wikipedia.org/wiki/Serializability>`_. For performance reasons, this ability is the most
    often relaxed constraint. See the
    `isolation <http://en.wikipedia.org/wiki/Isolation_(computer_science)>`_ article for more details.
--  //`Durability <http://en.wikipedia.org/wiki/Durability_(computer_science)>`_// refers to the guarantee that once the user has been
+-  `Durability <http://en.wikipedia.org/wiki/Durability_(computer_science)>`_ refers to the guarantee that once the user has been
    notified of success, the transaction will persist, and not be undone.
    This means it will survive system failure, and that the
    `database system <http://en.wikipedia.org/wiki/Database_system>`_ has
@@ -93,7 +93,7 @@ First lets create a standard PHP function named ``saveUserAndGroup()``:
 
 ::
 
-    function saveUserAndGroup(Doctrin\_Connection $conn, User $user, Group $group)
+    function saveUserAndGroup(Doctrin_Connection $conn, User $user, Group $group)
     {
         $conn->beginTransaction();
 

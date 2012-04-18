@@ -141,14 +141,14 @@ The structure of the inverse index Doctrine uses is the following:
 
 [ (string) keyword] [ (string) field ] [ (integer) position ] [ (mixed) [foreign_keys] ]
 
-==================  ===========================
+==================  =================================================
 Column              Description
-==================  ===========================
+==================  =================================================
 ``keyword``         The keyword in the text that can be searched for.
 ``field``           The field where the keyword was found.
 ``position``        The position where the keyword was found.
 ``[foreign_keys]``  The foreign keys of the record being indexed.
-===
+==================  =================================================
 
 In the ``NewsItem`` example the ``[foreign_keys]`` would simply contain
 one field named ``id`` with foreign key references to ``NewsItem(id)``
@@ -160,7 +160,7 @@ An example row in this table might look something like:
 keyword       field      position  id
 ============  =========  ========  =====
 ``database``  ``title``  ``3``     ``1``
-===
+============  =========  ========  =====
 
 In this example the word ``database`` is the third word of the ``title``
 field of ``NewsItem`` with id of ``1``.
@@ -460,7 +460,7 @@ File searches
 
 As stated before :php:class:`Doctrine_Search` can also be used for searching
 files. Lets say we have a directory which we want to be searchable.
-First we need to create an instance of :php:class`Doctrine_Search_File` which
+First we need to create an instance of :php:class:`Doctrine_Search_File` which
 is a child of :php:class:`Doctrine_Search` providing some extra functionality
 needed for the file searches.
 
