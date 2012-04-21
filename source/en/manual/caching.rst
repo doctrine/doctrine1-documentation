@@ -6,20 +6,23 @@ Caching
 Introduction
 ============
 
-``Doctrine_Cache`` offers an intuitive and easy-to-use query caching
+:php:class:`Doctrine_Cache` offers an intuitive and easy-to-use query caching
 solution. It provides the following things:
 
 -  Multiple cache backends to choose from (including Memcached, APC and
    Sqlite)
--  Advanced options for fine-tuning. ``Doctrine_Cache`` has many
+-  Advanced options for fine-tuning. :php:class:`Doctrine_Cache` has many
    options for fine-tuning performance.
 
 All the cache drivers are instantiated like the following:
 
- // bootstrap.php
+::
 
-// ... $options = array();
-:code:`cacheDriver = new Doctrine_Cache_Memcache(`\ options);
+    // bootstrap.php
+
+    // ...
+    $options = array();
+    $cacheDriver = new Doctrine_Cache_Memcache( $options );
 
 .. note::
 
@@ -41,13 +44,23 @@ PECL extension.
 
 You can instantiate the Memcache cache driver with the following code:
 
- // bootstrap.php
+::
 
-// ... $servers = array( 'host' => 'localhost', 'port' => 11211,
-'persistent' => true );
+    // bootstrap.php
 
-$cacheDriver = new Doctrine\_Cache\_Memcache(array( 'servers' =>
-$servers, 'compression' => false ) );
+    // ...
+    $servers = array(
+        'host'       => 'localhost',
+        'port'       => 11211,
+        'persistent' => true
+    );
+
+    $cacheDriver = new Doctrine_Cache_Memcache(
+        array(
+            'servers' => $servers,
+            'compression' => false
+        )
+    );
 
 .. note::
 
@@ -55,15 +68,17 @@ $servers, 'compression' => false ) );
 
 Available options for Memcache driver:
 
-\|\|~ Option \|\|~ Data Type \|\|~ Default Value \|\|~ Description \|\|
-\|\| ``servers`` \|\| ``array`` \|\| ``array(array('host' =>
-'localhost','port' => 11211, 'persistent' => true))`` \|\| An array of
-memcached servers ; each memcached server is described by an associative
-array : ``'host' => (string)`` : the name of the memcached server,
-``'port' => (int)`` : the port of the memcached server, ``'persistent'
-=> (bool)`` : use or not persistent connections to this memcached server
-\|\| \|\| ``compression`` \|\| ``boolean`` \|\| ``false`` \|\| ``true``
-if you want to use on-the-fly compression \|\|
+===============  ============  =============================================================================  ======================================================
+Option           Data Type     Default Value                                                                  Description
+===============  ============  =============================================================================  ======================================================
+``servers``      ``array``     ``array(array('host' => 'localhost','port' => 11211, 'persistent' => true))``  An array of memcached servers ; each memcached
+                                                                                                              server is described by an associative array :
+                                                                                                              ``'host' => (string)`` : the name of the memcached
+                                                                                                              server, ``'port' => (int)`` : the port of the
+                                                                                                              memcached server, ``'persistent' => (bool)`` : use
+                                                                                                              or not persistent connections to this memcached server
+``compression``  ``boolean``   ``false``                                                                      ``true`` if you want to use on-the-fly compression
+===============  ============  =============================================================================  ======================================================
 
 ---
 APC
@@ -76,9 +91,12 @@ Doctrine stores cache records in shared memory.
 
 You can instantiate the APC cache driver with the following code:
 
- // bootstrap.php
+::
 
-// ... $cacheDriver = new Doctrine\_Cache\_Apc();
+    // bootstrap.php
+
+    // ...
+    $cacheDriver = new Doctrine_Cache_Apc();
 
 --
 Db
@@ -89,11 +107,14 @@ some fast flat-file based database is used (such as sqlite).
 
 You can instantiate the database cache driver with the following code:
 
- // bootstrap.php
+::
 
-// ... $cacheConn = Doctrine\_Manager::connection(new
-PDO('sqlite::memory:')); $cacheDriver = new
-Doctrine\_Cache\_Db(array('connection' => $cacheConn));
+    // bootstrap.php
+
+    // ...
+    $cacheConn   = Doctrine_Manager::connection( new PDO( 'sqlite::memory:' ) );
+    $cacheDriver = new Doctrine_Cache_Db( array( 'connection' => $cacheConn ) );
+
 
 ==========================
 Query Cache & Result Cache
@@ -108,39 +129,21 @@ process, as well as the end results of DQL queries (the data). These two
 caching mechanisms can greatly increase performance. Consider the
 standard workflow of DQL query execution:
 
-Init new DQL query
-``````````````````
-
-Parse DQL query
-```````````````
-
-Build database specific SQL query
-`````````````````````````````````
-
-Execute the SQL query
-`````````````````````
-
-Build the result set
-````````````````````
-
-Return the result set
-`````````````````````
+ - Init new DQL query
+ - Parse DQL query
+ - Build database specific SQL query
+ - Execute the SQL query
+ - Build the result set
+ - Return the result set
 
 Now these phases can be very time consuming, especially phase 4 which
 sends the query to your database server. When Doctrine query cache is
 being used only the following phases occur:
 
-Init new DQL query
-``````````````````
-
-Execute the SQL query (grabbed from the cache)
-``````````````````````````````````````````````
-
-Build the result set
-````````````````````
-
-Return the result set
-`````````````````````
+ - Init new DQL query
+ - Execute the SQL query (grabbed from the cache)
+ - Build the result set
+ - Return the result set
 
 If a DQL query has a valid cache entry the cached SQL query is used,
 otherwise the phases 2-3 are executed normally and the result of these
@@ -163,11 +166,8 @@ and always use placeholders instead.
 When using a result cache things get even better. Then your query
 process looks as follows (assuming a valid cache entry is found):
 
-Init new DQL query
-``````````````````
-
-Return the result set
-`````````````````````
+ - Init new DQL query
+ - Return the result set
 
 As you can see, the result cache implies the query cache shown
 previously. You should always consider using a result cache if the data
@@ -182,7 +182,7 @@ Using the Query Cache
 ^^^^^^^^^^^^^^^^^^^^^
 
 You can set a connection or manager level query cache driver by using
-the ``Doctrine\_Core::ATTR\_QUERY_CACHE`` attribute. Setting a
+the ``Doctrine_Core::ATTR_QUERY_CACHE`` attribute. Setting a
 connection level cache driver means that all queries executed with this
 connection use the specified cache driver whereas setting a manager
 level cache driver means that all connections (unless overridden at
@@ -190,10 +190,12 @@ connection level) will use the given cache driver.
 
 **Setting a manager level query cache driver:**
 
- // bootstrap.php
+::
 
-// ... $manager->setAttribute(Doctrine\_Core::ATTR\_QUERY\_CACHE,
-$cacheDriver);
+    // bootstrap.php
+
+    // ...
+    $manager->setAttribute( Doctrine_Core::ATTR_QUERY_CACHE, $cacheDriver );
 
 .. note::
 
@@ -202,10 +204,12 @@ $cacheDriver);
 
 **Setting a connection level cache driver:**
 
- // bootstrap.php
+::
 
-// ... $conn->setAttribute(Doctrine\_Core::ATTR\_QUERY\_CACHE,
-$cacheDriver);
+    // bootstrap.php
+
+    // ...
+    $conn->setAttribute( Doctrine_Core::ATTR_QUERY_CACHE, $cacheDriver );
 
 ^^^^^^^^^^^
 Fine Tuning
@@ -217,8 +221,10 @@ cache driver by calling ``useQueryCache()`` and pass it an instance of a
 valid Doctrine cache driver. This rarely makes sense for the query cache
 but is possible:
 
- $q = Doctrine\_Query::create() ->useQueryCache(new
-Doctrine\_Cache\_Apc());
+::
+
+    $q = Doctrine_Query::create()
+        ->useQueryCache(new Doctrine_Cache_Apc() );
 
 ------------
 Result Cache
@@ -229,7 +235,7 @@ Using the Result Cache
 ^^^^^^^^^^^^^^^^^^^^^^
 
 You can set a connection or manager level result cache driver by using
-``Doctrine\_Core::ATTR\_RESULT_CACHE``. Setting a connection level
+``Doctrine_Core::ATTR_RESULT_CACHE``. Setting a connection level
 cache driver means that all queries executed with this connection use
 the specified cache driver whereas setting a manager level cache driver
 means that all connections (unless overridden at connection level) will
@@ -237,41 +243,51 @@ use the given cache driver.
 
 **Setting a manager level cache driver:**
 
- // bootstrap.php
+::
 
-// ... $manager->setAttribute(Doctrine\_Core::ATTR\_RESULT\_CACHE,
-$cacheDriver);
+    // bootstrap.php
+
+    // ...
+    $manager->setAttribute( Doctrine_Core::ATTR_RESULT_CACHE, $cacheDriver );
 
 **Setting a connection level cache driver:**
 
- // bootstrap.php
+::
 
-// ... $conn->setAttribute(Doctrine\_Core::ATTR\_RESULT\_CACHE,
-$cacheDriver);
+    // bootstrap.php
+
+    // ...
+    $conn->setAttribute( Doctrine_Core::ATTR_RESULT_CACHE, $cacheDriver );
 
 Usually the cache entries are valid for only some time. You can set
 global value for how long the cache entries should be considered valid
-by using ``Doctrine\_Core::ATTR\_RESULT\_CACHE_LIFESPAN``.
+by using ``Doctrine_Core::ATTR_RESULT_CACHE_LIFESPAN``.
 
-**Set the lifespan as one hour (60 seconds \* 60 minutes = 1 hour = 3600
+**Set the lifespan as one hour (60 seconds * 60 minutes = 1 hour = 3600
 secs):**
 
- // bootstrap.php
+::
 
-// ...
-$manager->setAttribute(Doctrine\_Core::ATTR\_RESULT\_CACHE\_LIFESPAN,
-3600);
+    // bootstrap.php
+
+    // ...
+    $manager->setAttribute( Doctrine_Core::ATTR_RESULT_CACHE_LIFESPAN, 3600 );
 
 Now as we have set a cache driver for use we can make a DQL query use it
 by calling the ``useResultCache()`` method:
 
 **Fetch blog post titles and the number of comments:**
 
- $q = Doctrine\_Query::create() ->select('b.title, COUNT(c.id) count')
-->from('BlogPost b') ->leftJoin('b.Comments c') ->limit(10)
-->useResultCache(true);
+::
 
-$blogPosts = $q->execute();
+    $q = Doctrine_Query::create()
+        ->select( 'b.title, COUNT(c.id) count' )
+        ->from( 'BlogPost b' )
+        ->leftJoin( 'b.Comments c' )
+        ->limit( 10 )
+        ->useResultCache( true );
+
+    $blogPosts = $q->execute();
 
 ^^^^^^^^^^^
 Fine Tuning
@@ -282,13 +298,18 @@ attributes can be overriden at the query level. You can override the
 cache driver by calling ``useCache()`` and pass it an instance of a
 valid Doctrine cache driver.
 
- $q = Doctrine\_Query::create() ->useResultCache(new
-Doctrine\_Cache\_Apc());
+::
+
+    $q = Doctrine_Query::create()
+        ->useResultCache(new Doctrine_Cache_Apc() );
 
 Also you can override the lifespan attribute by calling
 ``setResultCacheLifeSpan()``:
 
- $q = Doctrine\_Query::create() ->setResultCacheLifeSpan(60 \* 30);
+::
+
+    $q = Doctrine_Query::create()
+        ->setResultCacheLifeSpan( 60 * 30 );
 
 ==========
 Conclusion
@@ -299,7 +320,7 @@ development and production environments. There are no adverse affects to
 using it and it will only help the performance of your application.
 
 The caching feature is the second to last feature we will discuss in
-this book before wrapping things up by discussing things like the [doc
-technology technologies used in Doctrine], [doc coding-standards coding
-standards] and [doc unit-testing unit testing]. Lets move on to discuss
-the last feature of Doctrine, [doc migrations :name].
+this book before wrapping things up by discussing things like
+the :doc:`technology`, :doc:`coding-standards`
+and :doc:`unit-testing`. Lets move on to discuss
+the last feature of Doctrine, :doc:`migrations`.
