@@ -817,4 +817,4 @@ Event listeners are a great feature in Doctrine and combined with :doc:`behavior
 minimal amount of code.
 
 Now we are ready to move on to discuss the best feature in Doctrine for
-improving performance, `doc:`caching`.
+improving performance, :doc:`caching`.
