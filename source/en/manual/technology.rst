@@ -95,26 +95,26 @@ Design Patterns Used
 
 ``GoF (Gang of Four)`` design patterns used:
 
--  `Singleton <http://www.dofactory.com/Patterns/PatternSingleton.aspx>`, for forcing only one instance of :php:class:`Doctrine_Manager`
--  `Composite <http://www.dofactory.com/Patterns/PatternComposite.aspx>`, for leveled configuration
--  `Factory <http://www.dofactory.com/Patterns/PatternFactory.aspx>`, for connection driver loading and many other things
--  `Observer <http://www.dofactory.com/Patterns/PatternObserver.aspx>`, for event listening
--  `Flyweight <http://www.dofactory.com/Patterns/PatternFlyweight.aspx>`, for efficient usage of validators
--  `Iterator <http://www.dofactory.com/Patterns/PatternFlyweight.aspx>`, for iterating through components (Tables, Connections, Records etc.)
--  `State <http://www.dofactory.com/Patterns/PatternState.aspx>`, for state-wise connections
--  `Strategy <http://www.dofactory.com/Patterns/PatternStrategy.aspx>`, for algorithm strategies
+-  `Singleton <http://www.dofactory.com/Patterns/PatternSingleton.aspx>`_, for forcing only one instance of :php:class:`Doctrine_Manager`
+-  `Composite <http://www.dofactory.com/Patterns/PatternComposite.aspx>`_, for leveled configuration
+-  `Factory <http://www.dofactory.com/Patterns/PatternFactory.aspx>`_, for connection driver loading and many other things
+-  `Observer <http://www.dofactory.com/Patterns/PatternObserver.aspx>`_, for event listening
+-  `Flyweight <http://www.dofactory.com/Patterns/PatternFlyweight.aspx>`_, for efficient usage of validators
+-  `Iterator <http://www.dofactory.com/Patterns/PatternFlyweight.aspx>`_, for iterating through components (Tables, Connections, Records etc.)
+-  `State <http://www.dofactory.com/Patterns/PatternState.aspx>`_, for state-wise connections
+-  `Strategy <http://www.dofactory.com/Patterns/PatternStrategy.aspx>`_, for algorithm strategies
 
 Enterprise application design patterns used:
 
--  `Active Record <http://www.martinfowler.com/eaaCatalog/activeRecord.html>`, Doctrine is an implementation of this pattern
--  `UnitOfWork <http://www.martinfowler.com/eaaCatalog/unitOfWork.html>`, for maintaining a list of objects affected in a transaction
--  `Identity Field <http://www.martinfowler.com/eaaCatalog/identityField.html>`, for maintaining the identity between record and database row
--  `Metadata Mapping <http://www.martinfowler.com/eaaCatalog/metadataMapping.html>`, for Doctrine DataDict
--  `Dependent Mapping <http://www.martinfowler.com/eaaCatalog/dependentMapping.html>`, for mapping in general, since all records extend :php:class:`Doctrine_Record` which performs all mappings
--  `Foreign Key Mapping <http://www.martinfowler.com/eaaCatalog/foreignKeyMapping.html>`, for one-to-one, one-to-many and many-to-one relationships
--  `Association Table Mapping <http://www.martinfowler.com/eaaCatalog/associationTableMapping.html>`, for association table mapping (most commonly many-to-many relationships)
--  `Lazy Load <http://www.martinfowler.com/eaaCatalog/lazyLoad.html>`, for lazy loading of objects and object properties
--  `Query Object <http://www.martinfowler.com/eaaCatalog/queryObject.html>`, DQL API is actually an extension to the basic idea of Query Object pattern
+-  `Active Record <http://www.martinfowler.com/eaaCatalog/activeRecord.html>`_, Doctrine is an implementation of this pattern
+-  `UnitOfWork <http://www.martinfowler.com/eaaCatalog/unitOfWork.html>`_, for maintaining a list of objects affected in a transaction
+-  `Identity Field <http://www.martinfowler.com/eaaCatalog/identityField.html>`_, for maintaining the identity between record and database row
+-  `Metadata Mapping <http://www.martinfowler.com/eaaCatalog/metadataMapping.html>`_, for Doctrine DataDict
+-  `Dependent Mapping <http://www.martinfowler.com/eaaCatalog/dependentMapping.html>`_, for mapping in general, since all records extend :php:class:`Doctrine_Record` which performs all mappings
+-  `Foreign Key Mapping <http://www.martinfowler.com/eaaCatalog/foreignKeyMapping.html>`_, for one-to-one, one-to-many and many-to-one relationships
+-  `Association Table Mapping <http://www.martinfowler.com/eaaCatalog/associationTableMapping.html>`_, for association table mapping (most commonly many-to-many relationships)
+-  `Lazy Load <http://www.martinfowler.com/eaaCatalog/lazyLoad.html>`_, for lazy loading of objects and object properties
+-  `Query Object <http://www.martinfowler.com/eaaCatalog/queryObject.html>`_, DQL API is actually an extension to the basic idea of Query Object pattern
 
 =====
 Speed
