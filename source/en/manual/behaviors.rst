@@ -548,6 +548,8 @@ models with YAML.
 In the next several examples we will demonstrate some of the behaviors
 that come bundled with Doctrine.
 
+.. _behaviors-core-behaviors-versionable:
+
 -----------
 Versionable
 -----------
@@ -705,6 +707,8 @@ The above example would produce the following output:
     and the ``title`` is back to the original value was set it to when
     creating the ``BlogPost``.
 
+.. _behaviors-core-behaviors-timestampable:
+
 -------------
 Timestampable
 -------------
@@ -818,6 +822,8 @@ Name          Default   Description
 ``onInsert``  ``true``  Whether or not to set the updated date when the record is first inserted.
 ============  ========  =========================================================================
 
+.. _behaviors-core-behaviors-sluggable:
+
 ---------
 Sluggable
 ---------
@@ -928,6 +934,8 @@ Name             Default                                    Description
 ``builder``      ``array('Doctrine_Inflector', 'urlize')``  The ``Class::method()`` used to build the slug.
 ``indexName``    ``sluggable``                              The name of the index to create.
 ===============  =========================================  ===============================================
+
+.. _behaviors-core-behaviors-i18n:
 
 ----
 I18n
@@ -1090,6 +1098,8 @@ The above example would produce the following output:
     $ php test.php
     joku otsikko
 
+.. _behaviors-core-behaviors-nestedset:
+
 ---------
 NestedSet
 ---------
@@ -1169,6 +1179,8 @@ The above code would output the following SQL query:
 
 We won't discuss the ``NestedSet`` behavior in 100% detail here. It is a
 very large behavior so it has its own :doc:`hierarchical-data`.
+
+.. _behaviors-core-behaviors-searchable:
 
 ----------
 Searchable
@@ -1251,8 +1263,10 @@ The above code would output the following SQL query:
     was automatically created.
 
 Because the ``Searchable`` behavior is such a large topic, we have more
-information on this that can be found in the `doc:`searching`
+information on this that can be found in the :doc:`searching`
 chapter.
+
+.. _behaviors-core-behaviors-geographical:
 
 ------------
 Geographical
@@ -1456,6 +1470,8 @@ Download and import the csv file with the following function:
         $zipcode->fromArray($value);
         $zipcode->save();
     }
+
+.. _behaviors-core-behaviors-softdelete:
 
 ----------
 SoftDelete
@@ -1769,5 +1785,5 @@ to write our own for our models as well as how to use all the great
 behaviors that come bundled with Doctrine.
 
 Now we are ready to move on to discuss the :doc:`searching`
-behavior in more detail in the `doc:`searching` chapter. As it is a
+behavior in more detail in the :doc:`searching` chapter. As it is a
 large topic we have devoted an entire chapter to it.

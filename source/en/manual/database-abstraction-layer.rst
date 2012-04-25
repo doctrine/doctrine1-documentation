@@ -18,6 +18,8 @@ old pieces to use the ORM.
 The DBAL is composed of a few different modules. In this chapter we will
 discuss the different modules and what their jobs are.
 
+.. _database-abstraction-layer-export:
+
 ======
 Export
 ======
@@ -502,6 +504,8 @@ We can drop the database with the following code:
     // ...
     $conn->export->dropDatabase('events_db');
 
+.. _database-abstraction-layer-import:
+
 ======
 Import
 ======
@@ -623,6 +627,8 @@ Now we can list the views we just created:
 
     $views = $conn->import->listViews();
     print_r($views);
+
+.. _database-abstraction-layer-datadict:
 
 ========
 DataDict

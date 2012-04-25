@@ -15,6 +15,8 @@ lot of benefits like portability and ease of development it's inevitable that
 this leads to drawbacks in terms of performance.  This chapter tries to help
 you to get the best performance out of Doctrine.
 
+.. _improving-performance-compile:
+
 =======
 Compile
 =======
@@ -328,7 +330,7 @@ Other Tips
 
     ::
 
-        $role       = new Role();
+        $role = new Role();
         $role->name = 'New Role Name';
 
         $user->Roles[] = $newRole;

@@ -888,6 +888,8 @@ Field              Type
 ``someblob``       ``longblob``
 =================  ===============
 
+.. _defining-models-relationships:
+
 =============
 Relationships
 =============
