@@ -10,6 +10,8 @@ discussed most of the components in the previous chapters but after this
 chapter you will have a better idea of all the components and what their
 jobs are.
 
+.. _component-overview-manager:
+
 =======
 Manager
 =======
@@ -44,6 +46,7 @@ over the $manager variable to loop over the connections.
         echo $connection->getName() . "";
     }
 
+.. _component-overview-connection:
 
 ==========
 Connection
@@ -125,6 +128,8 @@ instances for that connection. You could of course optionally call
 
     $user1->save();
     $user2->save();
+
+.. _component-overview-table:
 
 =====
 Table
@@ -447,6 +452,8 @@ Now when we ask for the ``User`` table object we will get the following::
     read about them in the [doc
     dql-doctrine-query-language:magic-finders :name] section of the DQL
     chapter.
+
+.. _component-overview-record:
 
 ======
 Record
@@ -808,6 +815,8 @@ collection calling delete one each one::
 
     $users->delete();
 
+.. _component-overview-using-expression-values:
+
 -----------------------
 Using Expression Values
 -----------------------
@@ -1006,6 +1015,8 @@ column values. For example if you want to trim certain column, you can
 simply use::
 
     $record->call('trim', 'username');
+
+.. _component-overview-collection:
 
 ==========
 Collection
@@ -1609,6 +1620,8 @@ created when you try to instantiate an instance of the manager and the
 ``ATTR_CREATE_TABLES`` is set to TRUE. This behavior may change in the
 future to provide a centralized and consistent table creation procedure
 for installation purposes.
+
+.. _component-overview-views:
 
 =====
 Views
