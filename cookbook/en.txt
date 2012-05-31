@@ -1,7 +1,0 @@
-+ My First Project
-+ Code Igniter and Doctrine
-+ Plug and Play Schema Information With Templates
-+ Taking Advantage of Column Aggregation Inheritance
-+ Master and Slave Connections
-+ Creating a Unit of Work Using Doctrine
-+ Record Based Retrieval Security Template
