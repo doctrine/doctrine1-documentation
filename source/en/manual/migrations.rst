@@ -585,7 +585,7 @@ Automate Method Name  Automates
 **constraint()**      **createConstraint()/dropConstraint()**
 **foreignKey()**      **createForeignKey()/dropForeignKey()**
 **column()**          **addColumn()/removeColumn()**
-**index()**           **addInex()/removeIndex()**
+**index()**           **addIndex()/removeIndex()**
 ====================  =======================================
 
 ----------------------
