@@ -32,7 +32,7 @@ $conn);
 
  .. tip::
 
-   
+
     ``migrate()``メソッドのバージョン番号の引数を省略するとDoctrineは内部でディレクトリで見つかるクラスの最新バージョン番号にマイグレートしようとします。
 
     **NOTE** **マイグレーションのトランザクション**
@@ -113,7 +113,7 @@ up() { $this->changeColumn('migration\_test', 'field2', 'integer'); }
     public function down()
     {
         $this->changeColumn('migration_test', 'field2', 'string');
-    }  
+    }
 
 }
 
@@ -368,7 +368,7 @@ createTable()/dropTable() \|\| \|\| ``constraint()`` \|\|
 createConstraint()/dropConstraint() \|\| \|\| ``foreignKey()`` \|\|
 createForeignKey()/dropForeignKey() \|\| \|\| ``column()`` \|\|
 addColumn()/removeColumn() \|\| \|\| ``index()`` \|\|
-addInex()/removeIndex() \|\|
+addIndex()/removeIndex() \|\|
 
 --------------------------
 マイグレーションを生成する
